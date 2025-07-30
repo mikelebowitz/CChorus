@@ -82,19 +82,21 @@ export class ApiFileSystemService {
       
       console.log(`Loaded ${userAgents.length} user agents and ${projectAgents.length} project agents`);
       
-      // Project agents take precedence over user agents with the same name
+      // Combine all agents without overriding - use unique key of name + level
       const agentMap = new Map<string, SubAgent>();
       
-      // Add user agents first
+      // Add user agents
       userAgents.forEach(agent => {
-        console.log(`Adding user agent: ${agent.name}`);
-        agentMap.set(agent.name, agent);
+        const key = `${agent.name}-${agent.level}`;
+        console.log(`Adding user agent: ${agent.name} with key: ${key}`);
+        agentMap.set(key, agent);
       });
       
-      // Add project agents (overriding user agents with same name)
+      // Add project agents (no longer overriding, just adding with different key)
       projectAgents.forEach(agent => {
-        console.log(`Adding project agent: ${agent.name}`);
-        agentMap.set(agent.name, agent);
+        const key = `${agent.name}-${agent.level}`;
+        console.log(`Adding project agent: ${agent.name} with key: ${key}`);
+        agentMap.set(key, agent);
       });
       
       const finalAgents = Array.from(agentMap.values());
