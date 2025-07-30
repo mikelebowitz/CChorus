@@ -215,21 +215,25 @@ app.post('/api/files/read', async (req, res) => {
 app.post('/api/files/browse', async (req, res) => {
   try {
     const { dirPath } = req.body;
-    const targetPath = dirPath || process.cwd();
+    const targetPath = dirPath || os.homedir(); // Start from home directory
     
-    // Security check: only allow browsing within project directory
+    // Resolve the full path
     const fullPath = path.resolve(targetPath);
-    const cwd = process.cwd();
     
-    if (!fullPath.startsWith(cwd)) {
-      return res.status(403).json({ error: 'Access denied' });
+    // Basic security: prevent going above root and accessing system directories
+    const userHome = os.homedir();
+    const isInUserArea = fullPath.startsWith(userHome) || fullPath.startsWith('/Users/') || fullPath.startsWith('/home/');
+    const isSafeSystemPath = ['/Applications', '/System/Applications'].some(p => fullPath.startsWith(p));
+    
+    if (!isInUserArea && !isSafeSystemPath && fullPath !== '/' && !fullPath.startsWith('/Volumes')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
     }
     
     const entries = await fs.readdir(fullPath, { withFileTypes: true });
     const items = [];
     
     // Add parent directory option if not at root
-    if (fullPath !== cwd) {
+    if (fullPath !== '/' && path.dirname(fullPath) !== fullPath) {
       items.push({
         name: '..',
         type: 'directory',
@@ -239,6 +243,7 @@ app.post('/api/files/browse', async (req, res) => {
     
     // Add directories first, then files
     const directories = entries.filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map(entry => ({
         name: entry.name,
         type: 'directory',
@@ -246,18 +251,19 @@ app.post('/api/files/browse', async (req, res) => {
       }));
     
     const files = entries.filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map(entry => ({
         name: entry.name,
         type: 'file',
         path: path.join(fullPath, entry.name),
-        relativePath: path.relative(cwd, path.join(fullPath, entry.name))
+        relativePath: path.relative(process.cwd(), path.join(fullPath, entry.name))
       }));
     
     items.push(...directories, ...files);
     
     res.json({
       currentPath: fullPath,
-      relativePath: path.relative(cwd, fullPath) || '.',
+      relativePath: fullPath.replace(userHome, '~'),
       items
     });
   } catch (error) {
@@ -284,19 +290,40 @@ app.get('/api/mcp-servers', async (req, res) => {
           .map(permission => {
             // Parse MCP server name from permission string
             // Format: mcp__mcphub__sequential-thinking-sequentialthinking
+            // or: mcp__mcphub__context7-resolve-library-id
             const parts = permission.split('__');
             if (parts.length >= 3) {
-              const serverName = parts[2].split('-')[0]; // Get the main name part
+              const fullToolName = parts[2]; // e.g., "sequential-thinking-sequentialthinking" or "context7-resolve-library-id"
+              const serverName = parts[1]; // e.g., "mcphub"
+              
+              // Extract the actual tool name
+              let toolName = fullToolName;
+              if (fullToolName.includes('-')) {
+                // For tools like "context7-resolve-library-id", extract "context7-resolve-library-id"
+                // For tools like "sequential-thinking-sequentialthinking", extract "sequential-thinking"
+                const toolParts = fullToolName.split('-');
+                if (toolParts.length >= 2) {
+                  // If it looks like a repeated pattern, take the first part
+                  if (toolParts[0] === toolParts[toolParts.length - 1]) {
+                    toolName = toolParts.slice(0, -1).join('-');
+                  } else {
+                    toolName = fullToolName;
+                  }
+                }
+              }
+              
               return {
                 id: permission,
-                name: serverName,
-                displayName: serverName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                name: toolName,
+                displayName: toolName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                server: serverName
               };
             }
             return {
               id: permission,
               name: permission.replace('mcp__', ''),
-              displayName: permission.replace('mcp__', '').replace(/[-_]/g, ' ')
+              displayName: permission.replace('mcp__', '').replace(/[-_]/g, ' '),
+              server: 'unknown'
             };
           });
       }
@@ -321,7 +348,16 @@ app.get('/api/mcp-servers', async (req, res) => {
   }
 });
 
-// API-only server - frontend is served by Vite dev server
+// Handle any other routes
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

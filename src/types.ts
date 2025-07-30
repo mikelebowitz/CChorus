@@ -19,6 +19,7 @@ export interface MCPServer {
   id: string;
   name: string;
   displayName: string;
+  server: string;
 }
 
 export interface ToolsData {

@@ -253,8 +253,10 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                                 className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                               />
                               <div className="flex flex-col">
-                                <span className="font-mono text-xs text-gray-600">{server.name}</span>
-                                <span className="text-sm">{server.displayName}</span>
+                                <span className="text-sm font-medium">{server.displayName}</span>
+                                <span className="font-mono text-xs text-gray-500">
+                                  {server.server} → {server.name}
+                                </span>
                               </div>
                             </label>
                           ))}
