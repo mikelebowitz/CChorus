@@ -1,16 +1,16 @@
 # Next Session Brief
 
-**Generated**: 2025-07-30 17:14
+**Generated**: 2025-07-30 18:03
 
 ## Quick Context
 
-**Branch**: first-pass
+**Branch**: main
 **Last Activity**: July 30, 2025
 
 ## Resume Command
 
 ```bash
-cd /Users/mikelebowitz/Documents/Code/Claude Code Agent Editor/worktrees/first-pass
+cd /Users/mikelebowitz/Documents/Code/CChorus
 npm run dev  # If development server was running
 ```
 
@@ -21,10 +21,7 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
- M .DS_Store
- M node_modules/.vite/deps/_metadata.json
- M src/components/AgentTabbedEditor.tsx
-?? docs/sessions/SESSION_2025-07-30_17-14.md
+?? docs/sessions/SESSION_2025-07-30_18-03.md
 
 ```
 
