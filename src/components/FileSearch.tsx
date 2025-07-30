@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Search, File, X, Plus } from 'lucide-react';
-import { BrowserFileSystemService } from '../utils/browserFileSystem';
+import { ApiFileSystemService } from '../utils/apiFileSystem';
 
 interface FileSearchProps {
   onSelectFile: (filePath: string) => void;
   onCancel: () => void;
 }
 
-const fileSystem = new BrowserFileSystemService();
+const fileSystem = new ApiFileSystemService();
 
 export const FileSearch: React.FC<FileSearchProps> = ({ onSelectFile, onCancel }) => {
   const [searchQuery, setSearchQuery] = useState('');
