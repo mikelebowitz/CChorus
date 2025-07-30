@@ -2,17 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { SubAgent } from './types';
 import { AgentCard } from './components/AgentCard';
 import { AgentEditor } from './components/AgentEditor';
-import { FileSystemService } from './utils/fileSystem';
-import { Plus, Bot, RefreshCw, Search } from 'lucide-react';
+import { FileSearch } from './components/FileSearch';
+import { BrowserFileSystemService } from './utils/browserFileSystem';
+import { parseAgentFile } from './utils/agentUtils';
+import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText } from 'lucide-react';
 
-const fileSystem = new FileSystemService();
+const fileSystem = new BrowserFileSystemService();
 
 function App() {
   const [agents, setAgents] = useState<SubAgent[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAgent, setEditingAgent] = useState<SubAgent | undefined>(undefined);
   const [showEditor, setShowEditor] = useState(false);
+  const [showFileSearch, setShowFileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'all' | 'user' | 'project'>('all');
 
   useEffect(() => {
     loadAgents();
@@ -69,8 +73,11 @@ function App() {
       return;
     }
     
+    const agent = agents.find(a => a.name === name);
+    if (!agent) return;
+    
     try {
-      await fileSystem.deleteAgent(name);
+      await fileSystem.deleteAgent(name, agent.level || 'project');
       setAgents(prev => prev.filter(a => a.name !== name));
     } catch (error) {
       console.error('Failed to delete agent:', error);
@@ -83,10 +90,32 @@ function App() {
     setEditingAgent(undefined);
   };
 
-  const filteredAgents = agents.filter(agent =>
-    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleImportFromFile = async (filePath: string) => {
+    try {
+      // Read and parse the file as an agent
+      const content = await fileSystem.readAgentFile(filePath);
+      const agent = parseAgentFile(content);
+      agent.filePath = filePath;
+      agent.level = 'project'; // Files found in project are project-level
+      
+      // Open the editor with the imported agent
+      setEditingAgent(agent);
+      setShowEditor(true);
+      setShowFileSearch(false);
+    } catch (error) {
+      console.error('Failed to import agent from file:', error);
+      alert('Failed to import agent from file. Please check the file format.');
+    }
+  };
+
+  const filteredAgents = agents.filter(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesView = viewMode === 'all' || agent.level === viewMode;
+    
+    return matchesSearch && matchesView;
+  });
 
   if (loading) {
     return (
@@ -112,6 +141,42 @@ function App() {
             </div>
             
             <div className="flex items-center gap-4">
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('all')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+                    viewMode === 'all' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Filter size={14} />
+                  All
+                </button>
+                <button
+                  onClick={() => setViewMode('user')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+                    viewMode === 'user' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <User size={14} />
+                  User
+                </button>
+                <button
+                  onClick={() => setViewMode('project')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+                    viewMode === 'project' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Folder size={14} />
+                  Project
+                </button>
+              </div>
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 <input
@@ -123,13 +188,23 @@ function App() {
                 />
               </div>
               
-              <button
-                onClick={handleCreateAgent}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <Plus size={16} />
-                New Agent
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCreateAgent}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <Plus size={16} />
+                  New Agent
+                </button>
+                
+                <button
+                  onClick={() => setShowFileSearch(true)}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  <FileText size={16} />
+                  Import from File
+                </button>
+              </div>
               
               <button
                 onClick={loadAgents}
@@ -193,6 +268,13 @@ function App() {
           agent={editingAgent}
           onSave={handleSaveAgent}
           onCancel={handleCancelEdit}
+        />
+      )}
+
+      {showFileSearch && (
+        <FileSearch
+          onSelectFile={handleImportFromFile}
+          onCancel={() => setShowFileSearch(false)}
         />
       )}
     </div>

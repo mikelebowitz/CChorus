@@ -24,7 +24,18 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent, onEdit, onDelete })
             className="text-gray-600"
             style={{ color: agent.color }}
           />
-          <h3 className="font-semibold text-lg text-gray-900">{agent.name}</h3>
+          <div>
+            <h3 className="font-semibold text-lg text-gray-900">{agent.name}</h3>
+            {agent.level && (
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                agent.level === 'user' 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {agent.level}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex gap-1">
           <button

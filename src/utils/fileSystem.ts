@@ -1,22 +1,77 @@
 import { SubAgent } from '../types';
 import { parseAgentFile, serializeAgentFile, getAgentFilename } from './agentUtils';
 
-const AGENTS_DIR = '.claude/agents';
+const PROJECT_AGENTS_DIR = '.claude/agents';
+const USER_AGENTS_DIR = '~/.claude/agents';
 
 export class FileSystemService {
-  async loadAgents(): Promise<SubAgent[]> {
+  private async scanDirectory(dirPath: string, level: 'user' | 'project'): Promise<SubAgent[]> {
+    const agents: SubAgent[] = [];
+    
     try {
-      const agents: SubAgent[] = [];
+      // Use the task system to scan for agent files
+      const response = await fetch('/api/scan-agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: dirPath, level })
+      });
       
-      // In a real implementation, you would scan the file system
-      // For this demo, we'll return some mock data
-      const mockAgents = [
-        {
-          name: 'code-reviewer',
-          description: 'Expert code review specialist for quality analysis and security audits',
-          tools: ['Read', 'Grep', 'Glob', 'Bash'],
-          color: '#3B82F6',
-          prompt: `You are a senior software engineer specializing in code review and quality assurance.
+      if (!response.ok) {
+        throw new Error(`Failed to scan directory: ${response.statusText}`);
+      }
+      
+      const files = await response.json();
+      
+      for (const file of files) {
+        try {
+          const content = await this.readFile(file.path);
+          const agent = parseAgentFile(content);
+          agent.filePath = file.path;
+          agent.level = level;
+          agents.push(agent);
+        } catch (error) {
+          console.warn(`Failed to parse agent file ${file.path}:`, error);
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to scan ${level} agents directory:`, error);
+      
+      // Fallback to mock data for demo
+      if (level === 'user') {
+        return this.getMockUserAgents();
+      } else {
+        return this.getMockProjectAgents();
+      }
+    }
+    
+    return agents;
+  }
+
+  private async readFile(filePath: string): Promise<string> {
+    // In a real implementation, this would read from the file system
+    // For now, we'll simulate with an API call
+    const response = await fetch('/api/read-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: filePath })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to read file: ${response.statusText}`);
+    }
+    
+    return await response.text();
+  }
+
+  private getMockUserAgents(): SubAgent[] {
+    return [
+      {
+        name: 'code-reviewer',
+        description: 'Expert code review specialist for quality analysis and security audits',
+        tools: ['Read', 'Grep', 'Glob', 'Bash'],
+        color: '#3B82F6',
+        level: 'user',
+        prompt: `You are a senior software engineer specializing in code review and quality assurance.
 
 When invoked:
 1. Analyze code for bugs, security vulnerabilities, and performance issues
@@ -33,14 +88,20 @@ Key focus areas:
 - Test coverage
 
 Always provide constructive, actionable feedback with examples.`,
-          filePath: `${AGENTS_DIR}/code-reviewer.md`
-        },
-        {
-          name: 'project-manager',
-          description: 'Handles task planning, documentation, and project organization',
-          tools: ['TodoWrite', 'Read', 'Write'],
-          color: '#10B981',
-          prompt: `You are a project management specialist focused on organizing and tracking development work.
+        filePath: `${USER_AGENTS_DIR}/code-reviewer.md`
+      }
+    ];
+  }
+
+  private getMockProjectAgents(): SubAgent[] {
+    return [
+      {
+        name: 'project-manager',
+        description: 'Handles task planning, documentation, and project organization',
+        tools: ['TodoWrite', 'Read', 'Write'],
+        color: '#10B981',
+        level: 'project',
+        prompt: `You are a project management specialist focused on organizing and tracking development work.
 
 Your responsibilities:
 1. Break down complex tasks into manageable steps
@@ -54,15 +115,35 @@ Best practices:
 - Maintain clear documentation of decisions and changes
 - Regular progress updates and status reports
 - Risk identification and mitigation planning`,
-          filePath: `${AGENTS_DIR}/project-manager.md`
-        }
-      ];
+        filePath: `${PROJECT_AGENTS_DIR}/project-manager.md`
+      }
+    ];
+  }
 
-      return mockAgents;
-    } catch (error) {
-      console.error('Failed to load agents:', error);
-      return [];
-    }
+  async loadUserAgents(): Promise<SubAgent[]> {
+    return await this.scanDirectory(USER_AGENTS_DIR, 'user');
+  }
+
+  async loadProjectAgents(): Promise<SubAgent[]> {
+    return await this.scanDirectory(PROJECT_AGENTS_DIR, 'project');
+  }
+
+  async loadAgents(): Promise<SubAgent[]> {
+    const [userAgents, projectAgents] = await Promise.all([
+      this.loadUserAgents(),
+      this.loadProjectAgents()
+    ]);
+    
+    // Project agents take precedence over user agents with the same name
+    const agentMap = new Map<string, SubAgent>();
+    
+    // Add user agents first
+    userAgents.forEach(agent => agentMap.set(agent.name, agent));
+    
+    // Add project agents (overriding user agents with same name)
+    projectAgents.forEach(agent => agentMap.set(agent.name, agent));
+    
+    return Array.from(agentMap.values());
   }
 
   async saveAgent(agent: SubAgent): Promise<void> {

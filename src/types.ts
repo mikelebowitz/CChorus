@@ -5,6 +5,7 @@ export interface SubAgent {
   color?: string;
   prompt: string;
   filePath?: string;
+  level?: 'user' | 'project';
 }
 
 export interface SubAgentConfig {

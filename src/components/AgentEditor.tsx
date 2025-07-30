@@ -15,7 +15,8 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
     description: '',
     tools: [],
     color: PRESET_COLORS[0],
-    prompt: ''
+    prompt: '',
+    level: 'project'
   });
   
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -128,6 +129,39 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                 {errors.description && (
                   <p className="mt-1 text-sm text-red-600">{errors.description}</p>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Level
+                </label>
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="level"
+                      value="user"
+                      checked={formData.level === 'user'}
+                      onChange={(e) => handleInputChange('level', e.target.value)}
+                      className="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm">User (~/.claude/agents/)</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="level"
+                      value="project"
+                      checked={formData.level === 'project'}
+                      onChange={(e) => handleInputChange('level', e.target.value)}
+                      className="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm">Project (.claude/agents/)</span>
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Project agents take precedence over user agents with the same name
+                </p>
               </div>
               
               <div>
