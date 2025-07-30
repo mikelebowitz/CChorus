@@ -21,7 +21,10 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
-?? docs/sessions/SESSION_2025-07-29_23-22.md
+ M .DS_Store
+ M docs/sessions/SESSION_2025-07-29_23-22.md
+ M src/App.tsx
+?? docs/.DS_Store
 
 ```
 
