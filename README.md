@@ -3,7 +3,7 @@
 <div align="center">
   <img src="public/cchorus-logo.png" alt="CChorus Logo" width="200"/>
   
-  **A Claude Code Subagent Management System**
+  **Helping Orchestrate Your Claude Code Subagents**
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
@@ -11,8 +11,6 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
   [![daisyUI](https://img.shields.io/badge/daisyUI-4.0-FF7849.svg)](https://daisyui.com/)
-
-  *Streamline your Claude Code agent workflows with an intuitive, powerful interface*
 </div>
 
 ## Features
