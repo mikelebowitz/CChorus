@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SubAgent } from './types';
 import { AgentCard } from './components/AgentCard';
 import { AgentEditor } from './components/AgentEditor';
-import { FileSearch } from './components/FileSearch';
+import { FileBrowser } from './components/FileBrowser';
 import { ApiFileSystemService } from './utils/apiFileSystem';
 import { parseAgentFile } from './utils/agentUtils';
 import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText } from 'lucide-react';
@@ -272,7 +272,7 @@ function App() {
       )}
 
       {showFileSearch && (
-        <FileSearch
+        <FileBrowser
           onSelectFile={handleImportFromFile}
           onCancel={() => setShowFileSearch(false)}
         />

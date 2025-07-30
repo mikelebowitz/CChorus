@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { SubAgent, AVAILABLE_TOOLS, PRESET_COLORS } from '../types';
+import { SubAgent, AVAILABLE_TOOLS, PRESET_COLORS, ToolsData } from '../types';
 import { validateAgentName } from '../utils/agentUtils';
-import { X, Save, Plus, Minus } from 'lucide-react';
+import { X, Save, Plus, Minus, Server } from 'lucide-react';
 
 interface AgentEditorProps {
   agent?: SubAgent;
@@ -21,6 +21,8 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
   
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
+  const [toolsData, setToolsData] = useState<ToolsData>({ defaultTools: AVAILABLE_TOOLS, mcpServers: [] });
+  const [loadingTools, setLoadingTools] = useState(true);
 
   useEffect(() => {
     if (agent) {
@@ -28,6 +30,24 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
       setSelectedTools(new Set(agent.tools || []));
     }
   }, [agent]);
+
+  useEffect(() => {
+    const loadToolsData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/mcp-servers');
+        if (response.ok) {
+          const data = await response.json();
+          setToolsData(data);
+        }
+      } catch (error) {
+        console.warn('Failed to load MCP servers:', error);
+      } finally {
+        setLoadingTools(false);
+      }
+    };
+
+    loadToolsData();
+  }, []);
 
   const handleInputChange = (field: keyof SubAgent, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -190,26 +210,70 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tools (leave empty for all tools)
               </label>
-              <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
-                <div className="grid grid-cols-2 gap-2">
-                  {AVAILABLE_TOOLS.map((tool) => (
-                    <label key={tool} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={selectedTools.has(tool)}
-                        onChange={() => handleToolToggle(tool)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="font-mono">{tool}</span>
-                    </label>
-                  ))}
+              {loadingTools ? (
+                <div className="border border-gray-300 rounded-md p-6 text-center">
+                  <div className="animate-spin mx-auto mb-2 w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                  <p className="text-sm text-gray-500">Loading available tools...</p>
                 </div>
-              </div>
+              ) : (
+                <div className="border border-gray-300 rounded-md p-3 max-h-64 overflow-y-auto">
+                  <div className="space-y-4">
+                    {/* Default Claude Code Tools */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-800 mb-2">Claude Code Tools</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {toolsData.defaultTools.map((tool) => (
+                          <label key={tool} className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={selectedTools.has(tool)}
+                              onChange={() => handleToolToggle(tool)}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="font-mono">{tool}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* MCP Servers */}
+                    {toolsData.mcpServers.length > 0 && (
+                      <div className="border-t pt-3">
+                        <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center gap-2">
+                          <Server size={14} />
+                          MCP Servers
+                        </h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {toolsData.mcpServers.map((server) => (
+                            <label key={server.id} className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={selectedTools.has(server.id)}
+                                onChange={() => handleToolToggle(server.id)}
+                                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-mono text-xs text-gray-600">{server.name}</span>
+                                <span className="text-sm">{server.displayName}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <p className="mt-1 text-xs text-gray-500">
                 {selectedTools.size === 0 
                   ? 'All tools will be available' 
                   : `${selectedTools.size} tools selected`
                 }
+                {toolsData.mcpServers.length > 0 && (
+                  <span className="block mt-1">
+                    {toolsData.mcpServers.length} MCP server{toolsData.mcpServers.length !== 1 ? 's' : ''} available
+                  </span>
+                )}
               </p>
             </div>
           </div>

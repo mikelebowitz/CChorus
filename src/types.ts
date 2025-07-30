@@ -15,6 +15,17 @@ export interface SubAgentConfig {
   color?: string;
 }
 
+export interface MCPServer {
+  id: string;
+  name: string;
+  displayName: string;
+}
+
+export interface ToolsData {
+  defaultTools: string[];
+  mcpServers: MCPServer[];
+}
+
 export const AVAILABLE_TOOLS = [
   'Task',
   'Bash',

@@ -12,7 +12,6 @@ const PORT = 3001;
 
 // Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'dist')));
 
 // Enable CORS for development - allow all localhost origins
 app.use((req, res, next) => {
@@ -212,10 +211,117 @@ app.post('/api/files/read', async (req, res) => {
   }
 });
 
-// Serve the React app for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// Browse directories and files
+app.post('/api/files/browse', async (req, res) => {
+  try {
+    const { dirPath } = req.body;
+    const targetPath = dirPath || process.cwd();
+    
+    // Security check: only allow browsing within project directory
+    const fullPath = path.resolve(targetPath);
+    const cwd = process.cwd();
+    
+    if (!fullPath.startsWith(cwd)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const entries = await fs.readdir(fullPath, { withFileTypes: true });
+    const items = [];
+    
+    // Add parent directory option if not at root
+    if (fullPath !== cwd) {
+      items.push({
+        name: '..',
+        type: 'directory',
+        path: path.dirname(fullPath)
+      });
+    }
+    
+    // Add directories first, then files
+    const directories = entries.filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+      .map(entry => ({
+        name: entry.name,
+        type: 'directory',
+        path: path.join(fullPath, entry.name)
+      }));
+    
+    const files = entries.filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+      .map(entry => ({
+        name: entry.name,
+        type: 'file',
+        path: path.join(fullPath, entry.name),
+        relativePath: path.relative(cwd, path.join(fullPath, entry.name))
+      }));
+    
+    items.push(...directories, ...files);
+    
+    res.json({
+      currentPath: fullPath,
+      relativePath: path.relative(cwd, fullPath) || '.',
+      items
+    });
+  } catch (error) {
+    console.error('Failed to browse directory:', error);
+    res.status(500).json({ error: 'Failed to browse directory' });
+  }
 });
+
+// Get available MCP servers from Claude config
+app.get('/api/mcp-servers', async (req, res) => {
+  try {
+    const claudeSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+    
+    let mcpServers = [];
+    
+    try {
+      const settingsContent = await fs.readFile(claudeSettingsPath, 'utf-8');
+      const settings = JSON.parse(settingsContent);
+      
+      // Extract MCP servers from permissions
+      if (settings.permissions && settings.permissions.allow) {
+        mcpServers = settings.permissions.allow
+          .filter(permission => permission.startsWith('mcp__'))
+          .map(permission => {
+            // Parse MCP server name from permission string
+            // Format: mcp__mcphub__sequential-thinking-sequentialthinking
+            const parts = permission.split('__');
+            if (parts.length >= 3) {
+              const serverName = parts[2].split('-')[0]; // Get the main name part
+              return {
+                id: permission,
+                name: serverName,
+                displayName: serverName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+              };
+            }
+            return {
+              id: permission,
+              name: permission.replace('mcp__', ''),
+              displayName: permission.replace('mcp__', '').replace(/[-_]/g, ' ')
+            };
+          });
+      }
+    } catch (error) {
+      console.warn('Could not read Claude settings:', error.message);
+    }
+    
+    // Add default Claude Code tools
+    const defaultTools = [
+      'Task', 'Bash', 'Glob', 'Grep', 'LS', 'ExitPlanMode',
+      'Read', 'Edit', 'MultiEdit', 'Write', 'NotebookRead', 
+      'NotebookEdit', 'WebFetch', 'TodoWrite', 'WebSearch'
+    ];
+    
+    res.json({
+      mcpServers,
+      defaultTools
+    });
+  } catch (error) {
+    console.error('Failed to get MCP servers:', error);
+    res.status(500).json({ error: 'Failed to get MCP servers' });
+  }
+});
+
+// API-only server - frontend is served by Vite dev server
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
