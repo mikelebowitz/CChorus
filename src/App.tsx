@@ -45,15 +45,18 @@ function App() {
   useEffect(() => {
     loadAgents();
     
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('cchorus-theme') || 'light';
-    setCurrentTheme(savedTheme);
-    console.log('Initial theme loaded:', savedTheme);
+    // FORCE COFFEE THEME FOR DEBUGGING
+    const forcedTheme = 'coffee';
+    setCurrentTheme(forcedTheme);
+    localStorage.setItem('cchorus-theme', forcedTheme);
+    console.log('🚀 FORCING COFFEE THEME FOR DEBUG:', forcedTheme);
   }, []);
 
   // Separate effect for theme initialization after render
   useEffect(() => {
     if (currentTheme) {
+      console.log('🎨 Theme initialization starting for:', currentTheme);
+      
       // Force immediate DOM update for data-theme attribute
       document.documentElement.setAttribute('data-theme', currentTheme);
       document.body.classList.forEach(className => {
@@ -66,7 +69,26 @@ function App() {
       // Trigger a reflow to ensure styles are recalculated
       document.documentElement.offsetHeight;
       
-      console.log('Theme initialized:', currentTheme);
+      // Comprehensive debugging
+      setTimeout(() => {
+        const computedStyle = getComputedStyle(document.documentElement);
+        console.log('🎨 Theme Debug Report:', {
+          theme: currentTheme,
+          dataTheme: document.documentElement.getAttribute('data-theme'),
+          bodyClasses: Array.from(document.body.classList),
+          cssVariables: {
+            '--color-primary': computedStyle.getPropertyValue('--color-primary'),
+            '--color-base-100': computedStyle.getPropertyValue('--color-base-100'),
+            '--color-base-200': computedStyle.getPropertyValue('--color-base-200'),
+            '--color-base-300': computedStyle.getPropertyValue('--color-base-300'),
+            '--color-base-content': computedStyle.getPropertyValue('--color-base-content'),
+          },
+          backgroundColor: computedStyle.backgroundColor,
+          color: computedStyle.color
+        });
+      }, 100);
+      
+      console.log('✅ Theme initialized:', currentTheme);
     }
   }, [currentTheme]);
 
@@ -87,7 +109,7 @@ function App() {
   }, []);
 
   const handleThemeChange = (theme: string) => {
-    console.log('Changing theme from', currentTheme, 'to', theme);
+    console.log('🔄 Changing theme from', currentTheme, 'to', theme);
     
     // Set React state first
     setCurrentTheme(theme);
@@ -106,13 +128,22 @@ function App() {
     // Trigger a reflow to ensure styles are recalculated
     document.documentElement.offsetHeight;
     
-    // Verify theme application
+    // Verify theme application with comprehensive debugging
     setTimeout(() => {
-      const actualTheme = document.documentElement.getAttribute('data-theme');
-      console.log('Theme change complete. Current theme:', actualTheme);
-      console.log('Theme variables check:', {
-        primary: getComputedStyle(document.documentElement).getPropertyValue('--color-primary'),
-        base100: getComputedStyle(document.documentElement).getPropertyValue('--color-base-100')
+      const computedStyle = getComputedStyle(document.documentElement);
+      console.log('🔄 Theme Change Complete Report:', {
+        oldTheme: currentTheme,
+        newTheme: theme,
+        dataTheme: document.documentElement.getAttribute('data-theme'),
+        bodyClasses: Array.from(document.body.classList),
+        cssVariables: {
+          '--color-primary': computedStyle.getPropertyValue('--color-primary'),
+          '--color-base-100': computedStyle.getPropertyValue('--color-base-100'),
+          '--color-base-200': computedStyle.getPropertyValue('--color-base-200'),
+          '--color-base-content': computedStyle.getPropertyValue('--color-base-content'),
+        },
+        hasThemeVariables: computedStyle.getPropertyValue('--color-primary') !== '',
+        backgroundColor: computedStyle.backgroundColor
       });
     }, 50);
   };
@@ -206,6 +237,16 @@ function App() {
   const handleCancelEdit = () => {
     setShowEditor(false);
     setEditingAgent(undefined);
+    // Clear form data to ensure empty state shows properly
+    setFormData({
+      name: '',
+      description: '',
+      tools: [],
+      color: PRESET_COLORS[0],
+      prompt: '',
+      level: 'project'
+    });
+    setErrors({});
   };
 
   const handleImportFromFile = async (filePath: string) => {
@@ -311,19 +352,37 @@ function App() {
                 className="mx-auto h-8 w-auto logo faded mb-3"
               />
               <p className="text-sm text-base-content/60">
-                {searchQuery ? `No agents match "${searchQuery}"` : 'No agents yet'}
+                {searchQuery 
+                  ? `No agents match "${searchQuery}"` 
+                  : viewMode === 'project' 
+                    ? 'No project agents found'
+                    : 'No agents yet'
+                }
               </p>
               {!searchQuery && (
-                <button
-                  onClick={() => {
-                    handleCreateAgent();
-                    onClose?.();
-                  }}
-                  className="btn btn-primary btn-sm mt-3"
-                >
-                  <Plus size={14} />
-                  Create Agent
-                </button>
+                viewMode === 'project' ? (
+                  <button
+                    onClick={() => {
+                      setShowFileSearch(true);
+                      onClose?.();
+                    }}
+                    className="btn btn-outline btn-sm mt-3"
+                  >
+                    <Folder size={14} />
+                    Select Project Folder
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleCreateAgent();
+                      onClose?.();
+                    }}
+                    className="btn btn-primary btn-sm mt-3"
+                  >
+                    <Plus size={14} />
+                    Create Agent
+                  </button>
+                )
               )}
             </div>
           ) : (
