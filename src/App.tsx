@@ -23,21 +23,14 @@ function App() {
   }, []);
 
   const loadAgents = async () => {
-    console.log('App: Starting to load agents...');
-    console.log('App: Setting loading to true');
     setLoading(true);
     try {
       const loadedAgents = await fileSystem.loadAgents();
-      console.log('App: Received agents from fileSystem:', loadedAgents);
-      console.log('App: About to call setAgents with:', loadedAgents);
       setAgents(loadedAgents);
-      console.log('App: Called setAgents, agents should be updated');
     } catch (error) {
-      console.error('App: Failed to load agents:', error);
+      console.error('Failed to load agents:', error);
     } finally {
-      console.log('App: In finally block, setting loading to false');
       setLoading(false);
-      console.log('App: Called setLoading(false)');
     }
   };
 
@@ -124,11 +117,7 @@ function App() {
     return matchesSearch && matchesView;
   });
 
-  console.log('App render: loading =', loading, ', agents.length =', agents.length, ', filteredAgents.length =', filteredAgents.length);
-  console.log('App render: typeof loading =', typeof loading, ', loading === true?', loading === true, ', loading === false?', loading === false);
-
   if (loading) {
-    console.log('App render: RETURNING LOADING SCREEN because loading is truthy');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center gap-2 text-gray-600">
@@ -139,13 +128,8 @@ function App() {
     );
   }
 
-  console.log('App render: NOT showing loading screen, proceeding with main UI');
-
   return (
-    <div className="min-h-screen" style={{ background: 'red', color: 'white', fontSize: '24px' }}>
-      <div style={{ padding: '20px', background: 'blue', color: 'yellow', position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
-        MAIN UI IS RENDERING - AGENTS: {agents.length} - LOADING: {String(loading)}
-      </div>
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
