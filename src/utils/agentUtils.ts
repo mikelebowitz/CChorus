@@ -1,4 +1,4 @@
-import * as yaml from 'js-yaml';
+import { load as yamlLoad, dump as yamlDump } from 'js-yaml';
 import { SubAgent, SubAgentConfig } from '../types';
 
 export function parseAgentFile(content: string): SubAgent {
@@ -18,7 +18,7 @@ export function parseAgentFile(content: string): SubAgent {
   console.log('parseAgentFile: Extracted prompt length:', prompt?.length || 0);
   
   try {
-    const config = yaml.load(frontmatterContent) as SubAgentConfig;
+    const config = yamlLoad(frontmatterContent) as SubAgentConfig;
     console.log('parseAgentFile: Parsed YAML config:', config);
     
     const result = {
@@ -46,7 +46,7 @@ export function serializeAgentFile(agent: SubAgent): string {
     ...(agent.color && { color: agent.color })
   };
 
-  const frontmatter = yaml.dump(config, { 
+  const frontmatter = yamlDump(config, { 
     indent: 2,
     lineWidth: -1 
   }).trim();
