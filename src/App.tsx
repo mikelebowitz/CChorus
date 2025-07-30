@@ -24,16 +24,20 @@ function App() {
 
   const loadAgents = async () => {
     console.log('App: Starting to load agents...');
+    console.log('App: Setting loading to true');
     setLoading(true);
     try {
       const loadedAgents = await fileSystem.loadAgents();
       console.log('App: Received agents from fileSystem:', loadedAgents);
+      console.log('App: About to call setAgents with:', loadedAgents);
       setAgents(loadedAgents);
-      console.log('App: Set agents state, loading set to false');
+      console.log('App: Called setAgents, agents should be updated');
     } catch (error) {
       console.error('App: Failed to load agents:', error);
     } finally {
+      console.log('App: In finally block, setting loading to false');
       setLoading(false);
+      console.log('App: Called setLoading(false)');
     }
   };
 
@@ -119,6 +123,8 @@ function App() {
     
     return matchesSearch && matchesView;
   });
+
+  console.log('App render: loading =', loading, ', agents.length =', agents.length, ', filteredAgents.length =', filteredAgents.length);
 
   if (loading) {
     return (
