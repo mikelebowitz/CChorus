@@ -109,13 +109,27 @@ function App() {
   };
 
   const filteredAgents = agents.filter(agent => {
+    console.log(`Filtering agent: ${agent.name}`);
+    console.log(`  - agent.level: "${agent.level}"`);
+    console.log(`  - agent.description: "${agent.description?.substring(0, 50)}..."`);
+    console.log(`  - searchQuery: "${searchQuery}"`);
+    console.log(`  - viewMode: "${viewMode}"`);
+    
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.description.toLowerCase().includes(searchQuery.toLowerCase());
+    console.log(`  - matchesSearch: ${matchesSearch}`);
     
     const matchesView = viewMode === 'all' || agent.level === viewMode;
+    console.log(`  - matchesView: ${matchesView}`);
     
-    return matchesSearch && matchesView;
+    const result = matchesSearch && matchesView;
+    console.log(`  - final result: ${result}`);
+    console.log('---');
+    
+    return result;
   });
+
+  console.log(`Total agents: ${agents.length}, Filtered agents: ${filteredAgents.length}`);
 
   if (loading) {
     return (
