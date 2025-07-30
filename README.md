@@ -1,6 +1,6 @@
-# Claude Code Agent Editor
+# CChorus
 
-A modern web-based editor for managing Claude Code sub-agents. This application provides a simple, intuitive interface for creating, editing, and organizing your Claude Code sub-agents with support for tool selection, color coding, and comprehensive prompt editing.
+A modern web-based agent management system for Claude Code. CChorus provides a clean, intuitive interface for creating, editing, and organizing your Claude Code sub-agents with support for tool selection, color coding, and comprehensive prompt editing.
 
 ## Features
 
@@ -29,7 +29,7 @@ System prompt content goes here...
 
 ## Available Tools
 
-The editor supports all Claude Code tools:
+CChorus supports all Claude Code tools:
 - Task, Bash, Glob, Grep, LS
 - Read, Edit, MultiEdit, Write
 - NotebookRead, NotebookEdit
@@ -105,7 +105,7 @@ src/
 
 ## Contributing
 
-This is a simple editor built for Claude Code sub-agent management. Feel free to extend it with additional features like:
+CChorus is built for Claude Code sub-agent management. Feel free to extend it with additional features like:
 - Real file system integration
 - Agent templates and examples
 - Import/export functionality

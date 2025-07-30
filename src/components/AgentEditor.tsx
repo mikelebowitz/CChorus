@@ -26,8 +26,22 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
 
   useEffect(() => {
     if (agent) {
-      setFormData(agent);
+      setFormData({
+        ...agent,
+        color: agent.color || PRESET_COLORS[0] // Ensure color is always set
+      });
       setSelectedTools(new Set(agent.tools || []));
+    } else {
+      // Reset form for new agent
+      setFormData({
+        name: '',
+        description: '',
+        tools: [],
+        color: PRESET_COLORS[0],
+        prompt: '',
+        level: 'project'
+      });
+      setSelectedTools(new Set());
     }
   }, [agent]);
 
@@ -70,6 +84,26 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
     }));
   };
 
+  const handleSelectAllTools = () => {
+    const allAvailableTools = new Set([
+      ...toolsData.defaultTools,
+      ...toolsData.mcpServers.filter(server => server.permitted).map(server => server.id)
+    ]);
+    setSelectedTools(allAvailableTools);
+    setFormData(prev => ({ 
+      ...prev, 
+      tools: Array.from(allAvailableTools) 
+    }));
+  };
+
+  const handleSelectNoTools = () => {
+    setSelectedTools(new Set());
+    setFormData(prev => ({ 
+      ...prev, 
+      tools: [] 
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -98,95 +132,100 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold">
-            {agent ? 'Edit Agent' : 'Create New Agent'}
-          </h2>
-          <button
-            onClick={onCancel}
-            className="p-1 text-gray-500 hover:text-gray-700"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+    <div className="bg-base-100 min-h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4">
+        <h2 className="text-lg font-semibold">
+          {agent ? 'Edit Agent' : 'Create New Agent'}
+        </h2>
+        <button
+          onClick={onCancel}
+          className="btn btn-ghost btn-sm btn-circle"
+        >
+          <X size={16} />
+        </button>
+      </div>
+      
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="p-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Name *</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
+                  className={`input input-bordered w-full ${
+                    errors.name ? 'input-error' : ''
                   }`}
                   placeholder="e.g., code-reviewer"
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  <label className="label">
+                    <span className="label-text-alt text-error">{errors.name}</span>
+                  </label>
                 )}
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description *
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Description *</span>
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
-                    errors.description ? 'border-red-500' : 'border-gray-300'
+                  className={`textarea textarea-bordered w-full resize-none ${
+                    errors.description ? 'textarea-error' : ''
                   }`}
                   placeholder="When should this agent be invoked?"
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                  <label className="label">
+                    <span className="label-text-alt text-error">{errors.description}</span>
+                  </label>
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Level
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Level</span>
                 </label>
-                <div className="flex gap-3">
-                  <label className="flex items-center gap-2">
+                <div className="flex gap-4">
+                  <label className="label cursor-pointer gap-2">
                     <input
                       type="radio"
                       name="level"
                       value="user"
                       checked={formData.level === 'user'}
                       onChange={(e) => handleInputChange('level', e.target.value)}
-                      className="text-blue-600 focus:ring-blue-500"
+                      className="radio radio-primary"
                     />
-                    <span className="text-sm">User (~/.claude/agents/)</span>
+                    <span className="label-text">User (~/.claude/agents/)</span>
                   </label>
-                  <label className="flex items-center gap-2">
+                  <label className="label cursor-pointer gap-2">
                     <input
                       type="radio"
                       name="level"
                       value="project"
                       checked={formData.level === 'project'}
                       onChange={(e) => handleInputChange('level', e.target.value)}
-                      className="text-blue-600 focus:ring-blue-500"
+                      className="radio radio-primary"
                     />
-                    <span className="text-sm">Project (.claude/agents/)</span>
+                    <span className="label-text">Project (.claude/agents/)</span>
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Project agents take precedence over user agents with the same name
-                </p>
+                <label className="label">
+                  <span className="label-text-alt">Project agents take precedence over user agents with the same name</span>
+                </label>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Color
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Color</span>
                 </label>
                 <div className="flex gap-2 flex-wrap">
                   {PRESET_COLORS.map((color) => (
@@ -194,43 +233,62 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                       key={color}
                       type="button"
                       onClick={() => handleInputChange('color', color)}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        formData.color === color 
-                          ? 'border-gray-800 scale-110' 
-                          : 'border-gray-300'
-                      } transition-transform`}
-                      style={{ backgroundColor: color }}
+                      className={`color-picker-button ${
+                        formData.color === color ? 'selected' : ''
+                      }`}
+                      style={{ 
+                        backgroundColor: color,
+                        color: color, // For the currentColor in box-shadow
+                      }}
                     />
                   ))}
                 </div>
               </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tools (leave empty for all tools)
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Tools</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSelectAllTools}
+                    className="btn btn-outline btn-xs"
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSelectNoTools}
+                    className="btn btn-outline btn-xs"
+                  >
+                    None
+                  </button>
+                </div>
               </label>
               {loadingTools ? (
-                <div className="border border-gray-300 rounded-md p-6 text-center">
-                  <div className="animate-spin mx-auto mb-2 w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                  <p className="text-sm text-gray-500">Loading available tools...</p>
+                <div className="card border border-base-300 p-6">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="loading loading-spinner loading-sm"></span>
+                    <span className="text-sm">Loading available tools...</span>
+                  </div>
                 </div>
               ) : (
-                <div className="border border-gray-300 rounded-md p-3 max-h-64 overflow-y-auto">
+                <div className="card border border-base-300 p-3">
                   <div className="space-y-4">
                     {/* Default Claude Code Tools */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-800 mb-2">Claude Code Tools</h4>
+                      <h4 className="text-sm font-semibold mb-2">Claude Code Tools</h4>
                       <div className="grid grid-cols-2 gap-2">
                         {toolsData.defaultTools.map((tool) => (
-                          <label key={tool} className="flex items-center gap-2 text-sm">
+                          <label key={tool} className="label cursor-pointer justify-start gap-2">
                             <input
                               type="checkbox"
                               checked={selectedTools.has(tool)}
                               onChange={() => handleToolToggle(tool)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              className="checkbox checkbox-primary checkbox-sm"
                             />
-                            <span className="font-mono">{tool}</span>
+                            <span className="label-text font-mono text-xs">{tool}</span>
                           </label>
                         ))}
                       </div>
@@ -238,25 +296,36 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                     
                     {/* MCP Servers */}
                     {toolsData.mcpServers.length > 0 && (
-                      <div className="border-t pt-3">
-                        <h4 className="text-sm font-medium text-gray-800 mb-2 flex items-center gap-2">
+                      <div className="border-t border-base-300 pt-3">
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                           <Server size={14} />
                           MCP Servers
                         </h4>
                         <div className="grid grid-cols-1 gap-2">
                           {toolsData.mcpServers.map((server) => (
-                            <label key={server.id} className="flex items-center gap-2 text-sm">
+                            <label key={server.id} className="label cursor-pointer justify-start gap-2">
                               <input
                                 type="checkbox"
                                 checked={selectedTools.has(server.id)}
                                 onChange={() => handleToolToggle(server.id)}
-                                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                className={`checkbox checkbox-sm ${
+                                  server.permitted ? 'checkbox-success' : 'checkbox-warning'
+                                }`}
+                                disabled={!server.permitted}
                               />
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium">{server.displayName}</span>
-                                <span className="font-mono text-xs text-gray-500">
+                              <div className="flex flex-col flex-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-medium">{server.displayName}</span>
+                                  {!server.permitted && (
+                                    <span className="badge badge-warning badge-xs">Not Permitted</span>
+                                  )}
+                                </div>
+                                <span className="font-mono text-xs opacity-60">
                                   {server.server} → {server.name}
                                 </span>
+                                {server.description && (
+                                  <span className="text-xs opacity-50 mt-1">{server.description}</span>
+                                )}
                               </div>
                             </label>
                           ))}
@@ -266,56 +335,61 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                   </div>
                 </div>
               )}
-              <p className="mt-1 text-xs text-gray-500">
-                {selectedTools.size === 0 
-                  ? 'All tools will be available' 
-                  : `${selectedTools.size} tools selected`
-                }
-                {toolsData.mcpServers.length > 0 && (
-                  <span className="block mt-1">
-                    {toolsData.mcpServers.length} MCP server{toolsData.mcpServers.length !== 1 ? 's' : ''} available
-                  </span>
-                )}
-              </p>
+              <label className="label">
+                <span className="label-text-alt">
+                  {selectedTools.size === 0 
+                    ? 'All tools will be available' 
+                    : `${selectedTools.size} tools selected`
+                  }
+                  {toolsData.mcpServers.length > 0 && (
+                    <span className="block">
+                      {toolsData.mcpServers.length} MCP server{toolsData.mcpServers.length !== 1 ? 's' : ''} available
+                    </span>
+                  )}
+                </span>
+              </label>
             </div>
           </div>
           
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              System Prompt *
+          {/* System Prompt - Outside grid for natural height */}
+          <div className="form-control mt-6 textarea-container">
+            <label className="label">
+              <span className="label-text font-medium">System Prompt *</span>
             </label>
             <textarea
               value={formData.prompt}
               onChange={(e) => handleInputChange('prompt', e.target.value)}
-              rows={12}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm ${
-                errors.prompt ? 'border-red-500' : 'border-gray-300'
+              rows={15}
+              className={`textarea textarea-bordered w-full font-mono text-sm natural-textarea ${
+                errors.prompt ? 'textarea-error' : ''
               }`}
               placeholder="Enter the system prompt for this agent..."
             />
             {errors.prompt && (
-              <p className="mt-1 text-sm text-red-600">{errors.prompt}</p>
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.prompt}</span>
+              </label>
             )}
           </div>
           
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          
+          <div className="flex justify-end gap-3 mt-6 pt-4">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="btn btn-outline"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+              className="btn btn-primary"
             >
               <Save size={16} />
               {agent ? 'Update Agent' : 'Create Agent'}
             </button>
           </div>
         </form>
-      </div>
     </div>
   );
 };

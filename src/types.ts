@@ -20,6 +20,8 @@ export interface MCPServer {
   name: string;
   displayName: string;
   server: string;
+  permitted?: boolean;
+  description?: string;
 }
 
 export interface ToolsData {

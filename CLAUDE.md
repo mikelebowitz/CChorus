@@ -33,7 +33,7 @@ No automated tests are currently configured. Manual testing is done through the 
 
 ## Project Architecture
 
-This is a **Claude Code Agent Editor** - a React-based web application for managing Claude Code sub-agents with a Node.js/Express backend API.
+This is **CChorus** - a React-based web application for managing Claude Code sub-agents with a Node.js/Express backend API.
 
 ### High-Level Architecture
 
@@ -99,4 +99,4 @@ System prompt content goes here...
 
 ### GitOps Integration
 
-The project includes GitOps configuration in `config/gitops-config.json` for automated Git workflow management with session tracking and documentation updates.
+CChorus includes GitOps configuration in `config/gitops-config.json` for automated Git workflow management with session tracking and documentation updates.

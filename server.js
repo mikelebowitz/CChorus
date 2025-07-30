@@ -215,7 +215,7 @@ app.post('/api/files/read', async (req, res) => {
 app.post('/api/files/browse', async (req, res) => {
   try {
     const { dirPath } = req.body;
-    const targetPath = dirPath || os.homedir(); // Start from home directory
+    const targetPath = dirPath || os.homedir(); // Start from user home directory
     
     // Resolve the full path
     const fullPath = path.resolve(targetPath);
@@ -241,8 +241,8 @@ app.post('/api/files/browse', async (req, res) => {
       });
     }
     
-    // Add directories first, then files
-    const directories = entries.filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+    // Add directories first, then files (include dot directories)
+    const directories = entries.filter(entry => entry.isDirectory())
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(entry => ({
         name: entry.name,
@@ -275,60 +275,78 @@ app.post('/api/files/browse', async (req, res) => {
 // Get available MCP servers from Claude config
 app.get('/api/mcp-servers', async (req, res) => {
   try {
+    // Load Claude Desktop MCP configuration
+    const claudeConfigPath = path.join(os.homedir(), 'Library/Application Support/Claude/claude_desktop_config.json');
     const claudeSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
     
     let mcpServers = [];
+    let permissions = [];
     
+    // Read permissions from Claude settings
     try {
       const settingsContent = await fs.readFile(claudeSettingsPath, 'utf-8');
       const settings = JSON.parse(settingsContent);
       
-      // Extract MCP servers from permissions
       if (settings.permissions && settings.permissions.allow) {
-        mcpServers = settings.permissions.allow
-          .filter(permission => permission.startsWith('mcp__'))
-          .map(permission => {
-            // Parse MCP server name from permission string
-            // Format: mcp__mcphub__sequential-thinking-sequentialthinking
-            // or: mcp__mcphub__context7-resolve-library-id
-            const parts = permission.split('__');
-            if (parts.length >= 3) {
-              const fullToolName = parts[2]; // e.g., "sequential-thinking-sequentialthinking" or "context7-resolve-library-id"
-              const serverName = parts[1]; // e.g., "mcphub"
-              
-              // Extract the actual tool name
-              let toolName = fullToolName;
-              if (fullToolName.includes('-')) {
-                // For tools like "context7-resolve-library-id", extract "context7-resolve-library-id"
-                // For tools like "sequential-thinking-sequentialthinking", extract "sequential-thinking"
-                const toolParts = fullToolName.split('-');
-                if (toolParts.length >= 2) {
-                  // If it looks like a repeated pattern, take the first part
-                  if (toolParts[0] === toolParts[toolParts.length - 1]) {
-                    toolName = toolParts.slice(0, -1).join('-');
-                  } else {
-                    toolName = fullToolName;
-                  }
-                }
-              }
-              
-              return {
-                id: permission,
-                name: toolName,
-                displayName: toolName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                server: serverName
-              };
-            }
-            return {
-              id: permission,
-              name: permission.replace('mcp__', ''),
-              displayName: permission.replace('mcp__', '').replace(/[-_]/g, ' '),
-              server: 'unknown'
-            };
-          });
+        permissions = settings.permissions.allow.filter(permission => permission.startsWith('mcp__'));
       }
     } catch (error) {
       console.warn('Could not read Claude settings:', error.message);
+    }
+
+    // Query actual MCP servers for their tools
+    try {
+      const configContent = await fs.readFile(claudeConfigPath, 'utf-8');
+      const config = JSON.parse(configContent);
+      
+      if (config.mcpServers) {
+        for (const [serverName, serverConfig] of Object.entries(config.mcpServers)) {
+          try {
+            // Only include tools that are actually in the permissions
+            if (serverName === 'mcphub') {
+              // Only show tools that the user has explicitly granted permissions for
+              const mcpToolPermissions = permissions.filter(permission => 
+                permission.startsWith('mcp__mcphub__')
+              );
+              
+              mcpToolPermissions.forEach(permission => {
+                const toolName = permission.replace('mcp__mcphub__', '');
+                
+                mcpServers.push({
+                  id: permission,
+                  name: toolName,
+                  displayName: toolName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                  server: serverName,
+                  permitted: true,
+                  description: `${toolName} tool from MCPHub`
+                });
+              });
+            }
+          } catch (serverError) {
+            console.warn(`Failed to query MCP server ${serverName}:`, serverError.message);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Could not read Claude Desktop config:', error.message);
+      
+      // Fallback to permissions-only approach
+      permissions.forEach(permission => {
+        const parts = permission.split('__');
+        if (parts.length >= 3) {
+          const toolName = parts[2];
+          const serverName = parts[1];
+          
+          mcpServers.push({
+            id: permission,
+            name: toolName,
+            displayName: toolName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            server: serverName,
+            permitted: true,
+            description: `${toolName} tool from ${serverName}`
+          });
+        }
+      });
     }
     
     // Add default Claude Code tools

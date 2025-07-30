@@ -146,8 +146,17 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({ onSelectFile, onCancel
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                      <p className={`font-medium truncate ${
+                        item.name.startsWith('.') 
+                          ? 'text-gray-500 italic' 
+                          : 'text-gray-900'
+                      }`}>
                         {item.name}
+                        {item.name.startsWith('.') && (
+                          <span className="ml-1 text-xs bg-gray-200 text-gray-600 px-1 rounded">
+                            hidden
+                          </span>
+                        )}
                       </p>
                       {item.type === 'file' && item.relativePath && (
                         <p className="text-sm text-gray-500 truncate">
@@ -180,7 +189,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({ onSelectFile, onCancel
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> Only markdown (.md) files are shown. 
+              <strong>Note:</strong> Only markdown (.md) files are shown, including hidden files. 
               Selected files will be parsed as Claude Code agents with YAML frontmatter.
             </p>
           </div>
