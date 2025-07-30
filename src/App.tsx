@@ -125,8 +125,10 @@ function App() {
   });
 
   console.log('App render: loading =', loading, ', agents.length =', agents.length, ', filteredAgents.length =', filteredAgents.length);
+  console.log('App render: typeof loading =', typeof loading, ', loading === true?', loading === true, ', loading === false?', loading === false);
 
   if (loading) {
+    console.log('App render: RETURNING LOADING SCREEN because loading is truthy');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center gap-2 text-gray-600">
@@ -136,6 +138,8 @@ function App() {
       </div>
     );
   }
+
+  console.log('App render: NOT showing loading screen, proceeding with main UI');
 
   return (
     <div className="min-h-screen bg-gray-50">
