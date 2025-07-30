@@ -48,11 +48,27 @@ function App() {
     // Load saved theme from localStorage
     const savedTheme = localStorage.getItem('cchorus-theme') || 'light';
     setCurrentTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    // Also apply to body for broader theme support
-    document.body.setAttribute('data-theme', savedTheme);
     console.log('Initial theme loaded:', savedTheme);
   }, []);
+
+  // Separate effect for theme initialization after render
+  useEffect(() => {
+    if (currentTheme) {
+      // Force immediate DOM update for data-theme attribute
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      document.body.classList.forEach(className => {
+        if (className.startsWith('theme-')) {
+          document.body.classList.remove(className);
+        }
+      });
+      document.body.classList.add(`theme-${currentTheme}`);
+      
+      // Trigger a reflow to ensure styles are recalculated
+      document.documentElement.offsetHeight;
+      
+      console.log('Theme initialized:', currentTheme);
+    }
+  }, [currentTheme]);
 
   // Theme management
   useEffect(() => {
@@ -73,18 +89,32 @@ function App() {
   const handleThemeChange = (theme: string) => {
     console.log('Changing theme from', currentTheme, 'to', theme);
     
+    // Set React state first
     setCurrentTheme(theme);
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme);
     localStorage.setItem('cchorus-theme', theme);
     setShowThemeSelector(false);
     
-    // Force a small delay to ensure theme applies and verify
+    // Force immediate DOM update for data-theme attribute
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.classList.forEach(className => {
+      if (className.startsWith('theme-')) {
+        document.body.classList.remove(className);
+      }
+    });
+    document.body.classList.add(`theme-${theme}`);
+    
+    // Trigger a reflow to ensure styles are recalculated
+    document.documentElement.offsetHeight;
+    
+    // Verify theme application
     setTimeout(() => {
       const actualTheme = document.documentElement.getAttribute('data-theme');
       console.log('Theme change complete. Current theme:', actualTheme);
-      console.log('Body theme:', document.body.getAttribute('data-theme'));
-    }, 100);
+      console.log('Theme variables check:', {
+        primary: getComputedStyle(document.documentElement).getPropertyValue('--color-primary'),
+        base100: getComputedStyle(document.documentElement).getPropertyValue('--color-base-100')
+      });
+    }, 50);
   };
 
 
@@ -421,6 +451,21 @@ function App() {
 
   return (
     <div className="min-h-screen bg-base-200">
+      {/* Hidden Theme Controllers for daisyUI */}
+      <div className="hidden">
+        {DAISYUI_THEMES.map((theme) => (
+          <input
+            key={theme}
+            type="radio"
+            name="theme-controller"
+            value={theme}
+            className="theme-controller"
+            checked={theme === currentTheme}
+            onChange={() => {}} // Controlled by our handleThemeChange
+          />
+        ))}
+      </div>
+      
       {/* Header */}
       <div className="navbar bg-base-100 shadow-sm">
         <div className="flex-none lg:hidden">
