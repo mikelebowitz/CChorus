@@ -25,8 +25,12 @@ function App() {
   const loadAgents = async () => {
     setLoading(true);
     try {
+      console.log('App.tsx: Starting loadAgents...');
       const loadedAgents = await fileSystem.loadAgents();
+      console.log('App.tsx: Received agents:', loadedAgents);
+      console.log('App.tsx: Agent details:', loadedAgents.map(a => ({ name: a.name, level: a.level })));
       setAgents(loadedAgents);
+      console.log('App.tsx: State updated with agents');
     } catch (error) {
       console.error('Failed to load agents:', error);
     } finally {
@@ -50,7 +54,7 @@ function App() {
       
       // Update local state
       setAgents(prev => {
-        const existingIndex = prev.findIndex(a => a.name === agent.name);
+        const existingIndex = prev.findIndex(a => a.name === agent.name && a.level === agent.level);
         if (existingIndex >= 0) {
           const updated = [...prev];
           updated[existingIndex] = agent;
@@ -78,7 +82,7 @@ function App() {
     
     try {
       await fileSystem.deleteAgent(name, agent.level || 'project');
-      setAgents(prev => prev.filter(a => a.name !== name));
+      setAgents(prev => prev.filter(a => !(a.name === name && a.level === agent.level)));
     } catch (error) {
       console.error('Failed to delete agent:', error);
       alert('Failed to delete agent. Please check the console for details.');
@@ -114,6 +118,10 @@ function App() {
     const matchesView = viewMode === 'all' || agent.level === viewMode;
     return matchesSearch && matchesView;
   });
+
+  console.log('App.tsx: Filtering - Total agents:', agents.length, 'Filtered:', filteredAgents.length);
+  console.log('App.tsx: View mode:', viewMode, 'Search query:', searchQuery);
+  console.log('App.tsx: Filtered agents:', filteredAgents.map(a => ({ name: a.name, level: a.level })));
 
   if (loading) {
     return (
@@ -250,7 +258,7 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAgents.map((agent) => (
                 <AgentCard
-                  key={agent.name}
+                  key={`${agent.name}-${agent.level}`}
                   agent={agent}
                   onEdit={handleEditAgent}
                   onDelete={handleDeleteAgent}
