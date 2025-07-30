@@ -19,8 +19,14 @@ function App() {
   const [viewMode, setViewMode] = useState<'all' | 'user' | 'project'>('all');
 
   useEffect(() => {
+    console.log('App.tsx: useEffect running - loading agents...');
     loadAgents();
   }, []);
+
+  // Also add effect to log state changes
+  useEffect(() => {
+    console.log('App.tsx: agents state changed:', agents.length, 'agents');
+  }, [agents]);
 
   const loadAgents = async () => {
     setLoading(true);
@@ -121,7 +127,16 @@ function App() {
 
   console.log('App.tsx: Filtering - Total agents:', agents.length, 'Filtered:', filteredAgents.length);
   console.log('App.tsx: View mode:', viewMode, 'Search query:', searchQuery);
+  console.log('App.tsx: All agents in state:', agents.map(a => ({ name: a.name, level: a.level, description: a.description?.slice(0, 50) })));
   console.log('App.tsx: Filtered agents:', filteredAgents.map(a => ({ name: a.name, level: a.level })));
+  
+  // Add debugging for the filter logic
+  agents.forEach(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesView = viewMode === 'all' || agent.level === viewMode;
+    console.log(`Agent ${agent.name}: matchesSearch=${matchesSearch}, matchesView=${matchesView}, included=${matchesSearch && matchesView}`);
+  });
 
   if (loading) {
     return (
@@ -224,6 +239,35 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Temporary debugging panel */}
+        <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded">
+          <h3 className="font-bold text-red-800">Debug Info</h3>
+          <p><strong>Loading:</strong> {loading.toString()}</p>
+          <p><strong>Agents in state:</strong> {agents.length}</p>
+          <p><strong>Filtered agents:</strong> {filteredAgents.length}</p>
+          <p><strong>View mode:</strong> {viewMode}</p>
+          <p><strong>Search query:</strong> "{searchQuery}"</p>
+          <div className="mt-2">
+            <strong>All agents:</strong>
+            <ul className="list-disc pl-4">
+              {agents.map(agent => (
+                <li key={`debug-${agent.name}-${agent.level}`}>
+                  {agent.name} ({agent.level}) - {agent.description?.slice(0, 50)}...
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-2">
+            <strong>Filtered agents:</strong>
+            <ul className="list-disc pl-4">
+              {filteredAgents.map(agent => (
+                <li key={`debug-filtered-${agent.name}-${agent.level}`}>
+                  {agent.name} ({agent.level})
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
         {filteredAgents.length === 0 ? (
           <div className="text-center py-12">
             <Bot className="mx-auto text-gray-400 mb-4" size={48} />
