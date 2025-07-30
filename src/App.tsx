@@ -142,7 +142,10 @@ function App() {
   console.log('App render: NOT showing loading screen, proceeding with main UI');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'red', color: 'white', fontSize: '24px' }}>
+      <div style={{ padding: '20px', background: 'blue', color: 'yellow', position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
+        MAIN UI IS RENDERING - AGENTS: {agents.length} - LOADING: {String(loading)}
+      </div>
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
