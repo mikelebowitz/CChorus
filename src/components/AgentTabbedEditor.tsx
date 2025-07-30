@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SubAgent, AVAILABLE_TOOLS, PRESET_COLORS, ToolsData } from '../types';
 import { validateAgentName } from '../utils/agentUtils';
-import { Save, X, Server, Info, Palette, FileText } from 'lucide-react';
+import { Save, X, Server, Info, Palette, FileText, Plus } from 'lucide-react';
 
 interface AgentTabbedEditorProps {
   agent?: SubAgent;
