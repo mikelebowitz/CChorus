@@ -3,7 +3,7 @@
 <div align="center">
   <img src="public/cchorus-logo.png" alt="CChorus Logo" width="200"/>
   
-  **A Modern Claude Code Agent Management System**
+  **Helping Orchestrate Your Claude Code Subagents**
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
@@ -11,37 +11,29 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
   [![daisyUI](https://img.shields.io/badge/daisyUI-4.0-FF7849.svg)](https://daisyui.com/)
-
-  *Streamline your Claude Code agent workflows with an intuitive, powerful interface*
 </div>
 
-## ✨ Features
+## Features
 
-### 🎨 **Modern Interface**
-- **30+ Professional Themes** - Beautiful daisyUI theme system with instant switching
-- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
-- **Clean, Intuitive UI** - Professional-grade interface inspired by modern development tools
-- **Theme Persistence** - Your preferred theme is saved automatically
-
-### 🤖 **Agent Management**
+### **Agent Management**
 - **Visual Agent Editor** - Rich form-based editing with real-time validation
 - **Color-Coded Organization** - Assign colors to agents for quick visual identification
+- **Tool Selection Interface** - Easy checkbox interface for Claude Code tools
 - **Search & Filter** - Quickly find agents by name, description, or properties
 - **Dual-Level Storage** - Separate user (~/.claude/agents/) and project (.claude/agents/) agents
 
-### 🛠️ **Advanced Capabilities**
-- **Tool Selection Interface** - Easy checkbox interface for Claude Code tools
+### **Experimental Features**
+
 - **MCP Server Integration** - Automatic detection and management of MCP (Model Context Protocol) tools
 - **File Import System** - Import existing Markdown files as agents with YAML frontmatter parsing
-- **Real-time Preview** - See agent configurations at a glance with live updates
 
-### 🔧 **Developer Experience**
+### **Developer Experience**
 - **Hot Reload Development** - Instant updates during development
 - **TypeScript Support** - Full type safety throughout the application
 - **Modern Build System** - Powered by Vite for lightning-fast development
 - **Extensible Architecture** - Clean, modular codebase for easy customization
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -100,12 +92,6 @@ npm run dev:full
 3. **Select Tools** (optional): Choose specific Claude Code tools
 4. **Click "Create Agent"** to save
 
-### Theme Switching
-
-- **Keyboard Shortcut**: Press `Ctrl/Cmd + T` to toggle theme selector
-- **Mouse Access**: Click the palette icon (🎨) in the header
-- **Theme Persistence**: Your selection is automatically saved
-
 ### Managing Agents
 
 - **Edit**: Click any agent card to open the editor
@@ -120,7 +106,7 @@ npm run dev:full
 3. **Select a Markdown file** with YAML frontmatter
 4. **Edit and save** as needed
 
-## 🏗️ Architecture
+## Architecture
 
 ### Frontend Stack
 - **React 18** - Modern UI library with concurrent features
@@ -157,7 +143,7 @@ cchorus/
 └── package.json           # Dependencies and scripts
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -191,13 +177,13 @@ module.exports = {
 
 ### MCP Integration
 
-CChorus automatically detects MCP servers from your Claude Desktop configuration:
+CChorus attempts to automatically detect MCP servers from your Claude Desktop configuration:
 
 1. **Location**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 2. **Permissions**: `~/.claude/settings.json`
 3. **Auto-detection**: Available tools are shown in the agent editor
 
-## 🧪 Development
+## Development
 
 ### Available Scripts
 
@@ -233,9 +219,9 @@ This project follows modern JavaScript/TypeScript conventions:
 4. **Follow commit conventions**: `feat(component): add new functionality`
 5. **Submit a pull request** with detailed description
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please follow these guidelines:
+I welcome ideas and contributions! Please follow these guidelines:
 
 ### Getting Started
 
@@ -333,13 +319,13 @@ For large numbers of agents:
 - Consider organizing agents into project-specific directories
 - Monitor memory usage in browser developer tools
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- **Claude Code** - The powerful AI-assisted development environment this tool enhances
+- **Claude Code** - Built with and for CC
 - **daisyUI** - Beautiful component library providing the theme system
 - **Tailwind CSS** - Utility-first CSS framework
 - **React** - The UI library powering the interface
@@ -358,6 +344,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   
 **Built with ❤️ for the Claude Code community**
 
-*CChorus - Orchestrating your AI agent workflows*
+*CChorus - Helping Orchestrate your AI agents*
 
 </div>
