@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-07-30 18:17
+**Generated**: 2025-07-30 18:51
 
 ## Quick Context
 
@@ -22,9 +22,14 @@ Check `docs/sessions/` for the latest session summary.
 
 ```
  M index.html
+ M package-lock.json
+ M package.json
+ M postcss.config.js
  M src/App.tsx
+ M src/index.css
  M tailwind.config.js
-?? docs/sessions/SESSION_2025-07-30_18-17.md
+ M vite.config.ts
+?? docs/sessions/SESSION_2025-07-30_18-51.md
 
 ```
 
