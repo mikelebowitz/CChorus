@@ -6,76 +6,104 @@ const API_BASE = 'http://localhost:3001/api';
 export class ApiFileSystemService {
   async loadUserAgents(): Promise<SubAgent[]> {
     try {
+      console.log('Loading user agents from API...');
       const response = await fetch(`${API_BASE}/agents/user`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const agentFiles = await response.json();
+      console.log('Raw agent files received:', agentFiles);
       const agents: SubAgent[] = [];
       
       for (const file of agentFiles) {
         try {
+          console.log(`Parsing agent: ${file.name}`);
           const agent = parseAgentFile(file.content);
           agent.filePath = file.filePath;
           agent.level = 'user';
           agents.push(agent);
+          console.log(`Successfully parsed agent: ${agent.name}`);
         } catch (error) {
-          console.warn(`Failed to parse user agent ${file.name}:`, error);
+          console.error(`Failed to parse user agent ${file.name}:`, error);
+          console.error('Content was:', file.content?.substring(0, 200));
         }
       }
       
+      console.log(`Loaded ${agents.length} user agents:`, agents);
       return agents;
     } catch (error) {
-      console.warn('Failed to load user agents:', error);
+      console.error('Failed to load user agents:', error);
       return [];
     }
   }
 
   async loadProjectAgents(): Promise<SubAgent[]> {
     try {
+      console.log('Loading project agents from API...');
       const response = await fetch(`${API_BASE}/agents/project`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const agentFiles = await response.json();
+      console.log('Raw project agent files received:', agentFiles);
       const agents: SubAgent[] = [];
       
       for (const file of agentFiles) {
         try {
+          console.log(`Parsing project agent: ${file.name}`);
           const agent = parseAgentFile(file.content);
           agent.filePath = file.filePath;
           agent.level = 'project';
           agents.push(agent);
+          console.log(`Successfully parsed project agent: ${agent.name}`);
         } catch (error) {
-          console.warn(`Failed to parse project agent ${file.name}:`, error);
+          console.error(`Failed to parse project agent ${file.name}:`, error);
+          console.error('Content was:', file.content?.substring(0, 200));
         }
       }
       
+      console.log(`Loaded ${agents.length} project agents:`, agents);
       return agents;
     } catch (error) {
-      console.warn('Failed to load project agents:', error);
+      console.error('Failed to load project agents:', error);
       return [];
     }
   }
 
   async loadAgents(): Promise<SubAgent[]> {
-    const [userAgents, projectAgents] = await Promise.all([
-      this.loadUserAgents(),
-      this.loadProjectAgents()
-    ]);
-    
-    // Project agents take precedence over user agents with the same name
-    const agentMap = new Map<string, SubAgent>();
-    
-    // Add user agents first
-    userAgents.forEach(agent => agentMap.set(agent.name, agent));
-    
-    // Add project agents (overriding user agents with same name)
-    projectAgents.forEach(agent => agentMap.set(agent.name, agent));
-    
-    return Array.from(agentMap.values());
+    try {
+      console.log('Starting to load all agents...');
+      const [userAgents, projectAgents] = await Promise.all([
+        this.loadUserAgents(),
+        this.loadProjectAgents()
+      ]);
+      
+      console.log(`Loaded ${userAgents.length} user agents and ${projectAgents.length} project agents`);
+      
+      // Project agents take precedence over user agents with the same name
+      const agentMap = new Map<string, SubAgent>();
+      
+      // Add user agents first
+      userAgents.forEach(agent => {
+        console.log(`Adding user agent: ${agent.name}`);
+        agentMap.set(agent.name, agent);
+      });
+      
+      // Add project agents (overriding user agents with same name)
+      projectAgents.forEach(agent => {
+        console.log(`Adding project agent: ${agent.name}`);
+        agentMap.set(agent.name, agent);
+      });
+      
+      const finalAgents = Array.from(agentMap.values());
+      console.log(`Final combined agents (${finalAgents.length}):`, finalAgents);
+      return finalAgents;
+    } catch (error) {
+      console.error('Error in loadAgents:', error);
+      return [];
+    }
   }
 
   async saveAgent(agent: SubAgent): Promise<void> {

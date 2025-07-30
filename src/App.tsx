@@ -23,12 +23,15 @@ function App() {
   }, []);
 
   const loadAgents = async () => {
+    console.log('App: Starting to load agents...');
     setLoading(true);
     try {
       const loadedAgents = await fileSystem.loadAgents();
+      console.log('App: Received agents from fileSystem:', loadedAgents);
       setAgents(loadedAgents);
+      console.log('App: Set agents state, loading set to false');
     } catch (error) {
-      console.error('Failed to load agents:', error);
+      console.error('App: Failed to load agents:', error);
     } finally {
       setLoading(false);
     }
