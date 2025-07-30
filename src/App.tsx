@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { SubAgent } from './types';
+import { SubAgent, PRESET_COLORS } from './types';
 import { AgentCard } from './components/AgentCard';
 import { AgentEditor } from './components/AgentEditor';
+import { AgentTabbedEditor } from './components/AgentTabbedEditor';
 import { FileBrowser } from './components/FileBrowser';
 import { ApiFileSystemService } from './utils/apiFileSystem';
 import { parseAgentFile } from './utils/agentUtils';
@@ -29,6 +30,17 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('light');
   const [showThemeSelector, setShowThemeSelector] = useState(false);
+  
+  // Form state for the new column layout
+  const [formData, setFormData] = useState<SubAgent>({
+    name: '',
+    description: '',
+    tools: [],
+    color: PRESET_COLORS[0],
+    prompt: '',
+    level: 'project'
+  });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     loadAgents();
@@ -37,6 +49,9 @@ function App() {
     const savedTheme = localStorage.getItem('cchorus-theme') || 'light';
     setCurrentTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
+    // Also apply to body for broader theme support
+    document.body.setAttribute('data-theme', savedTheme);
+    console.log('Initial theme loaded:', savedTheme);
   }, []);
 
   // Theme management
@@ -56,14 +71,19 @@ function App() {
   }, []);
 
   const handleThemeChange = (theme: string) => {
+    console.log('Changing theme from', currentTheme, 'to', theme);
+    
     setCurrentTheme(theme);
     document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
     localStorage.setItem('cchorus-theme', theme);
     setShowThemeSelector(false);
     
-    // Force a small delay to ensure theme applies
+    // Force a small delay to ensure theme applies and verify
     setTimeout(() => {
-      console.log('Theme changed to:', theme);
+      const actualTheme = document.documentElement.getAttribute('data-theme');
+      console.log('Theme change complete. Current theme:', actualTheme);
+      console.log('Body theme:', document.body.getAttribute('data-theme'));
     }, 100);
   };
 
@@ -82,12 +102,34 @@ function App() {
 
   const handleCreateAgent = () => {
     setEditingAgent(undefined);
+    setFormData({
+      name: '',
+      description: '',
+      tools: [],
+      color: PRESET_COLORS[0],
+      prompt: '',
+      level: 'project'
+    });
+    setErrors({});
     setShowEditor(true);
   };
 
   const handleEditAgent = (agent: SubAgent) => {
     setEditingAgent(agent);
+    setFormData({
+      ...agent,
+      color: agent.color || PRESET_COLORS[0]
+    });
+    setErrors({});
     setShowEditor(true);
+  };
+
+  const handleFormDataChange = (field: keyof SubAgent, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleErrorsChange = (newErrors: { [key: string]: string }) => {
+    setErrors(newErrors);
   };
 
   const handleSaveAgent = async (agent: SubAgent) => {
@@ -224,120 +266,142 @@ function App() {
       </div>
 
       {/* Agent List */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <span className="loading loading-spinner loading-sm"></span>
-            <span className="ml-2 text-sm">Loading agents...</span>
-          </div>
-        ) : filteredAgents.length === 0 ? (
-          <div className="text-center py-8">
-            <img 
-              src="/cchorus-logo.png" 
-              alt="CChorus" 
-              className="mx-auto h-8 w-auto opacity-40 mb-3"
-            />
-            <p className="text-sm text-base-content/60">
-              {searchQuery ? `No agents match "${searchQuery}"` : 'No agents yet'}
-            </p>
-            {!searchQuery && (
-              <button
-                onClick={() => {
-                  handleCreateAgent();
-                  onClose?.();
-                }}
-                className="btn btn-primary btn-sm mt-3"
-              >
-                <Plus size={14} />
-                Create Agent
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filteredAgents.map((agent) => (
-              <div
-                key={`${agent.name}-${agent.level}`}
-                className={`card bg-base-100 shadow-sm border border-base-300 cursor-pointer transition-all hover:shadow-md ${
-                  editingAgent?.name === agent.name && editingAgent?.level === agent.level
-                    ? 'ring-2 ring-primary'
-                    : ''
-                }`}
-                onClick={() => {
-                  handleEditAgent(agent);
-                  onClose?.();
-                }}
-              >
-                <div className="card-body p-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: agent.color || '#3B82F6' }}
-                        />
-                        <h3 className="font-medium text-sm truncate">{agent.name}</h3>
-                      </div>
-                      <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
-                        {agent.description}
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className={`badge badge-xs ${
-                          agent.level === 'user' ? 'badge-info' : 'badge-success'
-                        }`}>
-                          {agent.level}
-                        </span>
-                        {agent.tools && agent.tools.length > 0 && (
-                          <span className="text-xs text-base-content/40">
-                            {agent.tools.length} tools
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <span className="loading loading-spinner loading-sm"></span>
+              <span className="ml-2 text-sm">Loading agents...</span>
+            </div>
+          ) : filteredAgents.length === 0 ? (
+            <div className="text-center py-8">
+              <img 
+                src="/cchorus-logo.png" 
+                alt="CChorus" 
+                className="mx-auto h-8 w-auto logo faded mb-3"
+              />
+              <p className="text-sm text-base-content/60">
+                {searchQuery ? `No agents match "${searchQuery}"` : 'No agents yet'}
+              </p>
+              {!searchQuery && (
+                <button
+                  onClick={() => {
+                    handleCreateAgent();
+                    onClose?.();
+                  }}
+                  className="btn btn-primary btn-sm mt-3"
+                >
+                  <Plus size={14} />
+                  Create Agent
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredAgents.map((agent) => (
+                <div
+                  key={`${agent.name}-${agent.level}`}
+                  className={`card bg-base-100 shadow-sm border border-base-300 cursor-pointer transition-all hover:shadow-md ${
+                    editingAgent?.name === agent.name && editingAgent?.level === agent.level
+                      ? 'ring-2 ring-primary'
+                      : ''
+                  }`}
+                  onClick={() => {
+                    handleEditAgent(agent);
+                    onClose?.();
+                  }}
+                >
+                  <div className="card-body p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: agent.color || '#3B82F6' }}
+                          />
+                          <h3 className="font-medium text-sm truncate">{agent.name}</h3>
+                        </div>
+                        <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
+                          {agent.description}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className={`badge badge-xs ${
+                            agent.level === 'user' ? 'badge-info' : 'badge-success'
+                          }`}>
+                            {agent.level}
                           </span>
-                        )}
+                          {agent.tools && agent.tools.length > 0 && (
+                            <span className="text-xs text-base-content/40">
+                              {agent.tools.length} tools
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="dropdown dropdown-end">
-                      <button 
-                        tabIndex={0} 
-                        className="btn btn-ghost btn-xs"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        ⋮
-                      </button>
-                      <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li>
-                          <button onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditAgent(agent);
-                            onClose?.();
-                          }}>
-                            Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button 
-                            className="text-error"
-                            onClick={(e) => {
+                      <div className="dropdown dropdown-end">
+                        <button 
+                          tabIndex={0} 
+                          className="btn btn-ghost btn-xs"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          ⋮
+                        </button>
+                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                          <li>
+                            <button onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteAgent(agent.name);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </li>
-                      </ul>
+                              handleEditAgent(agent);
+                              onClose?.();
+                            }}>
+                              Edit
+                            </button>
+                          </li>
+                          <li>
+                            <button 
+                              className="text-error"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteAgent(agent.name);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Sidebar Footer */}
-      <div className="p-4">
-        <div className="text-xs text-base-content/60 text-center">
-          {filteredAgents.length} agent{filteredAgents.length !== 1 ? 's' : ''}
-          {searchQuery && ` matching "${searchQuery}"`}
+        {/* Statistics - Directly below agent list */}
+        <div className="p-4 border-t border-base-300 bg-base-200/50">
+          <h3 className="font-semibold text-sm mb-3">Statistics</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Total Agents:</span>
+              <span className="font-medium">{agents.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>User Agents:</span>
+              <span className="font-medium">{agents.filter(a => a.level === 'user').length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Project Agents:</span>
+              <span className="font-medium">{agents.filter(a => a.level === 'project').length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Filtered:</span>
+              <span className="font-medium">{filteredAgents.length}</span>
+            </div>
+          </div>
+          {searchQuery && (
+            <div className="text-xs text-base-content/60 text-center mt-2">
+              Showing results for "{searchQuery}"
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -373,7 +437,7 @@ function App() {
             <img 
               src="/cchorus-logo.png" 
               alt="CChorus" 
-              className="h-8 w-auto"
+              className="h-10 w-auto logo"
             />
           </div>
         </div>
@@ -447,13 +511,27 @@ function App() {
           </div>
         )}
         
-        {/* Desktop Sidebar - Agent List */}
-        <div className="hidden lg:flex w-80 bg-base-100 flex-col">
-          <SidebarContent />
+        {/* Two-column layout for desktop */}
+        <div className="hidden lg:flex flex-1">
+          {/* Column 1: Agent List + Statistics */}
+          <div className="w-80 bg-base-100 flex-col flex">
+            <SidebarContent />
+          </div>
+
+          {/* Column 2: Tabbed Editor */}
+          <AgentTabbedEditor
+            agent={editingAgent}
+            onSave={handleSaveAgent}
+            onCancel={handleCancelEdit}
+            formData={formData}
+            onFormDataChange={handleFormDataChange}
+            errors={errors}
+            onErrorsChange={handleErrorsChange}
+          />
         </div>
 
-        {/* Right Panel - Editor */}
-        <div className="flex-1">
+        {/* Mobile layout (unchanged) */}
+        <div className="lg:hidden flex-1">
           {showEditor ? (
             <AgentEditor
               agent={editingAgent}
@@ -466,7 +544,7 @@ function App() {
                 <img 
                   src="/cchorus-logo.png" 
                   alt="CChorus" 
-                  className="mx-auto h-16 w-auto opacity-20 mb-4"
+                  className="mx-auto h-16 w-auto logo faded mb-4"
                 />
                 <h3 className="text-lg font-medium text-base-content/60 mb-2">
                   Select an agent to edit

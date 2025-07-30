@@ -2,57 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ensure daisyUI themes are loaded */
-@import 'daisyui/dist/full.css';
-
-/* Custom utilities for better text truncation */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+@layer utilities {
+  /* Custom utilities for better text truncation */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 
-/* Color picker selection styles */
-.color-picker-button {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 50% !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  border: 2px solid transparent !important;
-  outline: none !important;
+@layer components {
+  /* Color picker using daisyUI theme variables */
+  .color-picker-button {
+    @apply w-10 h-10 rounded-full transition-all cursor-pointer relative;
+    @apply border-2 border-transparent outline-none;
+  }
+
+  .color-picker-button:hover {
+    @apply scale-105 shadow-md;
+    border-color: oklch(var(--bc) / 0.2);
+  }
+
+  .color-picker-button.selected {
+    @apply scale-110 ring-2 ring-base-content ring-offset-2 ring-offset-base-100;
+  }
+
+  .color-picker-button.selected::after {
+    content: "✓";
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+    @apply text-white font-bold text-lg;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  }
 }
 
-.color-picker-button:hover {
-  transform: scale(1.05) !important;
-}
+@layer components {
+  /* Natural textarea styling */
+  .natural-textarea {
+    @apply h-auto min-h-[150px] resize-y;
+    max-height: none;
+    field-sizing: content;
+  }
 
-.color-picker-button.selected {
-  transform: scale(1.1) !important;
-  border: 3px solid white !important;
-  box-shadow: 0 0 0 2px currentColor, 0 0 0 5px white, 0 4px 12px rgba(0,0,0,0.25) !important;
-}
+  .textarea-container {
+    @apply h-auto;
+  }
 
-/* Force textarea to have natural height */
-.natural-textarea {
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-  overflow-y: auto !important;
-  resize: vertical !important;
-}
+  /* Logo theming using CSS filters */
+  .logo {
+    @apply transition-all opacity-100;
+  }
 
-/* Remove any height constraints from textarea containers */
-.textarea-container {
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-}
+  .logo.faded {
+    @apply opacity-40;
+  }
 
-/* Override any daisyUI textarea constraints */
-.textarea {
-  height: auto !important;
-  min-height: 3rem !important;
-  max-height: none !important;
+  /* Logo filters for different theme types */
+  :is([data-theme="dark"], 
+      [data-theme="night"], 
+      [data-theme="dracula"], 
+      [data-theme="black"], 
+      [data-theme="luxury"], 
+      [data-theme="business"], 
+      [data-theme="synthwave"], 
+      [data-theme="halloween"], 
+      [data-theme="forest"], 
+      [data-theme="cyberpunk"], 
+      [data-theme="coffee"]) .logo {
+    filter: brightness(0) invert(1);
+  }
 }
