@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-07-29 23:17
+**Generated**: 2025-07-29 23:22
 
 ## Quick Context
 
@@ -21,9 +21,7 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
- M .DS_Store
- M src/App.tsx
-?? docs/
+?? docs/sessions/SESSION_2025-07-29_23-22.md
 
 ```
 
