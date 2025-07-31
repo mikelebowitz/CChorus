@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { SubAgent, AVAILABLE_TOOLS, PRESET_COLORS, ToolsData } from '../types';
 import { validateAgentName } from '../utils/agentUtils';
 import { X, Save, Plus, Minus, Server } from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Card, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
+import { Checkbox } from './ui/checkbox';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 interface AgentEditorProps {
   agent?: SubAgent;
@@ -132,100 +139,92 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
   };
 
   return (
-    <div className="bg-base-100 min-h-full">
+    <div className="bg-background min-h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <h2 className="text-lg font-semibold">
           {agent ? 'Edit Agent' : 'Create New Agent'}
         </h2>
-        <button
+        <Button
           onClick={onCancel}
-          className="btn btn-ghost btn-sm btn-circle"
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
         >
           <X size={16} />
-        </button>
+        </Button>
       </div>
       
       {/* Form */}
       <form onSubmit={handleSubmit} className="p-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Name *</span>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Name *
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`input input-bordered w-full ${
-                    errors.name ? 'input-error' : ''
+                  className={`w-full ${
+                    errors.name ? 'border-destructive' : ''
                   }`}
                   placeholder="e.g., code-reviewer"
                 />
                 {errors.name && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.name}</span>
-                  </label>
+                  <p className="text-xs text-destructive mt-1">{errors.name}</p>
                 )}
               </div>
               
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Description *</span>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description *
                 </label>
-                <textarea
+                <Textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
-                  className={`textarea textarea-bordered w-full resize-none ${
-                    errors.description ? 'textarea-error' : ''
+                  className={`w-full resize-none ${
+                    errors.description ? 'border-destructive' : ''
                   }`}
                   placeholder="When should this agent be invoked?"
                 />
                 {errors.description && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.description}</span>
-                  </label>
+                  <p className="text-xs text-destructive mt-1">{errors.description}</p>
                 )}
               </div>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Level</span>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Level
                 </label>
-                <div className="flex gap-4">
-                  <label className="label cursor-pointer gap-2">
-                    <input
-                      type="radio"
-                      name="level"
-                      value="user"
-                      checked={formData.level === 'user'}
-                      onChange={(e) => handleInputChange('level', e.target.value)}
-                      className="radio radio-primary"
-                    />
-                    <span className="label-text">User (~/.claude/agents/)</span>
-                  </label>
-                  <label className="label cursor-pointer gap-2">
-                    <input
-                      type="radio"
-                      name="level"
-                      value="project"
-                      checked={formData.level === 'project'}
-                      onChange={(e) => handleInputChange('level', e.target.value)}
-                      className="radio radio-primary"
-                    />
-                    <span className="label-text">Project (.claude/agents/)</span>
-                  </label>
-                </div>
-                <label className="label">
-                  <span className="label-text-alt">Project agents take precedence over user agents with the same name</span>
-                </label>
+                <RadioGroup
+                  value={formData.level}
+                  onValueChange={(value) => handleInputChange('level', value)}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="user" id="level-user" />
+                    <label htmlFor="level-user" className="text-sm cursor-pointer">
+                      User (~/.claude/agents/)
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="project" id="level-project" />
+                    <label htmlFor="level-project" className="text-sm cursor-pointer">
+                      Project (.claude/agents/)
+                    </label>
+                  </div>
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Project agents take precedence over user agents with the same name
+                </p>
               </div>
               
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Color</span>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Color
                 </label>
                 <div className="flex gap-2 flex-wrap">
                   {PRESET_COLORS.map((color) => (
@@ -246,78 +245,92 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
               </div>
             </div>
             
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Tools</span>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  Tools
+                </label>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={handleSelectAllTools}
-                    className="btn btn-outline btn-xs"
+                    variant="outline"
+                    className="h-6 text-xs px-2"
                   >
                     All
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={handleSelectNoTools}
-                    className="btn btn-outline btn-xs"
+                    variant="outline"
+                    className="h-6 text-xs px-2"
                   >
                     None
-                  </button>
+                  </Button>
                 </div>
-              </label>
+              </div>
               {loadingTools ? (
-                <div className="card border border-base-300 p-6">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="loading loading-spinner loading-sm"></span>
-                    <span className="text-sm">Loading available tools...</span>
-                  </div>
-                </div>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      <span className="text-sm">Loading available tools...</span>
+                    </div>
+                  </CardContent>
+                </Card>
               ) : (
-                <div className="card border border-base-300 p-3">
-                  <div className="space-y-4">
+                <Card>
+                  <CardContent className="p-3">
+                    <div className="space-y-4">
                     {/* Default Claude Code Tools */}
                     <div>
                       <h4 className="text-sm font-semibold mb-2">Claude Code Tools</h4>
                       <div className="grid grid-cols-2 gap-2">
                         {toolsData.defaultTools.map((tool) => (
-                          <label key={tool} className="label cursor-pointer justify-start gap-2">
-                            <input
-                              type="checkbox"
+                          <div key={tool} className="flex items-center gap-2">
+                            <Checkbox
+                              id={`tool-${tool}`}
                               checked={selectedTools.has(tool)}
-                              onChange={() => handleToolToggle(tool)}
-                              className="checkbox checkbox-primary checkbox-sm"
+                              onCheckedChange={() => handleToolToggle(tool)}
                             />
-                            <span className="label-text font-mono text-xs">{tool}</span>
-                          </label>
+                            <label
+                              htmlFor={`tool-${tool}`}
+                              className="font-mono text-xs cursor-pointer"
+                            >
+                              {tool}
+                            </label>
+                          </div>
                         ))}
                       </div>
                     </div>
                     
                     {/* MCP Servers */}
                     {toolsData.mcpServers.length > 0 && (
-                      <div className="border-t border-base-300 pt-3">
+                      <div className="border-t border-border pt-3">
                         <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                           <Server size={14} />
                           MCP Servers
                         </h4>
                         <div className="grid grid-cols-1 gap-2">
                           {toolsData.mcpServers.map((server) => (
-                            <label key={server.id} className="label cursor-pointer justify-start gap-2">
-                              <input
-                                type="checkbox"
+                            <div key={server.id} className="flex items-start gap-2">
+                              <Checkbox
+                                id={`server-${server.id}`}
                                 checked={selectedTools.has(server.id)}
-                                onChange={() => handleToolToggle(server.id)}
-                                className={`checkbox checkbox-sm ${
-                                  server.permitted ? 'checkbox-success' : 'checkbox-warning'
-                                }`}
+                                onCheckedChange={() => handleToolToggle(server.id)}
                                 disabled={!server.permitted}
+                                className="mt-0.5"
                               />
                               <div className="flex flex-col flex-1">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-sm font-medium">{server.displayName}</span>
+                                  <label
+                                    htmlFor={`server-${server.id}`}
+                                    className="text-sm font-medium cursor-pointer"
+                                  >
+                                    {server.displayName}
+                                  </label>
                                   {!server.permitted && (
-                                    <span className="badge badge-warning badge-xs">Not Permitted</span>
+                                    <Badge variant="secondary" className="text-xs">Not Permitted</Badge>
                                   )}
                                 </div>
                                 <span className="font-mono text-xs opacity-60">
@@ -327,67 +340,64 @@ export const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, onCance
                                   <span className="text-xs opacity-50 mt-1">{server.description}</span>
                                 )}
                               </div>
-                            </label>
+                            </div>
                           ))}
                         </div>
                       </div>
                     )}
-                  </div>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
-              <label className="label">
-                <span className="label-text-alt">
-                  {selectedTools.size === 0 
-                    ? 'All tools will be available' 
-                    : `${selectedTools.size} tools selected`
-                  }
-                  {toolsData.mcpServers.length > 0 && (
-                    <span className="block">
-                      {toolsData.mcpServers.length} MCP server{toolsData.mcpServers.length !== 1 ? 's' : ''} available
-                    </span>
-                  )}
-                </span>
-              </label>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedTools.size === 0 
+                  ? 'All tools will be available' 
+                  : `${selectedTools.size} tools selected`
+                }
+                {toolsData.mcpServers.length > 0 && (
+                  <span className="block">
+                    {toolsData.mcpServers.length} MCP server{toolsData.mcpServers.length !== 1 ? 's' : ''} available
+                  </span>
+                )}
+              </p>
             </div>
           </div>
           
           {/* System Prompt - Outside grid for natural height */}
-          <div className="form-control mt-6 textarea-container">
-            <label className="label">
-              <span className="label-text font-medium">System Prompt *</span>
+          <div className="mt-6">
+            <label className="block text-sm font-medium mb-1">
+              System Prompt *
             </label>
-            <textarea
+            <Textarea
               value={formData.prompt}
               onChange={(e) => handleInputChange('prompt', e.target.value)}
               rows={15}
-              className={`textarea textarea-bordered w-full font-mono text-sm natural-textarea ${
-                errors.prompt ? 'textarea-error' : ''
+              className={`w-full font-mono text-sm ${
+                errors.prompt ? 'border-destructive' : ''
               }`}
               placeholder="Enter the system prompt for this agent..."
             />
             {errors.prompt && (
-              <label className="label">
-                <span className="label-text-alt text-error">{errors.prompt}</span>
-              </label>
+              <p className="text-xs text-destructive mt-1">{errors.prompt}</p>
             )}
           </div>
           
           
           <div className="flex justify-end gap-3 mt-6 pt-4">
-            <button
+            <Button
               type="button"
               onClick={onCancel}
-              className="btn btn-outline"
+              variant="outline"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="btn btn-primary"
+              variant="default"
             >
               <Save size={16} />
               {agent ? 'Update Agent' : 'Create Agent'}
-            </button>
+            </Button>
           </div>
         </form>
     </div>

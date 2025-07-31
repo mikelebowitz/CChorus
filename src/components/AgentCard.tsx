@@ -27,11 +27,7 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent, onEdit, onDelete })
           <div>
             <h3 className="font-semibold text-lg text-gray-900">{agent.name}</h3>
             {agent.level && (
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                agent.level === 'user' 
-                  ? 'bg-blue-100 text-blue-800' 
-                  : 'bg-green-100 text-green-800'
-              }`}>
+              <span className="text-xs px-2 py-1 rounded-full font-medium bg-muted text-muted-foreground">
                 {agent.level}
               </span>
             )}

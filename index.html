@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Claude Code Agent Editor</title>
+    <script>
+      // Initialize theme from localStorage before page renders
+      try { 
+        const theme = localStorage.getItem("cchorus-theme") || "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

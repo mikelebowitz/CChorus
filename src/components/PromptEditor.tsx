@@ -1,5 +1,6 @@
 import React from 'react';
 import { SubAgent } from '../types';
+import { Textarea } from './ui/textarea';
 
 interface PromptEditorProps {
   agent?: SubAgent;
@@ -20,17 +21,17 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
 
   if (!agent && !formData.name) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-base-100">
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center max-w-md px-6">
           <img 
             src="/cchorus-logo.png" 
             alt="CChorus" 
             className="mx-auto h-16 w-auto logo faded mb-4"
           />
-          <h3 className="text-lg font-medium text-base-content/60 mb-2">
+          <h3 className="text-lg font-medium text-foreground/60 mb-2">
             Select an agent to edit
           </h3>
-          <p className="text-base-content/40">
+          <p className="text-foreground/40">
             Choose an agent from the sidebar to start editing its system prompt
           </p>
         </div>
@@ -39,9 +40,9 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
   }
 
   return (
-    <div className="flex-1 bg-base-100 flex flex-col">
+    <div className="flex-1 bg-background flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-base-300">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
           {formData.color && (
             <div 
@@ -54,7 +55,7 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
               {formData.name || 'New Agent'} - System Prompt
             </h2>
             {formData.description && (
-              <p className="text-sm text-base-content/60">
+              <p className="text-sm text-foreground/60">
                 {formData.description}
               </p>
             )}
@@ -64,26 +65,26 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
 
       {/* Prompt Editor */}
       <div className="flex-1 p-4 min-h-0">
-        <div className="form-control h-full">
-          <label className="label">
-            <span className="label-text font-medium">System Prompt *</span>
-            <span className="label-text-alt text-xs">
+        <div className="h-full flex flex-col">
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm font-medium">
+              System Prompt *
+            </label>
+            <span className="text-xs text-muted-foreground">
               {formData.prompt?.length || 0} characters
             </span>
-          </label>
-          <textarea
+          </div>
+          <Textarea
             value={formData.prompt || ''}
             onChange={(e) => handlePromptChange(e.target.value)}
-            className={`textarea textarea-bordered w-full font-mono text-sm natural-textarea flex-1 ${
-              errors.prompt ? 'textarea-error' : ''
+            className={`w-full font-mono text-sm flex-1 ${
+              errors.prompt ? 'border-destructive' : ''
             }`}
             placeholder="Enter the system prompt for this agent..."
             style={{ minHeight: 'calc(100vh - 250px)' }}
           />
           {errors.prompt && (
-            <label className="label">
-              <span className="label-text-alt text-error">{errors.prompt}</span>
-            </label>
+            <p className="text-xs text-destructive mt-1">{errors.prompt}</p>
           )}
         </div>
       </div>
