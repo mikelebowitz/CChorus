@@ -5,7 +5,39 @@ All notable changes to CChorus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-07-30
+## [Unreleased] - 2025-07-31
+
+### Added
+- **🚀 System-Wide Agent Discovery** - Comprehensive scanning across all projects on the system
+- **New `/api/agents/system` endpoint** - Replaces project-specific scanning with system-wide discovery
+- **Project Context Metadata** - Each agent now includes project name, path, and source classification
+- **Advanced Agent Scanner Module** - New `agentScanner.js` with streaming capabilities using readdirp v4
+- **Memory-Efficient Scanning** - Stream-based processing for large directory structures
+- **Enhanced Error Resilience** - Robust handling of filesystem issues, permissions, and broken symlinks
+- **Performance Optimizations** - Smart directory filtering and depth control
+- **TypeScript Support** - Full type definitions for new agent discovery features
+
+### Changed
+- **⚠️ BREAKING CHANGE**: API endpoint `/api/agents/project` replaced with `/api/agents/system`
+- Updated `ApiFileSystemService` to use system-wide scanning instead of project-specific scanning
+- Enhanced `SubAgent` interface with project metadata fields (`projectName`, `projectPath`, `relativePath`)
+- Improved agent loading strategy - now provides comprehensive system view instead of user+project approach
+- Updated readdirp dependency to v4.1.2 with function-based filtering (string glob patterns deprecated)
+
+### Technical Improvements
+- Implemented streaming-based agent file scanning with `scanAgentFiles()` async generator
+- Added promise-based `scanAgentFilesArray()` for convenience use cases
+- Enhanced server-side project information extraction from file paths
+- Improved agent sorting by project name and agent name
+- Added comprehensive error logging and graceful degradation
+
+### Developer Experience
+- New `agentScanner.ts` TypeScript module with full type safety
+- Enhanced development documentation for the new scanning architecture
+- Improved debugging capabilities with detailed logging
+- Better error messages for filesystem issues
+
+## [Previous] - 2025-07-30
 
 ### Added
 - New `AgentTabbedEditor` component with 3-tab interface (Basic Info, Color & Tools, Prompt)

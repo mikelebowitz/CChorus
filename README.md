@@ -22,7 +22,21 @@
 - **Muted Visual Hierarchy** - Subtle, professional color scheme that adapts to themes
 - **Enhanced Accessibility** - Full keyboard navigation and screen reader support via Radix UI
 - **Smart Organization** - Color-coded agents with intuitive search and filtering
-- **Dual-Level Storage** - Separate user (~/.claude/agents/) and project (.claude/agents/) agents
+- **System-Wide Agent Discovery** - Comprehensive scanning across all projects on your system
+- **Project Context Awareness** - Each agent includes project metadata (name, path, source type)
+- **Performance Optimized** - Memory-efficient streaming scanner handles large directory structures
+- **Robust Error Handling** - Gracefully handles filesystem issues and permissions
+
+### **🚀 System-Wide Agent Discovery**
+
+CChorus now provides **comprehensive agent discovery** across your entire system, not just the current project:
+
+- **📡 Intelligent Scanning** - Recursively scans from your home directory to find all `.claude/agents/` directories
+- **🏗️ Project Context** - Automatically identifies and displays the project each agent belongs to
+- **⚡ High Performance** - Uses streaming technology (readdirp v4) for memory-efficient scanning
+- **🛡️ Bulletproof Resilience** - Advanced error handling for permissions, broken symlinks, and filesystem edge cases
+- **🎯 Smart Filtering** - Ignores system directories (`node_modules`, `.git`) while finding all your agents
+- **📊 Rich Metadata** - Each agent includes project name, path, and source classification
 
 ### **Experimental Features**
 

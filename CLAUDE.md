@@ -126,10 +126,24 @@ System prompt content goes here...
 
 ### Data Flow
 
-1. **Agent Loading**: Frontend calls `/api/agents/user` and `/api/agents/project` to load agents from both directories
-2. **Agent Parsing**: Backend reads `.md` files and frontend parses YAML frontmatter using `js-yaml`
-3. **Agent Storage**: Agents saved to appropriate directory based on `level` (user/project)
-4. **Tool Integration**: Supports all Claude Code tools plus MCP servers detected from `~/.claude/settings.json`
+1. **System-Wide Agent Discovery**: Frontend calls `/api/agents/system` to comprehensively scan all projects on the system
+2. **Advanced Scanning**: Backend uses `agentScanner.js` with readdirp v4 streaming to recursively find all `.claude/agents/` directories
+3. **Project Context Extraction**: Server automatically determines project name, path, and source type for each agent
+4. **Agent Parsing**: Backend reads `.md` files and frontend parses YAML frontmatter using `js-yaml`
+5. **Enhanced Metadata**: Each agent includes project information (`projectName`, `projectPath`, `sourceType`, `relativePath`)
+6. **Agent Storage**: Agents saved to appropriate directory based on `level` (user/project)
+7. **Tool Integration**: Supports all Claude Code tools plus MCP servers detected from `~/.claude/settings.json`
+
+### Agent Scanner Architecture
+
+The new **`agentScanner.js`** module provides robust, production-ready agent discovery:
+
+- **Stream-Based Scanning**: `scanAgentFiles(roots)` - Memory-efficient async generator for large directory trees
+- **Promise-Based API**: `scanAgentFilesArray(roots)` - Convenient array-based results for simple use cases  
+- **Cancellation Support**: `createScanController()` - AbortSignal integration for user-triggered cancellation
+- **Smart Filtering**: Automatically ignores `node_modules`, `.git`, and other system directories
+- **Error Resilience**: Graceful handling of permissions issues, broken symlinks, and filesystem edge cases
+- **Performance Optimized**: Configurable depth limits and efficient memory usage patterns
 
 ### File System Security
 
