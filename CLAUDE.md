@@ -34,14 +34,16 @@ No automated tests are currently configured. Manual testing is done through the 
 ## Recent Major Improvements (July 2025)
 
 ### 🎨 Complete UI/UX Overhaul
-- **Professional Theme System**: Implemented complete daisyUI theme framework with 30+ professional themes
-- **Theme Switching**: Added keyboard shortcut (Ctrl/Cmd + T) and persistent theme selection
-- **Visual Feedback Enhancement**: Fixed color selection with proper white border/shadow indicators
-- **Layout Optimization**: Removed unnecessary borders, improved visual hierarchy
+- **Professional Theme System**: Implemented comprehensive shadcn/ui + Radix UI component library with theme provider
+- **Theme Switching**: Added keyboard shortcut (Ctrl/Cmd + T) with toast notifications and persistent theme selection
+- **Muted Tag Colors**: Implemented consistent muted color scheme for user/project badges across all themes
+- **Visual Feedback Enhancement**: Fixed color selection with proper theme-aware styling and accessibility
+- **Layout Optimization**: Removed unnecessary borders, improved visual hierarchy with professional appearance
 
 ### 🔧 Technical Infrastructure Enhancements
-- **CSS Architecture**: Built comprehensive override system with !important declarations for robust styling
-- **Component Restructuring**: Enhanced React component hierarchy for better layout flow
+- **Component Library**: Added comprehensive shadcn/ui + Radix UI component system with accessibility primitives
+- **Build Tooling**: Upgraded to Vite 7.0.4, Tailwind CSS 3.4.17, and modern development dependencies
+- **Theme Architecture**: Implemented robust theme provider with localStorage persistence and pre-render initialization
 - **Server Improvements**: Enhanced file browser to default to user home directory with .claude folder visibility
 - **MCP Integration**: Improved MCP server detection to show only actually available tools
 
