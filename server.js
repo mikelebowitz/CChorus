@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
+import { scanAgentFilesArray } from './agentScanner.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,24 +34,32 @@ app.use((req, res, next) => {
   }
 });
 
-// Helper function to scan directory for .md files
+// Enhanced helper function to scan for agent files using the new scanner
 async function scanAgentDirectory(dirPath) {
   try {
-    const files = await fs.readdir(dirPath);
-    const mdFiles = files.filter(file => file.endsWith('.md'));
+    // For a specific directory like /path/to/.claude/agents, we want to scan
+    // from the parent of .claude to find all agent files, then filter to our specific dir
+    const rootToScan = path.dirname(path.dirname(dirPath)); // Go up from .claude/agents to the root
+    
+    // Use the new scanner to find agent files
+    const agentFiles = await scanAgentFilesArray([rootToScan]);
+    
+    // Filter to only files in our specific directory
+    const relevantFiles = agentFiles.filter(result => 
+      path.dirname(result.file) === dirPath
+    );
     
     const agents = [];
-    for (const file of mdFiles) {
+    for (const { file: filePath } of relevantFiles) {
       try {
-        const filePath = path.join(dirPath, file);
         const content = await fs.readFile(filePath, 'utf-8');
         agents.push({
-          name: path.basename(file, '.md'),
+          name: path.basename(filePath, '.md'),
           filePath,
           content
         });
       } catch (error) {
-        console.warn(`Failed to read ${file}:`, error.message);
+        console.warn(`Failed to read ${filePath}:`, error.message);
       }
     }
     
@@ -59,6 +68,88 @@ async function scanAgentDirectory(dirPath) {
     console.warn(`Failed to scan directory ${dirPath}:`, error.message);
     return [];
   }
+}
+
+// System-wide agent scanning function
+async function scanSystemAgents() {
+  try {
+    // Define comprehensive scan roots for finding all projects with Claude agents
+    const scanRoots = [
+      os.homedir(), // User's entire home directory - captures all projects
+      // Could add other common locations like:
+      // path.join(os.homedir(), 'Documents'),
+      // path.join(os.homedir(), 'Projects'),
+      // path.join(os.homedir(), 'Development'),
+    ];
+    
+    console.log('Starting system-wide agent scan from roots:', scanRoots);
+    
+    // Use our powerful scanner to find all agent files across the system
+    const agentFiles = await scanAgentFilesArray(scanRoots);
+    
+    console.log(`Found ${agentFiles.length} total agent files across the system`);
+    
+    const agents = [];
+    
+    for (const { file: filePath, origin } of agentFiles) {
+      try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        
+        // Extract project information from the file path
+        const projectInfo = extractProjectInfo(filePath, origin);
+        
+        agents.push({
+          name: path.basename(filePath, '.md'),
+          filePath,
+          content,
+          // Add project metadata
+          projectName: projectInfo.projectName,
+          projectPath: projectInfo.projectPath,
+          sourceType: projectInfo.sourceType,
+          relativePath: path.relative(origin, filePath)
+        });
+      } catch (error) {
+        console.warn(`Failed to read agent file ${filePath}:`, error.message);
+      }
+    }
+    
+    console.log(`Successfully loaded ${agents.length} system agents`);
+    
+    // Sort by project name, then by agent name
+    agents.sort((a, b) => {
+      const projectCompare = a.projectName.localeCompare(b.projectName);
+      return projectCompare !== 0 ? projectCompare : a.name.localeCompare(b.name);
+    });
+    
+    return agents;
+  } catch (error) {
+    console.error('System agent scan failed:', error);
+    return [];
+  }
+}
+
+// Helper function to extract project information from agent file paths
+function extractProjectInfo(filePath, origin) {
+  // filePath example: "/Users/user/Projects/MyApp/.claude/agents/agent.md"
+  // We want to extract project name and path
+  
+  const agentDir = path.dirname(filePath); // "/Users/user/Projects/MyApp/.claude/agents"
+  const claudeDir = path.dirname(agentDir); // "/Users/user/Projects/MyApp/.claude"  
+  const projectPath = path.dirname(claudeDir); // "/Users/user/Projects/MyApp"
+  const projectName = path.basename(projectPath); // "MyApp"
+  
+  // Determine source type based on location
+  let sourceType = 'project';
+  const homeAgentsPath = path.join(os.homedir(), '.claude', 'agents');
+  if (path.dirname(filePath) === homeAgentsPath) {
+    sourceType = 'user';
+  }
+  
+  return {
+    projectName,
+    projectPath,
+    sourceType
+  };
 }
 
 // API Routes
@@ -75,15 +166,14 @@ app.get('/api/agents/user', async (req, res) => {
   }
 });
 
-// Get project-level agents  
-app.get('/api/agents/project', async (req, res) => {
+// Get system-wide agents from all projects
+app.get('/api/agents/system', async (req, res) => {
   try {
-    const projectAgentsDir = path.join(process.cwd(), '.claude', 'agents');
-    const agents = await scanAgentDirectory(projectAgentsDir);
+    const agents = await scanSystemAgents();
     res.json(agents);
   } catch (error) {
-    console.error('Failed to load project agents:', error);
-    res.status(500).json({ error: 'Failed to load project agents' });
+    console.error('Failed to load system agents:', error);
+    res.status(500).json({ error: 'Failed to load system agents' });
   }
 });
 

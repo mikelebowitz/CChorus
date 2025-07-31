@@ -32,9 +32,9 @@ export class ApiFileSystemService {
     }
   }
 
-  async loadProjectAgents(): Promise<SubAgent[]> {
+  async loadSystemAgents(): Promise<SubAgent[]> {
     try {
-      const response = await fetch(`${API_BASE}/agents/project`);
+      const response = await fetch(`${API_BASE}/agents/system`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -46,43 +46,33 @@ export class ApiFileSystemService {
         try {
           const agent = parseAgentFile(file.content);
           agent.filePath = file.filePath;
-          agent.level = 'project';
+          agent.level = file.sourceType; // 'user' or 'project'
+          
+          // Add system-wide agent metadata
+          agent.projectName = file.projectName;
+          agent.projectPath = file.projectPath;
+          agent.relativePath = file.relativePath;
+          
           agents.push(agent);
         } catch (error) {
-          console.error(`Failed to parse project agent ${file.name}:`, error);
+          console.error(`Failed to parse system agent ${file.name}:`, error);
         }
       }
       
       return agents;
     } catch (error) {
-      console.error('Failed to load project agents:', error);
+      console.error('Failed to load system agents:', error);
       return [];
     }
   }
 
   async loadAgents(): Promise<SubAgent[]> {
     try {
-      const [userAgents, projectAgents] = await Promise.all([
-        this.loadUserAgents(),
-        this.loadProjectAgents()
-      ]);
+      // Use system-wide scan which finds all agents across all projects
+      // This replaces the old user + project approach with comprehensive discovery
+      const systemAgents = await this.loadSystemAgents();
       
-      // Combine all agents without overriding - use unique key of name + level
-      const agentMap = new Map<string, SubAgent>();
-      
-      // Add user agents
-      userAgents.forEach(agent => {
-        const key = `${agent.name}-${agent.level}`;
-        agentMap.set(key, agent);
-      });
-      
-      // Add project agents
-      projectAgents.forEach(agent => {
-        const key = `${agent.name}-${agent.level}`;
-        agentMap.set(key, agent);
-      });
-      
-      return Array.from(agentMap.values());
+      return systemAgents;
     } catch (error) {
       console.error('Error in loadAgents:', error);
       return [];

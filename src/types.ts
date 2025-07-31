@@ -6,6 +6,10 @@ export interface SubAgent {
   prompt: string;
   filePath?: string;
   level?: 'user' | 'project';
+  // System-wide discovery metadata
+  projectName?: string;
+  projectPath?: string;
+  relativePath?: string;
 }
 
 export interface SubAgentConfig {
