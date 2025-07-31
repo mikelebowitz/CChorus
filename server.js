@@ -3,6 +3,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
+import { scanAgentFilesArray } from './agentScanner.js';
+import { scanClaudeProjectsArray, extractProjectInfo } from './projectScanner.js';
+import { scanHookConfigurations, extractHookConfigurations, readSettingsFile, updateSettingsHooks, validateHookConfiguration, createHookTemplate } from './hooksScanner.js';
+import { scanSlashCommands, saveSlashCommand, deleteSlashCommand, validateSlashCommand, createCommandTemplate, getBuiltInCommands } from './commandsScanner.js';
+import { SettingsManager } from './settingsManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,30 +38,96 @@ app.use((req, res, next) => {
   }
 });
 
-// Helper function to scan directory for .md files
+// Enhanced helper function to scan for agent files using the new scanner
 async function scanAgentDirectory(dirPath) {
   try {
-    const files = await fs.readdir(dirPath);
-    const mdFiles = files.filter(file => file.endsWith('.md'));
+    // For a specific directory like /path/to/.claude/agents, we want to scan
+    // from the parent of .claude to find all agent files, then filter to our specific dir
+    const rootToScan = path.dirname(path.dirname(dirPath)); // Go up from .claude/agents to the root
+    
+    // Use the new scanner to find agent files
+    const agentFiles = await scanAgentFilesArray([rootToScan]);
+    
+    // Filter to only files in our specific directory
+    const relevantFiles = agentFiles.filter(result => 
+      path.dirname(result.file) === dirPath
+    );
     
     const agents = [];
-    for (const file of mdFiles) {
+    for (const { file: filePath } of relevantFiles) {
       try {
-        const filePath = path.join(dirPath, file);
         const content = await fs.readFile(filePath, 'utf-8');
         agents.push({
-          name: path.basename(file, '.md'),
+          name: path.basename(filePath, '.md'),
           filePath,
           content
         });
       } catch (error) {
-        console.warn(`Failed to read ${file}:`, error.message);
+        console.warn(`Failed to read ${filePath}:`, error.message);
       }
     }
     
     return agents;
   } catch (error) {
     console.warn(`Failed to scan directory ${dirPath}:`, error.message);
+    return [];
+  }
+}
+
+// System-wide agent scanning function
+async function scanSystemAgents() {
+  try {
+    // Define comprehensive scan roots for finding all projects with Claude agents
+    const scanRoots = [
+      os.homedir(), // User's entire home directory - captures all projects
+      // Could add other common locations like:
+      // path.join(os.homedir(), 'Documents'),
+      // path.join(os.homedir(), 'Projects'),
+      // path.join(os.homedir(), 'Development'),
+    ];
+    
+    console.log('Starting system-wide agent scan from roots:', scanRoots);
+    
+    // Use our powerful scanner to find all agent files across the system
+    const agentFiles = await scanAgentFilesArray(scanRoots);
+    
+    console.log(`Found ${agentFiles.length} total agent files across the system`);
+    
+    const agents = [];
+    
+    for (const { file: filePath, origin } of agentFiles) {
+      try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        
+        // Extract project information from the file path
+        const projectInfo = extractProjectInfo(filePath, origin);
+        
+        agents.push({
+          name: path.basename(filePath, '.md'),
+          filePath,
+          content,
+          // Add project metadata
+          projectName: projectInfo.projectName,
+          projectPath: projectInfo.projectPath,
+          sourceType: projectInfo.sourceType,
+          relativePath: path.relative(origin, filePath)
+        });
+      } catch (error) {
+        console.warn(`Failed to read agent file ${filePath}:`, error.message);
+      }
+    }
+    
+    console.log(`Successfully loaded ${agents.length} system agents`);
+    
+    // Sort by project name, then by agent name
+    agents.sort((a, b) => {
+      const projectCompare = a.projectName.localeCompare(b.projectName);
+      return projectCompare !== 0 ? projectCompare : a.name.localeCompare(b.name);
+    });
+    
+    return agents;
+  } catch (error) {
+    console.error('System agent scan failed:', error);
     return [];
   }
 }
@@ -75,15 +146,841 @@ app.get('/api/agents/user', async (req, res) => {
   }
 });
 
-// Get project-level agents  
-app.get('/api/agents/project', async (req, res) => {
+// Get system-wide agents from all projects
+app.get('/api/agents/system', async (req, res) => {
   try {
-    const projectAgentsDir = path.join(process.cwd(), '.claude', 'agents');
-    const agents = await scanAgentDirectory(projectAgentsDir);
+    const agents = await scanSystemAgents();
     res.json(agents);
   } catch (error) {
-    console.error('Failed to load project agents:', error);
-    res.status(500).json({ error: 'Failed to load project agents' });
+    console.error('Failed to load system agents:', error);
+    res.status(500).json({ error: 'Failed to load system agents' });
+  }
+});
+
+// System-wide project scanning function
+async function scanSystemProjects() {
+  try {
+    // Define comprehensive scan roots for finding all Claude Code projects
+    const scanRoots = [
+      os.homedir(), // User's entire home directory - captures all projects
+    ];
+    
+    console.log('Starting system-wide project scan from roots:', scanRoots);
+    
+    // Use our scanner to find all CLAUDE.md files across the system
+    const projectFiles = await scanClaudeProjectsArray(scanRoots);
+    
+    console.log(`Found ${projectFiles.length} Claude Code projects across the system`);
+    
+    const projects = [];
+    
+    for (const { file: claudeMdPath, origin, projectPath } of projectFiles) {
+      try {
+        // Extract comprehensive project information
+        const projectInfo = await extractProjectInfo(projectPath, claudeMdPath);
+        
+        projects.push({
+          ...projectInfo,
+          origin: origin,
+          relativePath: path.relative(origin, projectPath)
+        });
+      } catch (error) {
+        console.warn(`Failed to extract project info for ${projectPath}:`, error.message);
+      }
+    }
+    
+    console.log(`Successfully loaded ${projects.length} system projects`);
+    
+    // Sort by project name
+    projects.sort((a, b) => a.name.localeCompare(b.name));
+    
+    return projects;
+  } catch (error) {
+    console.error('System project scan failed:', error);
+    return [];
+  }
+}
+
+// Get system-wide Claude Code projects
+app.get('/api/projects/system', async (req, res) => {
+  try {
+    const projects = await scanSystemProjects();
+    res.json(projects);
+  } catch (error) {
+    console.error('Failed to load system projects:', error);
+    res.status(500).json({ error: 'Failed to load system projects' });
+  }
+});
+
+// Get detailed information about a specific project
+app.get('/api/projects/:projectPath(*)/info', async (req, res) => {
+  try {
+    const projectPath = '/' + req.params.projectPath;
+    const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
+    
+    // Security check: ensure the project path is reasonable
+    if (!projectPath.includes(os.homedir()) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Check if CLAUDE.md exists
+    try {
+      await fs.access(claudeMdPath);
+    } catch (error) {
+      return res.status(404).json({ error: 'CLAUDE.md not found in specified project' });
+    }
+    
+    const projectInfo = await extractProjectInfo(projectPath, claudeMdPath);
+    res.json(projectInfo);
+  } catch (error) {
+    console.error('Failed to get project info:', error);
+    res.status(500).json({ error: 'Failed to get project info' });
+  }
+});
+
+// Read CLAUDE.md content for a project
+app.get('/api/projects/:projectPath(*)/claude-md', async (req, res) => {
+  try {
+    const projectPath = '/' + req.params.projectPath;
+    const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
+    
+    // Security check
+    if (!projectPath.includes(os.homedir()) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const content = await fs.readFile(claudeMdPath, 'utf-8');
+    res.json({ content, path: claudeMdPath });
+  } catch (error) {
+    console.error('Failed to read CLAUDE.md:', error);
+    res.status(500).json({ error: 'Failed to read CLAUDE.md file' });
+  }
+});
+
+// Update CLAUDE.md content for a project
+app.put('/api/projects/:projectPath(*)/claude-md', async (req, res) => {
+  try {
+    const projectPath = '/' + req.params.projectPath;
+    const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+    
+    // Security check
+    if (!projectPath.includes(os.homedir()) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Create backup of existing file
+    try {
+      const existingContent = await fs.readFile(claudeMdPath, 'utf-8');
+      const backupPath = claudeMdPath + '.backup.' + Date.now();
+      await fs.writeFile(backupPath, existingContent, 'utf-8');
+    } catch (error) {
+      console.warn('Could not create backup:', error.message);
+    }
+    
+    await fs.writeFile(claudeMdPath, content, 'utf-8');
+    res.json({ success: true, path: claudeMdPath });
+  } catch (error) {
+    console.error('Failed to update CLAUDE.md:', error);
+    res.status(500).json({ error: 'Failed to update CLAUDE.md file' });
+  }
+});
+
+// Get system-wide hook configurations
+app.get('/api/hooks/system', async (req, res) => {
+  try {
+    // First get all projects to scan their settings
+    const projectFiles = await scanClaudeProjectsArray([os.homedir()]);
+    const projectPaths = projectFiles.map(p => p.projectPath);
+    
+    // Scan for hook configurations in user and project settings
+    const settingsFiles = await scanHookConfigurations(projectPaths);
+    const hooks = extractHookConfigurations(settingsFiles);
+    
+    res.json({
+      hooks: hooks,
+      settingsFiles: settingsFiles.map(sf => ({
+        path: sf.path,
+        type: sf.type,
+        exists: sf.exists,
+        hasHooks: sf.hasHooks,
+        lastModified: sf.lastModified,
+        projectPath: sf.projectPath,
+        projectName: sf.projectName,
+        error: sf.error
+      }))
+    });
+  } catch (error) {
+    console.error('Failed to load system hooks:', error);
+    res.status(500).json({ error: 'Failed to load system hooks' });
+  }
+});
+
+// Get hooks for a specific settings file
+app.get('/api/hooks/settings', async (req, res) => {
+  try {
+    const { path: settingsPath, type } = req.query;
+    
+    if (!settingsPath || !type) {
+      return res.status(400).json({ error: 'Path and type are required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const settingsFile = await readSettingsFile(settingsPath, type);
+    const hooks = settingsFile.hasHooks ? extractHookConfigurations([settingsFile]) : [];
+    
+    res.json({
+      settingsFile,
+      hooks
+    });
+  } catch (error) {
+    console.error('Failed to get hooks for settings file:', error);
+    res.status(500).json({ error: 'Failed to get hooks for settings file' });
+  }
+});
+
+// Create a new hook configuration
+app.post('/api/hooks/create', async (req, res) => {
+  try {
+    const { settingsPath, eventType, matcher, type } = req.body;
+    
+    if (!settingsPath) {
+      return res.status(400).json({ error: 'Settings path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Create hook template
+    const hookTemplate = createHookTemplate(eventType, matcher, type);
+    
+    // Validate the hook configuration
+    const validation = validateHookConfiguration(hookTemplate);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: 'Invalid hook configuration', details: validation.errors });
+    }
+    
+    res.json({ hook: hookTemplate });
+  } catch (error) {
+    console.error('Failed to create hook:', error);
+    res.status(500).json({ error: 'Failed to create hook' });
+  }
+});
+
+// Update hooks in a settings file
+app.put('/api/hooks/settings', async (req, res) => {
+  try {
+    const { settingsPath, hooks } = req.body;
+    
+    if (!settingsPath || !Array.isArray(hooks)) {
+      return res.status(400).json({ error: 'Settings path and hooks array are required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Validate all hook configurations
+    for (const hook of hooks) {
+      const validation = validateHookConfiguration(hook);
+      if (!validation.isValid) {
+        return res.status(400).json({ 
+          error: `Invalid hook configuration for ${hook.eventType}:${hook.matcher}`, 
+          details: validation.errors 
+        });
+      }
+    }
+    
+    // Update the settings file
+    await updateSettingsHooks(settingsPath, hooks);
+    
+    res.json({ success: true, path: settingsPath });
+  } catch (error) {
+    console.error('Failed to update hooks:', error);
+    res.status(500).json({ error: 'Failed to update hooks' });
+  }
+});
+
+// Validate a hook configuration
+app.post('/api/hooks/validate', async (req, res) => {
+  try {
+    const { hookConfig } = req.body;
+    
+    if (!hookConfig) {
+      return res.status(400).json({ error: 'Hook configuration is required' });
+    }
+    
+    const validation = validateHookConfiguration(hookConfig);
+    res.json(validation);
+  } catch (error) {
+    console.error('Failed to validate hook:', error);
+    res.status(500).json({ error: 'Failed to validate hook' });
+  }
+});
+
+// Assign a hook to a target scope (copy/move operation)
+app.post('/api/hooks/assign', async (req, res) => {
+  try {
+    const { eventType, matcher, command, enabled, targetScope, operation, targetProjectPath } = req.body;
+    
+    if (!eventType || !matcher || !command || !targetScope) {
+      return res.status(400).json({ error: 'Event type, matcher, command, and target scope are required' });
+    }
+
+    if (!['copy', 'move'].includes(operation)) {
+      return res.status(400).json({ error: 'Operation must be copy or move' });
+    }
+    
+    // Create the hook configuration
+    const hookConfig = {
+      eventType,
+      matcher,
+      command,
+      enabled: enabled !== false // Default to enabled
+    };
+    
+    // Determine target settings file path
+    let targetSettingsPath;
+    if (targetScope === 'user') {
+      targetSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+    } else if (targetScope === 'project') {
+      const projectDir = targetProjectPath || process.cwd();
+      targetSettingsPath = path.join(projectDir, '.claude', 'settings.json');
+    } else {
+      return res.status(400).json({ error: 'Target scope must be user or project' });
+    }
+    
+    // Update the settings file with the new hook
+    const result = await updateSettingsHooks(targetSettingsPath, hookConfig, 'add');
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        targetPath: targetSettingsPath,
+        operation,
+        targetScope
+      });
+    } else {
+      res.status(500).json({ error: result.error || 'Failed to assign hook' });
+    }
+  } catch (error) {
+    console.error('Failed to assign hook:', error);
+    res.status(500).json({ error: 'Failed to assign hook: ' + error.message });
+  }
+});
+
+// Get system-wide slash commands
+app.get('/api/commands/system', async (req, res) => {
+  try {
+    // First get all projects to scan their commands
+    const projectFiles = await scanClaudeProjectsArray([os.homedir()]);
+    const projectPaths = projectFiles.map(p => p.projectPath);
+    
+    // Scan for slash commands in user and project directories
+    const customCommands = await scanSlashCommands(projectPaths);
+    const builtInCommands = getBuiltInCommands();
+    
+    const allCommands = [...builtInCommands, ...customCommands];
+    
+    res.json({
+      commands: allCommands,
+      summary: {
+        total: allCommands.length,
+        builtin: builtInCommands.length,
+        custom: customCommands.length,
+        user: customCommands.filter(c => c.scope === 'user').length,
+        project: customCommands.filter(c => c.scope === 'project').length
+      }
+    });
+  } catch (error) {
+    console.error('Failed to load system commands:', error);
+    res.status(500).json({ error: 'Failed to load system commands' });
+  }
+});
+
+// Get commands for a specific project or user
+app.get('/api/commands/scope/:scope', async (req, res) => {
+  try {
+    const { scope } = req.params;
+    const { projectPath } = req.query;
+    
+    if (!['user', 'project', 'builtin'].includes(scope)) {
+      return res.status(400).json({ error: 'Invalid scope. Must be user, project, or builtin' });
+    }
+    
+    let commands = [];
+    
+    if (scope === 'builtin') {
+      commands = getBuiltInCommands();
+    } else if (scope === 'user') {
+      commands = await scanSlashCommands([]);
+      commands = commands.filter(c => c.scope === 'user');
+    } else if (scope === 'project') {
+      if (!projectPath) {
+        return res.status(400).json({ error: 'Project path is required for project scope' });
+      }
+      
+      // Security check
+      const userHome = os.homedir();
+      if (!projectPath.startsWith(userHome) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+        return res.status(403).json({ error: 'Access denied to system directories' });
+      }
+      
+      commands = await scanSlashCommands([projectPath]);
+      commands = commands.filter(c => c.scope === 'project' && c.projectPath === projectPath);
+    }
+    
+    res.json({ commands, scope, projectPath });
+  } catch (error) {
+    console.error('Failed to load commands for scope:', error);
+    res.status(500).json({ error: 'Failed to load commands for scope' });
+  }
+});
+
+// Create a new slash command template
+app.post('/api/commands/template', async (req, res) => {
+  try {
+    const { name, description, allowedTools } = req.body;
+    
+    const template = createCommandTemplate(name, description, allowedTools || []);
+    res.json({ template });
+  } catch (error) {
+    console.error('Failed to create command template:', error);
+    res.status(500).json({ error: 'Failed to create command template' });
+  }
+});
+
+// Save a slash command
+app.post('/api/commands/save', async (req, res) => {
+  try {
+    const { command, scope, projectPath } = req.body;
+    
+    if (!command || !scope) {
+      return res.status(400).json({ error: 'Command and scope are required' });
+    }
+    
+    if (scope === 'project' && !projectPath) {
+      return res.status(400).json({ error: 'Project path is required for project scope' });
+    }
+    
+    // Security check for project path
+    if (projectPath) {
+      const userHome = os.homedir();
+      if (!projectPath.startsWith(userHome) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+        return res.status(403).json({ error: 'Access denied to system directories' });
+      }
+    }
+    
+    // Validate the command
+    const validation = validateSlashCommand(command);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: 'Invalid command configuration', details: validation.errors });
+    }
+    
+    // Save the command
+    const savedPath = await saveSlashCommand(command, scope, projectPath);
+    
+    res.json({ success: true, path: savedPath });
+  } catch (error) {
+    console.error('Failed to save command:', error);
+    res.status(500).json({ error: 'Failed to save command' });
+  }
+});
+
+// Delete a slash command
+app.delete('/api/commands/:commandId', async (req, res) => {
+  try {
+    const { commandId } = req.params;
+    const { commandPath } = req.query;
+    
+    if (!commandPath) {
+      return res.status(400).json({ error: 'Command path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!commandPath.startsWith(userHome) && !commandPath.startsWith('/Users/') && !commandPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    await deleteSlashCommand(commandPath);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to delete command:', error);
+    res.status(500).json({ error: 'Failed to delete command' });
+  }
+});
+
+// Read a specific command file
+app.get('/api/commands/file', async (req, res) => {
+  try {
+    const { path: commandPath } = req.query;
+    
+    if (!commandPath) {
+      return res.status(400).json({ error: 'Command path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!commandPath.startsWith(userHome) && !commandPath.startsWith('/Users/') && !commandPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const content = await fs.readFile(commandPath, 'utf-8');
+    res.json({ content, path: commandPath });
+  } catch (error) {
+    console.error('Failed to read command file:', error);
+    res.status(500).json({ error: 'Failed to read command file' });
+  }
+});
+
+// Validate a slash command
+app.post('/api/commands/validate', async (req, res) => {
+  try {
+    const { command } = req.body;
+    
+    if (!command) {
+      return res.status(400).json({ error: 'Command is required' });
+    }
+    
+    const validation = validateSlashCommand(command);
+    res.json(validation);
+  } catch (error) {
+    console.error('Failed to validate command:', error);
+    res.status(500).json({ error: 'Failed to validate command' });
+  }
+});
+
+// Assign a command to a target scope (copy/move operation)
+app.post('/api/commands/assign', async (req, res) => {
+  try {
+    const { id, name, description, command, scope, operation, sourcePath, targetProjectPath } = req.body;
+    
+    if (!id || !name || !command || !scope) {
+      return res.status(400).json({ error: 'ID, name, command, and scope are required' });
+    }
+
+    if (!['copy', 'move'].includes(operation)) {
+      return res.status(400).json({ error: 'Operation must be copy or move' });
+    }
+    
+    // Create the command object
+    const commandData = {
+      id,
+      name,
+      description: description || '',
+      command
+    };
+    
+    // Save the command using the existing saveSlashCommand function
+    const result = await saveSlashCommand(commandData, scope, targetProjectPath);
+    
+    // If operation is 'move', delete the source file
+    if (operation === 'move' && sourcePath && result.success) {
+      try {
+        await fs.unlink(sourcePath);
+      } catch (error) {
+        console.warn(`Failed to delete source command file ${sourcePath}:`, error.message);
+        // Don't fail the entire operation if we can't delete the source
+      }
+    }
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        targetPath: result.filePath,
+        operation,
+        targetScope: scope
+      });
+    } else {
+      res.status(500).json({ error: result.error || 'Failed to assign command' });
+    }
+  } catch (error) {
+    console.error('Failed to assign command:', error);
+    res.status(500).json({ error: 'Failed to assign command: ' + error.message });
+  }
+});
+
+// Get effective settings for a project or user
+app.get('/api/settings/effective', async (req, res) => {
+  try {
+    const { projectPath } = req.query;
+    
+    // Security check for project path
+    if (projectPath) {
+      const userHome = os.homedir();
+      if (!projectPath.startsWith(userHome) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+        return res.status(403).json({ error: 'Access denied to system directories' });
+      }
+    }
+    
+    const effectiveSettings = await SettingsManager.getEffectiveSettings(projectPath);
+    res.json(effectiveSettings);
+  } catch (error) {
+    console.error('Failed to get effective settings:', error);
+    res.status(500).json({ error: 'Failed to get effective settings' });
+  }
+});
+
+// Get settings for a specific file
+app.get('/api/settings/file', async (req, res) => {
+  try {
+    const { path: settingsPath } = req.query;
+    
+    if (!settingsPath) {
+      return res.status(400).json({ error: 'Settings path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const settings = await SettingsManager.readSettings(settingsPath);
+    res.json(settings);
+  } catch (error) {
+    console.error('Failed to read settings file:', error);
+    res.status(500).json({ error: 'Failed to read settings file' });
+  }
+});
+
+// Update settings file
+app.put('/api/settings/file', async (req, res) => {
+  try {
+    const { path: settingsPath, settings, options = {} } = req.body;
+    
+    if (!settingsPath || !settings) {
+      return res.status(400).json({ error: 'Settings path and settings object are required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Validate settings
+    const validation = SettingsManager.validateSettings(settings);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        error: 'Invalid settings configuration', 
+        details: validation.errors,
+        warnings: validation.warnings
+      });
+    }
+    
+    // Write settings
+    const result = await SettingsManager.writeSettings(settingsPath, settings, options);
+    
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Failed to update settings:', error);
+    res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// Create new settings file from template
+app.post('/api/settings/template', async (req, res) => {
+  try {
+    const { type = 'project', settingsPath, customTemplate } = req.body;
+    
+    if (!settingsPath) {
+      return res.status(400).json({ error: 'Settings path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Check if file already exists
+    const exists = await SettingsManager.fileExists(settingsPath);
+    if (exists) {
+      return res.status(409).json({ error: 'Settings file already exists' });
+    }
+    
+    // Create template
+    const template = customTemplate || SettingsManager.createSettingsTemplate(type);
+    
+    // Write template to file
+    const result = await SettingsManager.writeSettings(settingsPath, template, {
+      createBackup: false, // No backup needed for new file
+      createDirectories: true
+    });
+    
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+    
+    res.json({ ...result, template });
+  } catch (error) {
+    console.error('Failed to create settings template:', error);
+    res.status(500).json({ error: 'Failed to create settings template' });
+  }
+});
+
+// Validate settings object
+app.post('/api/settings/validate', async (req, res) => {
+  try {
+    const { settings } = req.body;
+    
+    if (!settings) {
+      return res.status(400).json({ error: 'Settings object is required' });
+    }
+    
+    const validation = SettingsManager.validateSettings(settings);
+    res.json(validation);
+  } catch (error) {
+    console.error('Failed to validate settings:', error);
+    res.status(500).json({ error: 'Failed to validate settings' });
+  }
+});
+
+// Merge settings objects
+app.post('/api/settings/merge', async (req, res) => {
+  try {
+    const { baseSettings, overrideSettings, options = {} } = req.body;
+    
+    if (!baseSettings || !overrideSettings) {
+      return res.status(400).json({ error: 'Base settings and override settings are required' });
+    }
+    
+    const merged = SettingsManager.mergeSettings(baseSettings, overrideSettings, options);
+    res.json({ merged });
+  } catch (error) {
+    console.error('Failed to merge settings:', error);
+    res.status(500).json({ error: 'Failed to merge settings' });
+  }
+});
+
+// List backup files for a settings file
+app.get('/api/settings/backups', async (req, res) => {
+  try {
+    const { path: settingsPath } = req.query;
+    
+    if (!settingsPath) {
+      return res.status(400).json({ error: 'Settings path is required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const backups = await SettingsManager.listBackups(settingsPath);
+    res.json({ backups, settingsPath });
+  } catch (error) {
+    console.error('Failed to list backups:', error);
+    res.status(500).json({ error: 'Failed to list backups' });
+  }
+});
+
+// Restore settings from backup
+app.post('/api/settings/restore', async (req, res) => {
+  try {
+    const { backupPath, settingsPath } = req.body;
+    
+    if (!backupPath || !settingsPath) {
+      return res.status(400).json({ error: 'Backup path and settings path are required' });
+    }
+    
+    // Security check
+    const userHome = os.homedir();
+    if ((!backupPath.startsWith(userHome) && !backupPath.startsWith('/Users/') && !backupPath.startsWith('/home/')) ||
+        (!settingsPath.startsWith(userHome) && !settingsPath.startsWith('/Users/') && !settingsPath.startsWith('/home/'))) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    const result = await SettingsManager.restoreFromBackup(backupPath, settingsPath);
+    
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Failed to restore from backup:', error);
+    res.status(500).json({ error: 'Failed to restore from backup' });
+  }
+});
+
+// Assign settings to a target scope (copy/move operation)
+app.post('/api/settings/assign', async (req, res) => {
+  try {
+    const { sourceType, sourceProjectPath, targetScope, targetProjectPath, operation, settings } = req.body;
+    
+    if (!sourceType || !targetScope || !settings) {
+      return res.status(400).json({ error: 'Source type, target scope, and settings are required' });
+    }
+
+    if (!['copy', 'move'].includes(operation)) {
+      return res.status(400).json({ error: 'Operation must be copy or move' });
+    }
+    
+    // Determine target settings file path
+    let targetSettingsPath;
+    if (targetScope === 'user') {
+      targetSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+    } else if (targetScope === 'project') {
+      const projectDir = targetProjectPath || process.cwd();
+      targetSettingsPath = path.join(projectDir, '.claude', 'settings.json');
+    } else {
+      return res.status(400).json({ error: 'Target scope must be user or project' });
+    }
+    
+    // Ensure target directory exists
+    await fs.mkdir(path.dirname(targetSettingsPath), { recursive: true });
+    
+    // Read existing target settings or create empty object
+    let targetSettings = {};
+    try {
+      const existingContent = await fs.readFile(targetSettingsPath, 'utf-8');
+      targetSettings = JSON.parse(existingContent);
+    } catch (error) {
+      // File doesn't exist or is invalid, start with empty object
+    }
+    
+    // Merge the source settings into target settings
+    // For simplicity, we'll do a shallow merge. In practice, you might want deep merge
+    const mergedSettings = { ...targetSettings, ...settings };
+    
+    // Write the merged settings to target file
+    await fs.writeFile(targetSettingsPath, JSON.stringify(mergedSettings, null, 2), 'utf-8');
+    
+    // If operation is 'move', we would need to remove from source, but settings are often shared
+    // so we'll just treat move as copy for settings
+    
+    res.json({ 
+      success: true, 
+      targetPath: targetSettingsPath,
+      operation,
+      targetScope
+    });
+  } catch (error) {
+    console.error('Failed to assign settings:', error);
+    res.status(500).json({ error: 'Failed to assign settings: ' + error.message });
   }
 });
 
@@ -130,6 +1027,77 @@ app.delete('/api/agents/:name', async (req, res) => {
   } catch (error) {
     console.error('Failed to delete agent:', error);
     res.status(500).json({ error: 'Failed to delete agent' });
+  }
+});
+
+// Assign an agent to a target scope (copy/move operation)
+app.post('/api/agents/assign', async (req, res) => {
+  try {
+    const { name, description, tools, color, prompt, level, operation, sourcePath, targetProjectPath } = req.body;
+    
+    if (!name || !prompt || !level) {
+      return res.status(400).json({ error: 'Name, prompt, and level are required' });
+    }
+
+    if (!['copy', 'move'].includes(operation)) {
+      return res.status(400).json({ error: 'Operation must be copy or move' });
+    }
+    
+    // Determine target directory
+    let targetDir;
+    if (level === 'user') {
+      targetDir = path.join(os.homedir(), '.claude', 'agents');
+    } else if (level === 'project') {
+      if (!targetProjectPath) {
+        // Use current working directory for project-level assignments
+        targetDir = path.join(process.cwd(), '.claude', 'agents');
+      } else {
+        targetDir = path.join(targetProjectPath, '.claude', 'agents');
+      }
+    } else {
+      return res.status(400).json({ error: 'Level must be user or project' });
+    }
+    
+    // Ensure target directory exists
+    await fs.mkdir(targetDir, { recursive: true });
+    
+    // Create the agent content with YAML frontmatter
+    const frontmatter = {
+      name,
+      description,
+      ...(tools && tools.length > 0 && { tools: tools.join(', ') }),
+      ...(color && { color })
+    };
+    
+    const yamlLines = Object.entries(frontmatter)
+      .map(([key, value]) => `${key}: ${typeof value === 'string' && value.includes(',') ? `"${value}"` : value}`)
+      .join('\n');
+    
+    const content = `---\n${yamlLines}\n---\n\n${prompt}`;
+    
+    // Write to target location
+    const targetPath = path.join(targetDir, `${name}.md`);
+    await fs.writeFile(targetPath, content, 'utf-8');
+    
+    // If operation is 'move', delete the source file
+    if (operation === 'move' && sourcePath && sourcePath !== targetPath) {
+      try {
+        await fs.unlink(sourcePath);
+      } catch (error) {
+        console.warn(`Failed to delete source file ${sourcePath}:`, error.message);
+        // Don't fail the entire operation if we can't delete the source
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      targetPath,
+      operation,
+      targetScope: level
+    });
+  } catch (error) {
+    console.error('Failed to assign agent:', error);
+    res.status(500).json({ error: 'Failed to assign agent: ' + error.message });
   }
 });
 

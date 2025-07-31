@@ -1,10 +1,10 @@
 # Next Session Brief
 
-**Generated**: 2025-07-31 02:25
+**Generated**: 2025-07-31 15:34
 
 ## Quick Context
 
-**Branch**: fix/theme-switching
+**Branch**: feature/agent-file-scanner
 **Last Activity**: July 31, 2025
 
 ## Resume Command
@@ -21,25 +21,23 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
- M first-pass.code-workspace
- M index.html
- M package-lock.json
- M package.json
+ M CLAUDE.md
+ M server.js
  M src/App.tsx
- M src/components/AgentConfigPanel.tsx
- M src/components/AgentEditor.tsx
- M src/components/AgentTabbedEditor.tsx
- M src/components/PromptEditor.tsx
- M src/index.css
- M tailwind.config.js
- M vite.config.ts
-?? components.json
-?? docs/sessions/SESSION_2025-07-31_02-25.md
-?? src/components/theme-provider.tsx
-?? src/components/theme-toggle.tsx
-?? src/components/ui/
-?? src/hooks/
-?? src/lib/
+ M src/types.ts
+?? .claude/
+?? "Project Vision.md"
+?? commandsScanner.js
+?? docs/developer/
+?? docs/sessions/SESSION_2025-07-31_15-34.md
+?? docs/templates/
+?? docs/user/
+?? hooksScanner.js
+?? projectScanner.js
+?? settingsManager.js
+?? src/components/AssignmentManager.tsx
+?? src/components/ResourceLibrary.tsx
+?? src/utils/resourceLibraryService.ts
 
 ```
 

@@ -4,6 +4,8 @@ import { AgentCard } from './components/AgentCard';
 import { AgentEditor } from './components/AgentEditor';
 import { AgentTabbedEditor } from './components/AgentTabbedEditor';
 import { FileBrowser } from './components/FileBrowser';
+import { ResourceLibrary } from './components/ResourceLibrary';
+import { AssignmentManager } from './components/AssignmentManager';
 import { ThemeProvider } from './components/theme-provider';
 import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
@@ -14,7 +16,8 @@ import { Badge } from './components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { ApiFileSystemService } from './utils/apiFileSystem';
 import { parseAgentFile } from './utils/agentUtils';
-import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu } from 'lucide-react';
+import { ResourceItem } from './utils/resourceLibraryService';
+import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu, Library, Target } from 'lucide-react';
 import { Toaster } from './components/ui/toaster';
 import { useToast } from './hooks/use-toast';
 
@@ -29,6 +32,10 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'all' | 'user' | 'project'>('all');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // New state for main navigation
+  const [currentView, setCurrentView] = useState<'agents' | 'library' | 'assignments'>('library');
+  const [selectedResource, setSelectedResource] = useState<ResourceItem | undefined>(undefined);
   
   // Form state for the new column layout
   const [formData, setFormData] = useState<SubAgent>({
@@ -440,83 +447,135 @@ function AppContent() {
         </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-            <div className="fixed left-0 top-0 h-full w-80 bg-background flex flex-col">
-              <div className="flex items-center justify-between p-4">
-                <h2 className="font-semibold">Agents</h2>
-                <Button
-                  onClick={() => setSidebarOpen(false)}
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                >
-                  ×
-                </Button>
-              </div>
-              <div className="flex-1 flex flex-col">
-                <SidebarContent onClose={() => setSidebarOpen(false)} />
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Two-column layout for desktop */}
-        <div className="hidden lg:flex flex-1">
-          {/* Column 1: Agent List + Statistics */}
-          <div className="w-80 bg-background flex-col flex">
-            <SidebarContent />
-          </div>
-
-          {/* Column 2: Tabbed Editor */}
-          <AgentTabbedEditor
-            agent={editingAgent}
-            onSave={handleSaveAgent}
-            onCancel={handleCancelEdit}
-            formData={formData}
-            onFormDataChange={handleFormDataChange}
-            errors={errors}
-            onErrorsChange={handleErrorsChange}
-          />
+      {/* Main Navigation Tabs */}
+      <div className="border-b bg-card">
+        <div className="px-4">
+          <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
+            <TabsList className="h-12">
+              <TabsTrigger value="library" className="flex items-center gap-2">
+                <Library size={16} />
+                Resource Library
+              </TabsTrigger>
+              <TabsTrigger value="assignments" className="flex items-center gap-2">
+                <Target size={16} />
+                Assignments
+              </TabsTrigger>
+              <TabsTrigger value="agents" className="flex items-center gap-2">
+                <Bot size={16} />
+                Agents (Legacy)
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
+      </div>
 
-        {/* Mobile layout (unchanged) */}
-        <div className="lg:hidden flex-1">
-          {showEditor ? (
-            <AgentEditor
-              agent={editingAgent}
-              onSave={handleSaveAgent}
-              onCancel={handleCancelEdit}
+      {/* Main Content - Tabbed Interface */}
+      <div className="flex-1">
+        <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)} className="h-full">
+          <TabsContent value="library" className="h-full m-0">
+            <ResourceLibrary 
+              onResourceSelect={(resource) => {
+                setSelectedResource(resource);
+                // Could open detailed view or assignment dialog
+              }}
+              onResourceAssign={(resource) => {
+                setSelectedResource(resource);
+                setCurrentView('assignments');
+              }}
             />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center bg-background">
-              <div className="text-center max-w-md px-6">
-                <img 
-                  src="/cchorus-logo.png" 
-                  alt="CChorus" 
-                  className="mx-auto h-16 w-auto logo faded mb-4"
+          </TabsContent>
+
+          <TabsContent value="assignments" className="h-full m-0">
+            <AssignmentManager 
+              selectedResource={selectedResource}
+              onClose={() => {
+                setSelectedResource(undefined);
+                setCurrentView('library');
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="agents" className="h-full m-0">
+            {/* Legacy Agent Management Interface */}
+            <div className="flex h-full">
+              {/* Mobile Sidebar Overlay */}
+              {sidebarOpen && (
+                <div className="fixed inset-0 z-50 lg:hidden">
+                  <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
+                  <div className="fixed left-0 top-0 h-full w-80 bg-background flex flex-col">
+                    <div className="flex items-center justify-between p-4">
+                      <h2 className="font-semibold">Agents</h2>
+                      <Button
+                        onClick={() => setSidebarOpen(false)}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <SidebarContent onClose={() => setSidebarOpen(false)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Two-column layout for desktop */}
+              <div className="hidden lg:flex flex-1">
+                {/* Column 1: Agent List + Statistics */}
+                <div className="w-80 bg-background flex-col flex">
+                  <SidebarContent />
+                </div>
+
+                {/* Column 2: Tabbed Editor */}
+                <AgentTabbedEditor
+                  agent={editingAgent}
+                  onSave={handleSaveAgent}
+                  onCancel={handleCancelEdit}
+                  formData={formData}
+                  onFormDataChange={handleFormDataChange}
+                  errors={errors}
+                  onErrorsChange={handleErrorsChange}
                 />
-                <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                  Select an agent to edit
-                </h3>
-                <p className="text-muted-foreground/60 mb-4">
-                  Choose an agent from the sidebar or create a new one to get started
-                </p>
-                <Button
-                  onClick={handleCreateAgent}
-                  variant="default"
-                >
-                  <Plus size={16} />
-                  Create New Agent
-                </Button>
+              </div>
+
+              {/* Mobile layout */}
+              <div className="lg:hidden flex-1">
+                {showEditor ? (
+                  <AgentEditor
+                    agent={editingAgent}
+                    onSave={handleSaveAgent}
+                    onCancel={handleCancelEdit}
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-background">
+                    <div className="text-center max-w-md px-6">
+                      <img 
+                        src="/cchorus-logo.png" 
+                        alt="CChorus" 
+                        className="mx-auto h-16 w-auto logo faded mb-4"
+                      />
+                      <h3 className="text-lg font-medium text-muted-foreground mb-2">
+                        Select an agent to edit
+                      </h3>
+                      <p className="text-muted-foreground/60 mb-4">
+                        Choose an agent from the sidebar or create a new one to get started
+                      </p>
+                      <Button
+                        onClick={handleCreateAgent}
+                        variant="default"
+                      >
+                        <Plus size={16} />
+                        Create New Agent
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* File Browser Modal */}
