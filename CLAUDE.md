@@ -5,19 +5,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Start Commands
 
 ### Development
+
+#### **Installation**
 ```bash
 # Install dependencies
 npm install
+```
 
-# Start development server only (frontend)
-npm run dev
+#### **🚨 MANDATORY: Server Management with tmux-dev**
+**ALL development server operations MUST use the `/tmux-dev` command. Direct npm server commands are PROHIBITED.**
 
-# Start backend API server only
-npm run dev:server
+```bash
+# REQUIRED: Start development servers using tmux-dev
+/tmux-dev start frontend server in session cchorus-frontend
+/tmux-dev start backend server in session cchorus-backend  
+/tmux-dev start both servers in separate sessions
 
-# Start both frontend and backend concurrently
-npm run dev:full
+# Monitor servers (non-blocking)
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 50 lines from cchorus-backend
+/tmux-dev attach to cchorus-frontend for real-time monitoring
 
+# Server management
+/tmux-dev list all running sessions
+/tmux-dev stop cchorus-frontend session
+```
+
+#### **🚫 PROHIBITED: Direct Server Commands**
+```bash
+# These commands are FORBIDDEN - use /tmux-dev instead
+# npm run dev                 ❌ Use /tmux-dev
+# npm run dev:server          ❌ Use /tmux-dev  
+# npm run dev:full            ❌ Use /tmux-dev
+```
+
+#### **Production & Building**
+```bash
 # Build for production
 npm run build
 
@@ -33,9 +56,16 @@ No automated tests are currently configured. Manual testing is done through the 
 
 ## Recent Major Improvements (July 2025)
 
-> **Development Timeline**: 19+ comprehensive sessions documented in `/docs/sessions/`  
-> **Architecture Evolution**: From basic functionality to professional-grade agent management system  
-> **Key Transformation**: daisyUI → shadcn/ui + Radix UI with complete accessibility overhaul
+> **Development Timeline**: 20+ comprehensive sessions documented in `/docs/sessions/`  
+> **Architecture Evolution**: From basic agent management to comprehensive Claude Code resource management platform  
+> **Key Transformation**: Complete resource management system with system-wide discovery and assignment capabilities
+
+### 🚀 Resource Management System (COMPLETED July 31, 2025)
+- **Resource Library**: System-wide discovery of all Claude Code resources (agents, commands, hooks, projects, settings)
+- **Assignment Manager**: Complete resource deployment system with copy/move operations between user and project scopes
+- **Project Integration**: Automatic project discovery and resource management across entire system
+- **Backend Infrastructure**: Comprehensive API with specialized scanners for each resource type
+- **Documentation System**: Complete user guides and developer documentation with workflow examples
 
 ### 🎨 Complete UI/UX Overhaul
 - **Modern Component System**: Implemented comprehensive shadcn/ui + Radix UI component library with accessibility primitives
@@ -79,7 +109,7 @@ CChorus/
 
 ## Project Architecture
 
-This is **CChorus** - a professional React-based web application for managing Claude Code sub-agents, featuring a modern shadcn/ui interface, comprehensive theme system, and robust Node.js/Express backend API.
+This is **CChorus** - a comprehensive React-based resource management platform for the complete Claude Code ecosystem, featuring system-wide resource discovery, assignment management, project integration, and a modern shadcn/ui interface with robust Node.js/Express backend API.
 
 ### High-Level Architecture
 
@@ -93,21 +123,23 @@ This is **CChorus** - a professional React-based web application for managing Cl
 ### Key Components
 
 #### Frontend (`src/`)
-- `App.tsx` - Main application with agent list, filtering, and CRUD operations
-- `components/AgentCard.tsx` - Individual agent display cards
-- `components/AgentEditor.tsx` - Agent creation/editing modal form
-- `components/FileBrowser.tsx` - File system browser for importing agents
-- `components/FileSearch.tsx` - Search functionality for finding agent files
-- `utils/agentUtils.ts` - Agent parsing/serialization with YAML frontmatter
+- `App.tsx` - Main application with tabbed navigation (Resource Library, Assignment Manager, Legacy Agents)
+- `components/ResourceLibrary.tsx` - Unified resource discovery and browsing interface
+- `components/AssignmentManager.tsx` - Resource deployment and scope management system
+- `components/AgentEditor.tsx` - Legacy agent creation/editing interface
+- `components/FileBrowser.tsx` - File system browser for importing resources
+- `utils/resourceLibraryService.ts` - Comprehensive service layer for all resource operations
 - `utils/apiFileSystem.ts` - API client for backend communication
-- `types.ts` - TypeScript interfaces for agents and tools
+- `types.ts` - TypeScript interfaces for all resource types and operations
 
 #### Backend (`server.js`)
 - Express API with CORS enabled for localhost development
-- Endpoints for user-level and project-level agent management
-- File system operations with security restrictions
-- MCP server detection from Claude settings
-- Support for both `~/.claude/agents/` (user) and `./.claude/agents/` (project)
+- System-wide resource discovery endpoints for all resource types
+- Complete assignment API for resource deployment operations
+- Specialized scanners: agentScanner.js, projectScanner.js, hooksScanner.js, commandsScanner.js
+- Settings management with SettingsManager.js for safe configuration operations
+- Security restrictions with path validation and permission checking
+- Support for user-level (~/.claude/) and project-level (./.claude/) resource management
 
 ### Agent File Structure
 
@@ -133,6 +165,7 @@ System prompt content goes here...
 5. **Enhanced Metadata**: Each agent includes project information (`projectName`, `projectPath`, `sourceType`, `relativePath`)
 6. **Agent Storage**: Agents saved to appropriate directory based on `level` (user/project)
 7. **Tool Integration**: Supports all Claude Code tools plus MCP servers detected from `~/.claude/settings.json`
+8. **Documentation Management**: All documentation updates are managed exclusively through the dedicated documentation management agent (`@documentation-manager`)
 
 ### Agent Scanner Architecture
 
@@ -159,10 +192,109 @@ The new **`agentScanner.js`** module provides robust, production-ready agent dis
 - **Path Aliases**: `@/*` maps to `src/*` for clean imports
 - **Theme Development**: CSS custom properties in `:root` and `.dark` classes
 - **Component Development**: shadcn/ui CLI for adding new components
+- **Server Management**: **MANDATORY** tmux-dev command for all development server operations
+
+## 🖥️ **MANDATORY Development Server Management**
+
+### **tmux-dev Command Requirement**
+
+**ALL development server interactions MUST use the `/tmux-dev` command.** Direct npm server commands are **STRICTLY PROHIBITED** to ensure proper server management, non-blocking operations, and professional development workflows.
+
+#### **Why tmux-dev is Mandatory**
+
+**Professional Server Management**:
+- Prevents terminal blocking during long-running development processes
+- Enables proper server monitoring and debugging capabilities
+- Provides structured workflows for server lifecycle management
+- Ensures consistent server state tracking across development sessions
+
+**Development Efficiency**:
+- Non-blocking server operations allow continued development work
+- Real-time log monitoring without interrupting server processes
+- Multiple server management (frontend + backend) in separate, manageable sessions
+- Quick status checks and debugging capabilities
+
+#### **Required tmux-dev Workflows**
+
+**Server Startup**:
+```bash
+# Start frontend development server
+/tmux-dev start frontend server in session cchorus-frontend
+
+# Start backend API server  
+/tmux-dev start backend server in session cchorus-backend
+
+# Start both servers simultaneously
+/tmux-dev start both frontend and backend in separate sessions
+```
+
+**Server Monitoring**:
+```bash
+# Check server status and recent logs
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 100 lines from cchorus-backend
+
+# Real-time monitoring (attach to session)
+/tmux-dev attach to cchorus-frontend for real-time logs
+# Detach with Ctrl+B then D
+```
+
+**Server Management**:
+```bash
+# List all running development sessions
+/tmux-dev list all running sessions
+
+# Stop specific server
+/tmux-dev stop cchorus-frontend session
+/tmux-dev stop cchorus-backend session
+```
+
+**Debugging Workflows**:
+```bash
+# Debug server errors
+/tmux-dev show last 200 lines from cchorus-backend, I need to debug an error
+
+# Monitor startup issues
+/tmux-dev attach to cchorus-frontend to see startup process
+```
+
+#### **Integration with Development Process**
+
+**Before Starting Development**:
+1. **MUST** use `/tmux-dev` to start required servers
+2. **MUST** verify servers are running with `/tmux-dev list sessions`
+3. **SHOULD** check initial logs to ensure clean startup
+
+**During Development**:
+1. **SHOULD** monitor server health with periodic log checks
+2. **MUST** use `/tmux-dev` for any server status investigations
+3. **SHOULD** use non-blocking monitoring to maintain development flow
+
+**After Development Sessions**:
+1. **SHOULD** stop development servers with `/tmux-dev stop`
+2. **MAY** leave servers running for continued development across sessions
+
+#### **Prohibited Server Commands**
+
+**These commands are STRICTLY FORBIDDEN**:
+```bash
+npm run dev                 # ❌ Blocks terminal, prevents monitoring
+npm run dev:server          # ❌ No proper session management  
+npm run dev:full            # ❌ Cannot manage frontend/backend separately
+node server.js              # ❌ Direct server execution not manageable
+```
+
+**Consequences of Direct Server Commands**:
+- **Terminal Blocking**: Prevents other development work
+- **No Monitoring**: Cannot check logs without interrupting server
+- **Poor Debugging**: Difficult to investigate issues during development
+- **Inconsistent State**: No session tracking or lifecycle management
 
 ### GitOps Integration
 
 CChorus includes GitOps configuration in `config/gitops-config.json` for automated Git workflow management with session tracking and documentation updates.
+
+**IMPORTANT**: GitOps agent operations MUST follow the mandatory agent sequence - GitOps handles Git operations ONLY after documentation agent has completed all updates. This ensures efficiency and prevents duplicate commits or merge conflicts.
 
 ## Component Development Guide
 
@@ -232,6 +364,121 @@ function MyComponent() {
 3. **Documentation updates** alongside code changes
 4. **Session documentation** in `docs/sessions/` for major changes
 
+### **Agent Workflow Sequence**
+
+**MANDATORY SEQUENCE**: All development workflows must follow this strict agent sequence for efficiency and consistency:
+
+1. **Code Changes First**: Complete all code modifications and feature implementation
+2. **Documentation Updates**: **MUST** invoke documentation manager agent (`@documentation-manager`) for ALL documentation updates
+3. **Documentation Completion**: **MUST** verify documentation agent has completed all required updates, status markers, and cross-references
+4. **GitOps Operations**: **ONLY THEN** allow GitOps agent to handle commits, pushes, and Git workflow management
+
+**Agent Separation of Concerns**:
+- **Documentation Agent** (`@documentation-manager`): Handles content updates, status tracking, template management
+- **GitOps Agent**: Handles Git operations (commits, pushes, branch management) after documentation is complete
+
+**Efficiency Requirement**: GitOps must always wait for documentation completion to avoid duplicate commits, merge conflicts, and inconsistent state.
+
+## 📚 **MANDATORY Documentation Management**
+
+### **Documentation Agent Requirement**
+
+**ALL DOCUMENTATION WORK MUST be performed through the dedicated documentation management agent** (`documentation-manager.md`). Manual documentation updates are **STRICTLY PROHIBITED** to ensure consistency, completeness, and proper maintenance.
+
+#### **When Documentation Agent MUST Be Used**
+
+**Component Changes:**
+- Any modification to files in `src/components/` 
+- New component creation or major refactoring
+- Props interface changes or feature additions
+- Integration point modifications
+
+**API Changes:**
+- Any endpoint additions, modifications, or removals in `server.js`
+- Service layer changes in `src/utils/resourceLibraryService.ts`
+- Request/response format modifications
+- Error handling or status code changes
+
+**Feature Completion:**
+- Before marking any feature branch as complete
+- When user workflows are modified or added
+- After UI/UX changes that affect user experience
+- Upon completion of architectural changes
+
+**Ongoing Maintenance:**
+- Status tracking marker updates
+- Cross-reference validation between documents
+- Screenshot updates after UI changes
+- Template synchronization with active documentation
+
+#### **How to Use the Documentation Agent**
+
+**1. Invoke the Agent:**
+```
+@documentation-manager please update documentation for [specific change/feature]
+```
+
+**2. Provide Context:**
+- Specify which components/files were modified
+- Describe the scope of changes made
+- Identify affected user workflows
+- Note any API endpoint changes
+
+**3. Required Information:**
+- Branch name and completion status
+- List of modified files with brief change description
+- User-facing feature changes
+- Technical implementation details that need documentation
+
+**4. Validation Requirements:**
+- Agent must confirm all placeholder sections are updated
+- Status markers must be moved from [PENDING] to [COMPLETED]
+- Cross-references must be validated and updated
+- Code examples must be tested for accuracy
+
+#### **Consequences of Manual Documentation Updates**
+
+Manual documentation updates are prohibited because they lead to:
+- **Inconsistent formatting and structure**
+- **Missed cross-references and broken links**
+- **Outdated status tracking markers**
+- **Incomplete template synchronization**
+- **Documentation that doesn't match actual implementation**
+
+### **Developer Responsibilities**
+
+**Development Setup:**
+1. **MUST** use `/tmux-dev` for all development server operations
+2. **MUST** verify servers are running before beginning development work
+3. **MUST** use non-blocking server monitoring workflows
+4. **PROHIBITED** from using direct npm server commands
+
+**Agent Workflow Sequence:**
+1. **MUST** follow the mandatory agent sequence: Code → Documentation → GitOps
+2. **MUST** complete documentation updates before any Git operations
+3. **MUST** verify agent workflow completion before feature sign-off
+
+**Before Feature Completion:**
+1. **MUST** invoke documentation agent for all code changes
+2. **MUST** provide comprehensive change context to the agent
+3. **MUST** verify agent has updated all relevant documentation sections
+4. **MUST** confirm status markers reflect actual implementation state
+5. **MUST** ensure GitOps operations happen only after documentation completion
+
+**During Development:**
+1. **MUST** use `/tmux-dev` for all server status checks and debugging
+2. **SHOULD** invoke documentation agent for significant interim changes
+3. **MUST** coordinate with agent for API endpoint modifications
+4. **SHOULD** request documentation review for complex features
+5. **SHOULD** monitor server health using tmux-dev workflows
+
+**Quality Assurance:**
+1. **MUST** verify documentation agent has completed all required updates
+2. **MUST** confirm all code examples in documentation are functional
+3. **MUST** validate that user workflows match actual UI behavior
+4. **MUST** ensure cross-references between documents are accurate
+5. **MUST** verify proper server management using tmux-dev throughout development
+
 ## Development History & Key Milestones
 
 ### Phase 1: Foundation (Early July 2025)
@@ -257,6 +504,14 @@ function MyComponent() {
 - **Build System Upgrade**: Updated to Vite 7.0.4 and latest dependencies
 - **Documentation Overhaul**: Comprehensive project documentation and session logs
 - **Developer Experience**: Enhanced tooling and development workflow
+
+### Phase 5: Complete Resource Management System (July 31, 2025)
+- **Resource Library Integration**: Full implementation of unified Claude Code resource browser
+- **Assignment Manager**: Complete resource deployment and management system
+- **Universal Assignment Logic**: Copy/move operations for agents, commands, hooks, and settings
+- **Backend API Endpoints**: Full REST API for all resource assignment operations
+- **Error Handling**: Comprehensive error states and user feedback throughout the application
+- **Production Ready**: Complete end-to-end resource management workflow
 
 ### Key Technical Decisions
 
@@ -308,4 +563,80 @@ function MyComponent() {
 - **CSS Optimization**: Minimal custom CSS with utility-first approach
 - **Build Optimization**: Vite's optimized production builds
 - **Runtime Performance**: Efficient React rendering with proper hooks usage
+
+## Documentation Structure
+
+CChorus maintains comprehensive documentation that evolves with the codebase:
+
+### Documentation Organization
 ```
+docs/
+├── user/                           # End-user documentation
+│   ├── README.md                   # Complete user guide
+│   ├── workflows/                  # Step-by-step user workflows
+│   │   ├── resource-discovery.md   # Finding and browsing resources
+│   │   ├── resource-assignment.md  # Deploying resources
+│   │   └── project-management.md   # Managing projects
+│   ├── troubleshooting.md          # Common issues and solutions
+│   └── screenshots/                # UI screenshots for documentation
+├── developer/                      # Technical documentation
+│   ├── README.md                   # Architecture and development guide
+│   ├── components/                 # Component-specific documentation
+│   ├── api-reference.md            # Complete API documentation
+│   └── testing.md                  # Testing strategies and examples
+├── templates/                      # Documentation templates for subagent management
+│   ├── user-documentation-template.md
+│   ├── developer-documentation-template.md
+│   └── subagent-instructions.md    # Instructions for automated documentation updates
+└── sessions/                       # Development session documentation
+```
+
+### Documentation Management Strategy
+
+**Mandatory Agent-Based System**: ALL documentation work MUST be performed through the dedicated documentation management agent. Manual updates are strictly prohibited.
+
+**Incremental Updates**: Documentation is updated as features are implemented, not as an afterthought, using the documentation agent for all changes.
+
+**Template-Based System**: Templates with placeholder markers enable automated documentation management through the agent system.
+
+**Comprehensive Agent Integration**: The documentation management subagent is the ONLY authorized method for maintaining documentation throughout development.
+
+**Enforced Cross-Reference Maintenance**: User and developer documentation consistency is enforced through the agent's validation system.
+
+### Documentation Update Triggers
+- Component modifications trigger immediate documentation updates
+- API endpoint changes require immediate reference updates  
+- Branch completions trigger comprehensive section updates
+- New features require both user workflow and technical documentation
+
+### Quality Assurance
+- All code examples are tested before inclusion
+- Screenshots are updated with UI changes
+- Cross-references are validated regularly
+- Documentation completeness is tracked with status markers
+
+---
+
+## 🚨 **CRITICAL REMINDERS: Development Standards**
+
+### **📚 Documentation Management**
+**MANDATORY REQUIREMENT**: ALL documentation work MUST be performed through the dedicated documentation management agent (`@documentation-manager`). 
+
+**STRICTLY PROHIBITED**: Manual documentation updates of any kind.
+
+### **🖥️ Server Management**
+**MANDATORY REQUIREMENT**: ALL development server operations MUST use the `/tmux-dev` command.
+
+**STRICTLY PROHIBITED**: Direct npm server commands (`npm run dev`, `npm run dev:server`, `npm run dev:full`).
+
+### **⚡ Agent Workflow Sequence**
+**MANDATORY SEQUENCE**: Code Changes → Documentation Agent → GitOps Agent
+
+**REQUIRED WORKFLOW**: 
+1. Complete your code changes
+2. Invoke `@documentation-manager` with comprehensive change details
+3. Verify the documentation agent has completed ALL updates
+4. ONLY THEN allow GitOps agent to handle Git operations
+5. Use `/tmux-dev` for all server management throughout the process
+
+**These requirements ensure professional development standards, consistency, completeness, and efficient workflows.**

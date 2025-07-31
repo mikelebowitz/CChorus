@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 /Users/mikelebowitz/Documents/Code/CChorus/.claude/hooks/pre-compact.py"
+          }
+        ]
+      }
+    ]
+  }
+}
