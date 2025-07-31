@@ -9,17 +9,19 @@
   [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
   [![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://reactjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
-  [![daisyUI](https://img.shields.io/badge/daisyUI-4.0-FF7849.svg)](https://daisyui.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.17-38B2AC.svg)](https://tailwindcss.com/)
+  [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-latest-000000.svg)](https://ui.shadcn.com/)
+  [![Radix UI](https://img.shields.io/badge/Radix%20UI-1.3-161618.svg)](https://www.radix-ui.com/)
 </div>
 
 ## Features
 
 ### **Agent Management**
-- **Visual Agent Editor** - Rich form-based editing with real-time validation
-- **Color-Coded Organization** - Assign colors to agents for quick visual identification
-- **Tool Selection Interface** - Easy checkbox interface for Claude Code tools
-- **Search & Filter** - Quickly find agents by name, description, or properties
+- **Modern Visual Editor** - Clean, accessible form interface with shadcn/ui components
+- **Professional Theme System** - Light/dark theme switching with keyboard shortcuts (Ctrl/Cmd + T)
+- **Muted Visual Hierarchy** - Subtle, professional color scheme that adapts to themes
+- **Enhanced Accessibility** - Full keyboard navigation and screen reader support via Radix UI
+- **Smart Organization** - Color-coded agents with intuitive search and filtering
 - **Dual-Level Storage** - Separate user (~/.claude/agents/) and project (.claude/agents/) agents
 
 ### **Experimental Features**
@@ -28,10 +30,12 @@
 - **File Import System** - Import existing Markdown files as agents with YAML frontmatter parsing
 
 ### **Developer Experience**
-- **Hot Reload Development** - Instant updates during development
-- **TypeScript Support** - Full type safety throughout the application
-- **Modern Build System** - Powered by Vite for lightning-fast development
-- **Extensible Architecture** - Clean, modular codebase for easy customization
+- **Modern Development Stack** - Vite 7.0.4 with lightning-fast hot reload
+- **Full TypeScript Integration** - Strict mode with comprehensive type definitions
+- **Professional UI Components** - shadcn/ui library with 10+ accessible components
+- **Advanced Theme System** - CSS custom properties with smooth theme transitions
+- **Clean Architecture** - Modular codebase with clear separation of concerns
+- **Developer Tools** - Path aliases, ESLint integration, and modern tooling
 
 ## Quick Start
 
@@ -109,12 +113,13 @@ npm run dev:full
 ## Architecture
 
 ### Frontend Stack
-- **React 18** - Modern UI library with concurrent features
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **daisyUI** - Beautiful component library with theme system
-- **Vite** - Fast build tool and development server
-- **Lucide React** - Consistent, beautiful icons
+- **React 18** - Modern UI library with concurrent features and hooks
+- **TypeScript 5.0** - Strict type safety with comprehensive definitions
+- **Vite 7.0.4** - Ultra-fast build tool and development server
+- **Tailwind CSS 3.4.17** - Utility-first CSS framework with custom properties
+- **shadcn/ui** - Modern component library built on Radix UI primitives
+- **Radix UI** - Unstyled, accessible components with keyboard navigation
+- **Lucide React** - Beautiful, consistent icon library
 
 ### Backend Stack
 - **Node.js** - JavaScript runtime
@@ -127,19 +132,35 @@ npm run dev:full
 ```
 cchorus/
 ├── src/
-│   ├── components/          # React components
-│   │   ├── AgentCard.tsx   # Individual agent display
-│   │   ├── AgentEditor.tsx # Agent creation/editing form
-│   │   └── FileBrowser.tsx # File system browser
-│   ├── utils/              # Utility functions
+│   ├── components/
+│   │   ├── ui/             # shadcn/ui component library
+│   │   │   ├── badge.tsx   # Badge component with muted colors
+│   │   │   ├── button.tsx  # Accessible button component
+│   │   │   ├── card.tsx    # Card layout components
+│   │   │   ├── input.tsx   # Form input components
+│   │   │   ├── toast.tsx   # Notification system
+│   │   │   └── ...         # Additional UI primitives
+│   │   ├── theme-provider.tsx  # Theme context and management
+│   │   ├── theme-toggle.tsx    # Theme switching component
+│   │   ├── AgentCard.tsx      # Individual agent display
+│   │   ├── AgentEditor.tsx    # Agent creation/editing form
+│   │   └── FileBrowser.tsx    # File system browser
+│   ├── lib/
+│   │   └── utils.ts        # Utility functions (clsx, tailwind-merge)
+│   ├── hooks/
+│   │   └── use-toast.ts    # Toast notification hook
+│   ├── utils/              # Business logic utilities
 │   │   ├── agentUtils.ts   # Agent parsing and validation
 │   │   └── apiFileSystem.ts # API communication
 │   ├── types.ts            # TypeScript type definitions
-│   ├── App.tsx             # Main application component
-│   └── main.tsx            # Application entry point
+│   ├── App.tsx             # Main application with theme provider
+│   ├── main.tsx            # Application entry point
+│   └── index.css           # CSS custom properties and Tailwind
+├── docs/sessions/          # 19+ development session logs
 ├── public/                 # Static assets
 ├── server.js              # Express.js backend server
-├── tailwind.config.js     # Tailwind/daisyUI configuration
+├── components.json         # shadcn/ui configuration
+├── tailwind.config.js     # Tailwind + shadcn/ui configuration
 └── package.json           # Dependencies and scripts
 ```
 
@@ -161,19 +182,34 @@ VITE_DEV_MODE=false
 
 ### Theme Customization
 
-CChorus supports all daisyUI themes out of the box. To customize themes, edit `tailwind.config.js`:
+CChorus uses a modern CSS custom properties system with light and dark themes. To customize colors, edit the CSS variables in `src/index.css`:
 
-```javascript
-module.exports = {
-  plugins: [require('daisyui')],
-  daisyui: {
-    themes: [
-      "light", "dark", "cupcake", "bumblebee", 
-      // Add or remove themes as needed
-    ],
-  },
+```css
+/* Light theme (default) */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --primary: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  /* ... additional variables */
+}
+
+/* Dark theme */
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  /* ... additional variables */
 }
 ```
+
+**Theme switching:**
+- Use keyboard shortcut: `Ctrl/Cmd + T`
+- Click the theme toggle button in the interface
+- Themes persist across browser sessions
 
 ### MCP Integration
 
@@ -202,22 +238,27 @@ npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript compiler
 ```
 
-### Code Style
+### Code Style & Architecture
 
-This project follows modern JavaScript/TypeScript conventions:
+This project follows modern React and TypeScript best practices:
 
-- **ESLint** - Code linting with React and TypeScript rules
-- **Prettier** - Code formatting (configured in your editor)
-- **Conventional Commits** - Structured commit messages
-- **TypeScript Strict Mode** - Enhanced type safety
+- **Component Architecture** - shadcn/ui + Radix UI for accessible, composable components
+- **Theme System** - CSS custom properties with `useTheme` hook for dynamic theming
+- **TypeScript Strict Mode** - Full type safety with comprehensive type definitions
+- **ESLint Configuration** - Modern React and TypeScript linting rules
+- **CSS Architecture** - Tailwind utilities with semantic CSS custom properties
+- **Conventional Commits** - Structured commit messages for clear history
 
 ### Adding New Features
 
 1. **Create a feature branch**: `git checkout -b feature/your-feature-name`
-2. **Implement your changes** with proper TypeScript types
-3. **Test thoroughly** across different themes and screen sizes
-4. **Follow commit conventions**: `feat(component): add new functionality`
-5. **Submit a pull request** with detailed description
+2. **Add UI components**: Use `npx shadcn@latest add [component]` for new components
+3. **Implement with TypeScript**: Ensure full type safety and proper interfaces
+4. **Test themes**: Verify functionality in both light and dark themes (Ctrl/Cmd + T)
+5. **Test accessibility**: Ensure keyboard navigation and screen reader compatibility
+6. **Follow conventions**: Use conventional commits like `feat(ui): add new component`
+7. **Document changes**: Update README and add session documentation if significant
+8. **Submit pull request** with detailed description and testing notes
 
 ## Contributing
 
@@ -235,11 +276,13 @@ I welcome ideas and contributions! Please follow these guidelines:
 
 ### Code Guidelines
 
-- **TypeScript**: Use proper types for all functions and components
-- **Components**: Follow React functional component patterns
-- **Styling**: Use Tailwind CSS classes, extend with custom CSS when needed
-- **Testing**: Ensure changes work across all supported themes
-- **Documentation**: Update README and code comments for significant changes
+- **Component Development**: Use shadcn/ui components and Radix UI primitives for consistency
+- **TypeScript**: Strict mode with comprehensive type definitions for all functions
+- **Theme System**: Use CSS custom properties and `useTheme` hook for theme-aware components
+- **Styling**: Tailwind utilities with semantic classes (`bg-muted`, `text-muted-foreground`)
+- **Accessibility**: Ensure keyboard navigation and ARIA compliance via Radix UI
+- **Testing**: Verify functionality across light/dark themes and responsive breakpoints
+- **Documentation**: Update README, CLAUDE.md, and session docs for significant changes
 
 ### Bug Reports
 
@@ -293,9 +336,10 @@ You are an expert code reviewer with deep knowledge of software engineering best
 ### Common Issues
 
 **Themes not switching**
-- Restart the development server: `npm run dev:full`
-- Clear browser cache and reload
-- Check browser console for errors
+- Try keyboard shortcut: `Ctrl/Cmd + T`
+- Check browser console for JavaScript errors
+- Verify theme provider is wrapping the app in `App.tsx`
+- Clear localStorage: `localStorage.removeItem('cchorus-theme')`
 
 **Agents not loading**
 - Verify YAML frontmatter syntax
@@ -329,7 +373,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **daisyUI** - Beautiful component library providing the theme system
 - **Tailwind CSS** - Utility-first CSS framework
 - **React** - The UI library powering the interface
-- **Vite** - Fast and modern build tool
+- **Vite 7.0.4** - Ultra-fast build tool with optimized development experience
+- **shadcn/ui** - Modern component library built on Radix UI primitives
+- **Radix UI** - Accessible, unstyled components with keyboard navigation
 - **Anthropic** - For creating Claude and the development tools ecosystem
 
 ## 📞 Support
@@ -344,6 +390,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   
 **Built with ❤️ for the Claude Code community**
 
-*CChorus - Helping Orchestrate your AI agents*
+*CChorus - Professional Agent Management for Claude Code*
+
+**Powered by modern web technologies:**  
+shadcn/ui • Radix UI • React 18 • TypeScript • Vite 7 • Tailwind CSS
 
 </div>
