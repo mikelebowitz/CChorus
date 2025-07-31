@@ -513,6 +513,38 @@ Manual documentation updates are prohibited because they lead to:
 - **Error Handling**: Comprehensive error states and user feedback throughout the application
 - **Production Ready**: Complete end-to-end resource management workflow
 
+### Phase 6: Individual Resource Managers (August 2025) - IN PROGRESS
+**Branch**: `feature/individual-resource-managers`
+**Status**: ACTIVE DEVELOPMENT
+
+**Scope**: Building specialized component interfaces for individual resource type management:
+
+1. **Project Manager Component** 
+   - CLAUDE.md editing interface for discovered projects
+   - Project-specific configuration management
+   - Integration with project discovery system
+
+2. **Hooks Manager Component**
+   - Visual hook configuration interface
+   - Event type management and validation
+   - Hook testing and debugging capabilities
+
+3. **Commands Manager Component** 
+   - Slash command library browser
+   - YAML editor with syntax validation
+   - Command testing and execution interface
+
+4. **Settings Manager Component**
+   - JSON editor with schema validation
+   - Settings hierarchy visualization
+   - Safe configuration backup and restore
+
+**Development Strategy**:
+- **Incremental Development**: Each manager component built and tested independently
+- **Consistent UI Patterns**: Following established shadcn/ui + Radix UI architecture
+- **API Integration**: Leveraging existing backend scanner infrastructure
+- **Testing Strategy**: Manual testing with comprehensive user workflow validation
+
 ### Key Technical Decisions
 
 #### Component Architecture
