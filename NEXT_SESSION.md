@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-07-31 14:20
+**Generated**: 2025-07-31 15:34
 
 ## Quick Context
 
@@ -21,11 +21,17 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
+ M CLAUDE.md
  M server.js
  M src/App.tsx
  M src/types.ts
+?? .claude/
+?? "Project Vision.md"
 ?? commandsScanner.js
-?? docs/sessions/SESSION_2025-07-31_14-20.md
+?? docs/developer/
+?? docs/sessions/SESSION_2025-07-31_15-34.md
+?? docs/templates/
+?? docs/user/
 ?? hooksScanner.js
 ?? projectScanner.js
 ?? settingsManager.js
