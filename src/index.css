@@ -2,27 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ensure theme variables are properly inherited */
-:root {
-  color-scheme: light;
+@layer base {
+  :root {
+    --background: 60 10% 95%;
+    --foreground: 60 10% 5%;
+    --card: 60 10% 97%;
+    --card-foreground: 60 10% 5%;
+    --popover: 60 10% 97%;
+    --popover-foreground: 60 10% 5%;
+    --primary: 220 90% 50%;
+    --primary-foreground: 220 90% 98%;
+    --secondary: 120 90% 40%;
+    --secondary-foreground: 120 90% 98%;
+    --muted: 60 10% 85%;
+    --muted-foreground: 60 10% 45%;
+    --accent: 30 90% 50%;
+    --accent-foreground: 30 90% 98%;
+    --destructive: 0 90% 50%;
+    --destructive-foreground: 0 90% 98%;
+    --border: 60 10% 75%;
+    --input: 60 10% 75%;
+    --ring: 220 90% 50%;
+    --radius: 1rem;
+    --chart-1: 220 90% 50%;
+    --chart-2: 120 90% 40%;
+    --chart-3: 30 90% 50%;
+    --chart-4: 280 90% 50%;
+    --chart-5: 180 90% 40%;
+  }
+
+  .dark {
+    --background: 240 10% 5%;
+    --foreground: 60 10% 95%;
+    --card: 240 10% 7%;
+    --card-foreground: 60 10% 95%;
+    --popover: 240 10% 7%;
+    --popover-foreground: 60 10% 95%;
+    --primary: 220 90% 60%;
+    --primary-foreground: 220 90% 10%;
+    --secondary: 120 90% 50%;
+    --secondary-foreground: 120 90% 10%;
+    --muted: 240 10% 20%;
+    --muted-foreground: 60 10% 75%;
+    --accent: 30 90% 60%;
+    --accent-foreground: 30 90% 10%;
+    --destructive: 0 90% 60%;
+    --destructive-foreground: 0 90% 10%;
+    --border: 240 10% 30%;
+    --input: 240 10% 30%;
+    --ring: 220 90% 60%;
+    --chart-1: 220 90% 60%;
+    --chart-2: 120 90% 50%;
+    --chart-3: 30 90% 60%;
+    --chart-4: 280 90% 60%;
+    --chart-5: 180 90% 50%;
+  }
 }
 
-[data-theme] {
-  color-scheme: light;
-}
-
-[data-theme="dark"],
-[data-theme="night"], 
-[data-theme="dracula"], 
-[data-theme="black"], 
-[data-theme="luxury"], 
-[data-theme="business"], 
-[data-theme="synthwave"], 
-[data-theme="halloween"], 
-[data-theme="forest"], 
-[data-theme="cyberpunk"], 
-[data-theme="coffee"] {
-  color-scheme: dark;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Smooth theme transitions */
+  * {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+  
+  /* Disable transitions on theme change to prevent flashing */
+  .no-transitions * {
+    @apply !transition-none;
+  }
 }
 
 @layer utilities {
@@ -36,30 +89,20 @@
 }
 
 @layer components {
-  /* Color picker using daisyUI theme variables */
+  /* Color picker button styling */
   .color-picker-button {
     @apply w-10 h-10 rounded-full transition-all cursor-pointer relative;
     @apply border-2 border-transparent outline-none;
   }
 
   .color-picker-button:hover {
-    @apply scale-105 shadow-md;
-    border-color: oklch(var(--bc) / 0.2);
+    @apply scale-105 shadow-md border-border;
   }
 
   .color-picker-button.selected {
-    @apply scale-110 ring-2 ring-base-content ring-offset-2 ring-offset-base-100;
+    @apply scale-110 ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  .color-picker-button.selected::after {
-    content: "✓";
-    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-    @apply text-white font-bold text-lg;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  }
-}
-
-@layer components {
   /* Natural textarea styling */
   .natural-textarea {
     @apply h-auto min-h-[150px] resize-y;
@@ -80,18 +123,8 @@
     @apply opacity-40;
   }
 
-  /* Logo filters for different theme types */
-  :is([data-theme="dark"], 
-      [data-theme="night"], 
-      [data-theme="dracula"], 
-      [data-theme="black"], 
-      [data-theme="luxury"], 
-      [data-theme="business"], 
-      [data-theme="synthwave"], 
-      [data-theme="halloween"], 
-      [data-theme="forest"], 
-      [data-theme="cyberpunk"], 
-      [data-theme="coffee"]) .logo {
+  /* Logo filters for dark mode */
+  .dark .logo {
     filter: brightness(0) invert(1);
   }
 }

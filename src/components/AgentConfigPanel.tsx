@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { SubAgent, AVAILABLE_TOOLS, PRESET_COLORS, ToolsData } from '../types';
 import { validateAgentName } from '../utils/agentUtils';
 import { Save, X, Server } from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Card, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
+import { Checkbox } from './ui/checkbox';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 interface AgentConfigPanelProps {
   agent?: SubAgent;
@@ -112,102 +119,92 @@ export const AgentConfigPanel: React.FC<AgentConfigPanelProps> = ({
   };
 
   return (
-    <div className="w-80 bg-base-100 border-r border-base-300 flex flex-col">
+    <div className="w-80 bg-background border-r border-border flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-base-300">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <h2 className="text-lg font-semibold">
           {agent ? 'Edit Agent' : 'New Agent'}
         </h2>
-        <button
+        <Button
           onClick={onCancel}
-          className="btn btn-ghost btn-sm btn-circle"
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
         >
           <X size={16} />
-        </button>
+        </Button>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Name */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Name *</span>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Name *
           </label>
-          <input
+          <Input
             type="text"
             value={formData.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
-            className={`input input-bordered input-sm w-full ${
-              errors.name ? 'input-error' : ''
+            className={`h-8 w-full ${
+              errors.name ? 'border-destructive' : ''
             }`}
             placeholder="e.g., code-reviewer"
           />
           {errors.name && (
-            <label className="label">
-              <span className="label-text-alt text-error">{errors.name}</span>
-            </label>
+            <p className="text-xs text-destructive mt-1">{errors.name}</p>
           )}
         </div>
         
         {/* Description */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Description *</span>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Description *
           </label>
-          <textarea
+          <Textarea
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             rows={3}
-            className={`textarea textarea-bordered textarea-sm w-full resize-none ${
-              errors.description ? 'textarea-error' : ''
+            className={`text-sm w-full resize-none ${
+              errors.description ? 'border-destructive' : ''
             }`}
             placeholder="When should this agent be invoked?"
           />
           {errors.description && (
-            <label className="label">
-              <span className="label-text-alt text-error">{errors.description}</span>
-            </label>
+            <p className="text-xs text-destructive mt-1">{errors.description}</p>
           )}
         </div>
 
         {/* Level */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Level</span>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Level
           </label>
-          <div className="flex gap-4">
-            <label className="label cursor-pointer gap-2">
-              <input
-                type="radio"
-                name="level"
-                value="user"
-                checked={formData.level === 'user'}
-                onChange={(e) => handleInputChange('level', e.target.value)}
-                className="radio radio-primary radio-sm"
-              />
-              <span className="label-text text-sm">User</span>
-            </label>
-            <label className="label cursor-pointer gap-2">
-              <input
-                type="radio"
-                name="level"
-                value="project"
-                checked={formData.level === 'project'}
-                onChange={(e) => handleInputChange('level', e.target.value)}
-                className="radio radio-primary radio-sm"
-              />
-              <span className="label-text text-sm">Project</span>
-            </label>
-          </div>
-          <label className="label">
-            <span className="label-text-alt text-xs">Project agents take precedence</span>
-          </label>
+          <RadioGroup
+            value={formData.level}
+            onValueChange={(value) => handleInputChange('level', value)}
+            className="flex gap-4"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="user" id="level-user" />
+              <label htmlFor="level-user" className="text-sm cursor-pointer">
+                User
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="project" id="level-project" />
+              <label htmlFor="level-project" className="text-sm cursor-pointer">
+                Project
+              </label>
+            </div>
+          </RadioGroup>
+          <p className="text-xs text-muted-foreground mt-1">Project agents take precedence</p>
         </div>
         
         {/* Color */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Color</span>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Color
           </label>
           <div className="flex gap-2 flex-wrap">
             {PRESET_COLORS.map((color) => (
@@ -228,120 +225,137 @@ export const AgentConfigPanel: React.FC<AgentConfigPanelProps> = ({
         </div>
 
         {/* Tools */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Tools</span>
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm font-medium">
+              Tools
+            </label>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={handleSelectAllTools}
-                className="btn btn-outline btn-xs"
+                variant="outline"
+                className="h-6 text-xs px-2"
               >
                 All
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleSelectNoTools}
-                className="btn btn-outline btn-xs"
+                variant="outline"
+                className="h-6 text-xs px-2"
               >
                 None
-              </button>
+              </Button>
             </div>
-          </label>
+          </div>
           {loadingTools ? (
-            <div className="card border border-base-300 p-4">
-              <div className="flex items-center justify-center gap-2">
-                <span className="loading loading-spinner loading-sm"></span>
-                <span className="text-sm">Loading...</span>
-              </div>
-            </div>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  <span className="text-sm">Loading...</span>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="card border border-base-300 p-3 max-h-64 overflow-y-auto">
-              <div className="space-y-3">
+            <Card className="max-h-64 overflow-y-auto">
+              <CardContent className="p-3">
+                <div className="space-y-3">
                 {/* Default Claude Code Tools */}
                 <div>
                   <h4 className="text-sm font-semibold mb-2">Claude Code Tools</h4>
                   <div className="grid grid-cols-1 gap-1">
                     {toolsData.defaultTools.map((tool) => (
-                      <label key={tool} className="label cursor-pointer justify-start gap-2 py-1">
-                        <input
-                          type="checkbox"
+                      <div key={tool} className="flex items-center gap-2 py-1">
+                        <Checkbox
+                          id={`tool-${tool}`}
                           checked={selectedTools.has(tool)}
-                          onChange={() => handleToolToggle(tool)}
-                          className="checkbox checkbox-primary checkbox-sm"
+                          onCheckedChange={() => handleToolToggle(tool)}
                         />
-                        <span className="label-text font-mono text-xs">{tool}</span>
-                      </label>
+                        <label
+                          htmlFor={`tool-${tool}`}
+                          className="font-mono text-xs cursor-pointer"
+                        >
+                          {tool}
+                        </label>
+                      </div>
                     ))}
                   </div>
                 </div>
                 
                 {/* MCP Servers */}
                 {toolsData.mcpServers.length > 0 && (
-                  <div className="border-t border-base-300 pt-3">
+                  <div className="border-t border-border pt-3">
                     <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                       <Server size={14} />
                       MCP Servers
                     </h4>
                     <div className="grid grid-cols-1 gap-1">
                       {toolsData.mcpServers.map((server) => (
-                        <label key={server.id} className="label cursor-pointer justify-start gap-2 py-1">
-                          <input
-                            type="checkbox"
+                        <div key={server.id} className="flex items-start gap-2 py-1">
+                          <Checkbox
+                            id={`server-${server.id}`}
                             checked={selectedTools.has(server.id)}
-                            onChange={() => handleToolToggle(server.id)}
-                            className={`checkbox checkbox-sm ${
-                              server.permitted ? 'checkbox-success' : 'checkbox-warning'
-                            }`}
+                            onCheckedChange={() => handleToolToggle(server.id)}
                             disabled={!server.permitted}
+                            className="mt-0.5"
                           />
                           <div className="flex flex-col flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium truncate">{server.displayName}</span>
+                              <label
+                                htmlFor={`server-${server.id}`}
+                                className="text-sm font-medium truncate cursor-pointer"
+                              >
+                                {server.displayName}
+                              </label>
                               {!server.permitted && (
-                                <span className="badge badge-warning badge-xs ml-1">No Access</span>
+                                <Badge variant="secondary" className="text-xs ml-1">No Access</Badge>
                               )}
                             </div>
                             <span className="font-mono text-xs opacity-60 truncate">
                               {server.server} → {server.name}
                             </span>
                           </div>
-                        </label>
+                        </div>
                       ))}
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
-          <label className="label">
-            <span className="label-text-alt text-xs">
-              {selectedTools.size === 0 
-                ? 'All tools available' 
-                : `${selectedTools.size} tools selected`
-              }
-            </span>
-          </label>
+          <p className="text-xs text-muted-foreground mt-1">
+            {selectedTools.size === 0 
+              ? 'All tools available' 
+              : `${selectedTools.size} tools selected`
+            }
+          </p>
         </div>
       </div>
 
       {/* Footer Buttons */}
-      <div className="p-4 border-t border-base-300">
+      <div className="p-4 border-t border-border">
         <div className="flex gap-2">
-          <button
+          <Button
             type="button"
             onClick={onCancel}
-            className="btn btn-outline btn-sm flex-1"
+            variant="outline"
+            size="sm"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
-            className="btn btn-primary btn-sm flex-1"
+            variant="default"
+            size="sm"
+            className="flex-1"
           >
             <Save size={14} />
             {agent ? 'Update' : 'Create'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

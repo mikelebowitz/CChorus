@@ -1,11 +1,11 @@
 # Next Session Brief
 
-**Generated**: 2025-07-30 18:03
+**Generated**: 2025-07-31 02:25
 
 ## Quick Context
 
-**Branch**: main
-**Last Activity**: July 30, 2025
+**Branch**: fix/theme-switching
+**Last Activity**: July 31, 2025
 
 ## Resume Command
 
@@ -21,7 +21,25 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
-?? docs/sessions/SESSION_2025-07-30_18-03.md
+ M first-pass.code-workspace
+ M index.html
+ M package-lock.json
+ M package.json
+ M src/App.tsx
+ M src/components/AgentConfigPanel.tsx
+ M src/components/AgentEditor.tsx
+ M src/components/AgentTabbedEditor.tsx
+ M src/components/PromptEditor.tsx
+ M src/index.css
+ M tailwind.config.js
+ M vite.config.ts
+?? components.json
+?? docs/sessions/SESSION_2025-07-31_02-25.md
+?? src/components/theme-provider.tsx
+?? src/components/theme-toggle.tsx
+?? src/components/ui/
+?? src/hooks/
+?? src/lib/
 
 ```
 

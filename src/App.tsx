@@ -4,22 +4,23 @@ import { AgentCard } from './components/AgentCard';
 import { AgentEditor } from './components/AgentEditor';
 import { AgentTabbedEditor } from './components/AgentTabbedEditor';
 import { FileBrowser } from './components/FileBrowser';
+import { ThemeProvider } from './components/theme-provider';
+import { ThemeToggle } from './components/theme-toggle';
+import { useTheme } from './components/theme-provider';
+import { Button } from './components/ui/button';
+import { Card, CardContent, CardHeader } from './components/ui/card';
+import { Input } from './components/ui/input';
+import { Badge } from './components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { ApiFileSystemService } from './utils/apiFileSystem';
 import { parseAgentFile } from './utils/agentUtils';
-import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu, Palette } from 'lucide-react';
+import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu } from 'lucide-react';
+import { Toaster } from './components/ui/toaster';
+import { useToast } from './hooks/use-toast';
 
 const fileSystem = new ApiFileSystemService();
 
-// Available daisyUI themes
-const DAISYUI_THEMES = [
-  'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate',
-  'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden',
-  'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black',
-  'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade',
-  'night', 'coffee', 'winter'
-];
-
-function App() {
+function AppContent() {
   const [agents, setAgents] = useState<SubAgent[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAgent, setEditingAgent] = useState<SubAgent | undefined>(undefined);
@@ -28,8 +29,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'all' | 'user' | 'project'>('all');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState('light');
-  const [showThemeSelector, setShowThemeSelector] = useState(false);
   
   // Form state for the new column layout
   const [formData, setFormData] = useState<SubAgent>({
@@ -42,111 +41,40 @@ function App() {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Get theme context
+  const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+
   useEffect(() => {
     loadAgents();
-    
-    // FORCE COFFEE THEME FOR DEBUGGING
-    const forcedTheme = 'coffee';
-    setCurrentTheme(forcedTheme);
-    localStorage.setItem('cchorus-theme', forcedTheme);
-    console.log('🚀 FORCING COFFEE THEME FOR DEBUG:', forcedTheme);
   }, []);
 
-  // Separate effect for theme initialization after render
+  // Add keyboard shortcut for theme switching
   useEffect(() => {
-    if (currentTheme) {
-      console.log('🎨 Theme initialization starting for:', currentTheme);
-      
-      // Force immediate DOM update for data-theme attribute
-      document.documentElement.setAttribute('data-theme', currentTheme);
-      document.body.classList.forEach(className => {
-        if (className.startsWith('theme-')) {
-          document.body.classList.remove(className);
-        }
-      });
-      document.body.classList.add(`theme-${currentTheme}`);
-      
-      // Trigger a reflow to ensure styles are recalculated
-      document.documentElement.offsetHeight;
-      
-      // Comprehensive debugging
-      setTimeout(() => {
-        const computedStyle = getComputedStyle(document.documentElement);
-        console.log('🎨 Theme Debug Report:', {
-          theme: currentTheme,
-          dataTheme: document.documentElement.getAttribute('data-theme'),
-          bodyClasses: Array.from(document.body.classList),
-          cssVariables: {
-            '--color-primary': computedStyle.getPropertyValue('--color-primary'),
-            '--color-base-100': computedStyle.getPropertyValue('--color-base-100'),
-            '--color-base-200': computedStyle.getPropertyValue('--color-base-200'),
-            '--color-base-300': computedStyle.getPropertyValue('--color-base-300'),
-            '--color-base-content': computedStyle.getPropertyValue('--color-base-content'),
-          },
-          backgroundColor: computedStyle.backgroundColor,
-          color: computedStyle.color
-        });
-      }, 100);
-      
-      console.log('✅ Theme initialized:', currentTheme);
-    }
-  }, [currentTheme]);
-
-  // Theme management
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Check for Ctrl/Cmd + T
       if ((e.ctrlKey || e.metaKey) && e.key === 't') {
         e.preventDefault();
-        setShowThemeSelector(prev => !prev);
-      }
-      if (e.key === 'Escape') {
-        setShowThemeSelector(false);
+        
+        // Toggle between light and dark themes
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        const themeLabel = newTheme === 'light' ? 'Light' : 'Dark';
+        
+        setTheme(newTheme);
+        
+        // Show toast notification
+        toast({
+          title: "Theme Changed",
+          description: `Switched to ${themeLabel} mode`,
+          duration: 2000,
+        });
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [theme, setTheme]);
 
-  const handleThemeChange = (theme: string) => {
-    console.log('🔄 Changing theme from', currentTheme, 'to', theme);
-    
-    // Set React state first
-    setCurrentTheme(theme);
-    localStorage.setItem('cchorus-theme', theme);
-    setShowThemeSelector(false);
-    
-    // Force immediate DOM update for data-theme attribute
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.classList.forEach(className => {
-      if (className.startsWith('theme-')) {
-        document.body.classList.remove(className);
-      }
-    });
-    document.body.classList.add(`theme-${theme}`);
-    
-    // Trigger a reflow to ensure styles are recalculated
-    document.documentElement.offsetHeight;
-    
-    // Verify theme application with comprehensive debugging
-    setTimeout(() => {
-      const computedStyle = getComputedStyle(document.documentElement);
-      console.log('🔄 Theme Change Complete Report:', {
-        oldTheme: currentTheme,
-        newTheme: theme,
-        dataTheme: document.documentElement.getAttribute('data-theme'),
-        bodyClasses: Array.from(document.body.classList),
-        cssVariables: {
-          '--color-primary': computedStyle.getPropertyValue('--color-primary'),
-          '--color-base-100': computedStyle.getPropertyValue('--color-base-100'),
-          '--color-base-200': computedStyle.getPropertyValue('--color-base-200'),
-          '--color-base-content': computedStyle.getPropertyValue('--color-base-content'),
-        },
-        hasThemeVariables: computedStyle.getPropertyValue('--color-primary') !== '',
-        backgroundColor: computedStyle.backgroundColor
-      });
-    }, 50);
-  };
 
 
   const loadAgents = async () => {
@@ -279,61 +207,50 @@ function App() {
       {/* Sidebar Header */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-4">
-          <button
+          <Button
             onClick={() => {
               handleCreateAgent();
               onClose?.();
             }}
-            className="btn btn-primary btn-sm flex-1"
+            size="sm"
+            className="flex-1"
           >
             <Plus size={16} />
             New Agent
-          </button>
+          </Button>
           
-          <button
+          <Button
             onClick={() => {
               setShowFileSearch(true);
               onClose?.();
             }}
-            className="btn btn-outline btn-sm"
+            variant="outline"
+            size="sm"
           >
             <FileText size={16} />
-          </button>
+          </Button>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/40" size={16} />
-          <input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+          <Input
             type="text"
             placeholder="Search agents..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input input-bordered input-sm w-full pl-10"
+            className="pl-10"
           />
         </div>
 
         {/* View Mode Tabs */}
-        <div className="tabs tabs-boxed mt-3">
-          <button
-            onClick={() => setViewMode('all')}
-            className={`tab tab-sm ${viewMode === 'all' ? 'tab-active' : ''}`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setViewMode('user')}
-            className={`tab tab-sm ${viewMode === 'user' ? 'tab-active' : ''}`}
-          >
-            User
-          </button>
-          <button
-            onClick={() => setViewMode('project')}
-            className={`tab tab-sm ${viewMode === 'project' ? 'tab-active' : ''}`}
-          >
-            Project
-          </button>
-        </div>
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'all' | 'user' | 'project')} className="mt-3">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="user">User</TabsTrigger>
+            <TabsTrigger value="project">Project</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Agent List */}
@@ -341,7 +258,7 @@ function App() {
         <div className="p-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <span className="loading loading-spinner loading-sm"></span>
+              <RefreshCw className="animate-spin" size={16} />
               <span className="ml-2 text-sm">Loading agents...</span>
             </div>
           ) : filteredAgents.length === 0 ? (
@@ -351,7 +268,7 @@ function App() {
                 alt="CChorus" 
                 className="mx-auto h-8 w-auto logo faded mb-3"
               />
-              <p className="text-sm text-base-content/60">
+              <p className="text-sm text-muted-foreground">
                 {searchQuery 
                   ? `No agents match "${searchQuery}"` 
                   : viewMode === 'project' 
@@ -361,36 +278,39 @@ function App() {
               </p>
               {!searchQuery && (
                 viewMode === 'project' ? (
-                  <button
+                  <Button
                     onClick={() => {
                       setShowFileSearch(true);
                       onClose?.();
                     }}
-                    className="btn btn-outline btn-sm mt-3"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
                   >
                     <Folder size={14} />
                     Select Project Folder
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
                     onClick={() => {
                       handleCreateAgent();
                       onClose?.();
                     }}
-                    className="btn btn-primary btn-sm mt-3"
+                    size="sm"
+                    className="mt-3"
                   >
                     <Plus size={14} />
                     Create Agent
-                  </button>
+                  </Button>
                 )
               )}
             </div>
           ) : (
             <div className="space-y-2">
               {filteredAgents.map((agent) => (
-                <div
+                <Card
                   key={`${agent.name}-${agent.level}`}
-                  className={`card bg-base-100 shadow-sm border border-base-300 cursor-pointer transition-all hover:shadow-md ${
+                  className={`cursor-pointer transition-all hover:shadow-md ${
                     editingAgent?.name === agent.name && editingAgent?.level === agent.level
                       ? 'ring-2 ring-primary'
                       : ''
@@ -400,7 +320,7 @@ function App() {
                     onClose?.();
                   }}
                 >
-                  <div className="card-body p-3">
+                  <CardContent className="p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -410,63 +330,38 @@ function App() {
                           />
                           <h3 className="font-medium text-sm truncate">{agent.name}</h3>
                         </div>
-                        <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                           {agent.description}
                         </p>
                         <div className="flex items-center justify-between mt-2">
-                          <span className={`badge badge-xs ${
-                            agent.level === 'user' ? 'badge-info' : 'badge-success'
-                          }`}>
+                          <Badge className="text-xs bg-muted text-muted-foreground">
                             {agent.level}
-                          </span>
+                          </Badge>
                           {agent.tools && agent.tools.length > 0 && (
-                            <span className="text-xs text-base-content/40">
+                            <span className="text-xs text-muted-foreground">
                               {agent.tools.length} tools
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="dropdown dropdown-end">
-                        <button 
-                          tabIndex={0} 
-                          className="btn btn-ghost btn-xs"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          ⋮
-                        </button>
-                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                          <li>
-                            <button onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditAgent(agent);
-                              onClose?.();
-                            }}>
-                              Edit
-                            </button>
-                          </li>
-                          <li>
-                            <button 
-                              className="text-error"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteAgent(agent.name);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        ⋮
+                      </Button>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </div>
 
         {/* Statistics - Directly below agent list */}
-        <div className="p-4 border-t border-base-300 bg-base-200/50">
+        <div className="p-4 border-t border-border bg-muted/50">
           <h3 className="font-semibold text-sm mb-3">Statistics</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -487,7 +382,7 @@ function App() {
             </div>
           </div>
           {searchQuery && (
-            <div className="text-xs text-base-content/60 text-center mt-2">
+            <div className="text-xs text-muted-foreground/60 text-center mt-2">
               Showing results for "{searchQuery}"
             </div>
           )}
@@ -499,8 +394,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center gap-2 text-gray-600">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center gap-2 text-foreground">
           <RefreshCw className="animate-spin" size={20} />
           <span>Loading agents...</span>
         </div>
@@ -509,86 +404,39 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
-      {/* Hidden Theme Controllers for daisyUI */}
-      <div className="hidden">
-        {DAISYUI_THEMES.map((theme) => (
-          <input
-            key={theme}
-            type="radio"
-            name="theme-controller"
-            value={theme}
-            className="theme-controller"
-            checked={theme === currentTheme}
-            onChange={() => {}} // Controlled by our handleThemeChange
-          />
-        ))}
-      </div>
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <div className="navbar bg-base-100 shadow-sm">
-        <div className="flex-none lg:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="btn btn-ghost btn-sm"
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-3 ml-2.5">
+      <div className="border-b bg-card">
+        <div className="flex h-16 items-center px-4">
+          <div className="flex lg:hidden">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
+          
+          <div className="flex flex-1 items-center gap-3 lg:ml-0 ml-4">
             <img 
               src="/cchorus-logo.png" 
               alt="CChorus" 
               className="h-10 w-auto logo"
             />
           </div>
-        </div>
-        
-        <div className="flex-none gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowThemeSelector(prev => !prev)}
-              className="btn btn-ghost btn-sm"
-              title="Theme Selector (Ctrl/Cmd + T)"
-            >
-              <Palette size={16} />
-            </button>
-            
-            {showThemeSelector && (
-              <div className="absolute right-0 top-full mt-2 w-64 max-h-80 overflow-y-auto bg-base-100 border border-base-300 rounded-lg shadow-lg z-50">
-                <div className="p-3 border-b border-base-300">
-                  <h3 className="font-medium text-sm">Choose Theme</h3>
-                  <p className="text-xs text-base-content/60 mt-1">Current: {currentTheme}</p>
-                  <p className="text-xs text-base-content/40 mt-1">Press Ctrl/Cmd + T to toggle</p>
-                </div>
-                <div className="p-2 grid grid-cols-2 gap-1">
-                  {DAISYUI_THEMES.map((theme) => (
-                    <button
-                      key={theme}
-                      onClick={() => handleThemeChange(theme)}
-                      className={`p-2 text-sm text-left rounded transition-colors capitalize ${
-                        currentTheme === theme 
-                          ? 'bg-primary text-primary-content' 
-                          : 'hover:bg-base-200'
-                      }`}
-                    >
-                      {theme}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
           
-          <button
-            onClick={loadAgents}
-            className="btn btn-ghost btn-sm"
-            title="Reload agents from file system"
-          >
-            <RefreshCw size={16} />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            
+            <button
+              onClick={loadAgents}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              title="Reload agents from file system"
+            >
+              <RefreshCw size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -598,15 +446,17 @@ function App() {
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-            <div className="fixed left-0 top-0 h-full w-80 bg-base-100 flex flex-col">
+            <div className="fixed left-0 top-0 h-full w-80 bg-background flex flex-col">
               <div className="flex items-center justify-between p-4">
                 <h2 className="font-semibold">Agents</h2>
-                <button
+                <Button
                   onClick={() => setSidebarOpen(false)}
-                  className="btn btn-ghost btn-sm btn-circle"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full"
                 >
                   ×
-                </button>
+                </Button>
               </div>
               <div className="flex-1 flex flex-col">
                 <SidebarContent onClose={() => setSidebarOpen(false)} />
@@ -618,7 +468,7 @@ function App() {
         {/* Two-column layout for desktop */}
         <div className="hidden lg:flex flex-1">
           {/* Column 1: Agent List + Statistics */}
-          <div className="w-80 bg-base-100 flex-col flex">
+          <div className="w-80 bg-background flex-col flex">
             <SidebarContent />
           </div>
 
@@ -643,26 +493,26 @@ function App() {
               onCancel={handleCancelEdit}
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-base-100">
+            <div className="h-full w-full flex items-center justify-center bg-background">
               <div className="text-center max-w-md px-6">
                 <img 
                   src="/cchorus-logo.png" 
                   alt="CChorus" 
                   className="mx-auto h-16 w-auto logo faded mb-4"
                 />
-                <h3 className="text-lg font-medium text-base-content/60 mb-2">
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">
                   Select an agent to edit
                 </h3>
-                <p className="text-base-content/40 mb-4">
+                <p className="text-muted-foreground/60 mb-4">
                   Choose an agent from the sidebar or create a new one to get started
                 </p>
-                <button
+                <Button
                   onClick={handleCreateAgent}
-                  className="btn btn-primary"
+                  variant="default"
                 >
                   <Plus size={16} />
                   Create New Agent
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -676,7 +526,18 @@ function App() {
           onCancel={() => setShowFileSearch(false)}
         />
       )}
+      
+      {/* Toast notifications */}
+      <Toaster />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="cchorus-theme">
+      <AppContent />
+    </ThemeProvider>
   );
 }
 
