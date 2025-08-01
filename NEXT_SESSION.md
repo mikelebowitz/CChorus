@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-08-01 00:21
+**Generated**: 2025-08-01 00:54
 
 ## Quick Context
 
@@ -21,7 +21,11 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
-?? docs/sessions/SESSION_2025-08-01_00-21.md
+ M src/components/ProjectManager.tsx
+ M src/components/ResourceLibrary.tsx
+ M src/utils/resourceLibraryService.ts
+?? docs/sessions/SESSION_2025-08-01_00-54.md
+?? src/utils/cacheService.ts
 
 ```
 
