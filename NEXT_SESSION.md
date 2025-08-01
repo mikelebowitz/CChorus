@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-08-01 14:10
+**Generated**: 2025-08-01 14:19
 
 ## Quick Context
 
@@ -27,11 +27,12 @@ Check `docs/sessions/` for the latest session summary.
  M package-lock.json
  M package.json
  M src/App.tsx
+ M src/components/ProjectManager.tsx
 ?? docs/CHANGELOG.md
 ?? docs/CONTRIBUTING.md
 ?? docs/processes/
-?? docs/sessions/SESSION_2025-08-01_14-10.md
-?? docs/sessions/SESSION_2025-08-01_14-10_CCHORUS.md
+?? docs/sessions/SESSION_2025-08-01_14-19.md
+?? docs/sessions/SESSION_2025-08-01_14-19_CCHORUS.md
 ?? src/components/LayoutToggle.tsx
 ?? src/components/ThreeColumnLayout.tsx
 ?? src/components/ui/resizable.tsx
