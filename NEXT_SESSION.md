@@ -1,10 +1,10 @@
 # Next Session Brief
 
-**Generated**: 2025-07-31 15:34
+**Generated**: 2025-07-31 20:56
 
 ## Quick Context
 
-**Branch**: feature/agent-file-scanner
+**Branch**: feature/individual-resource-managers
 **Last Activity**: July 31, 2025
 
 ## Resume Command
@@ -21,23 +21,7 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
- M CLAUDE.md
- M server.js
- M src/App.tsx
- M src/types.ts
-?? .claude/
-?? "Project Vision.md"
-?? commandsScanner.js
-?? docs/developer/
-?? docs/sessions/SESSION_2025-07-31_15-34.md
-?? docs/templates/
-?? docs/user/
-?? hooksScanner.js
-?? projectScanner.js
-?? settingsManager.js
-?? src/components/AssignmentManager.tsx
-?? src/components/ResourceLibrary.tsx
-?? src/utils/resourceLibraryService.ts
+?? docs/sessions/SESSION_2025-07-31_20-56.md
 
 ```
 
