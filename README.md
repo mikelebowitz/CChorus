@@ -162,11 +162,14 @@ cchorus/
 │   │   │   ├── input.tsx   # Form input components
 │   │   │   ├── toast.tsx   # Notification system
 │   │   │   └── ...         # Additional UI primitives
-│   │   ├── theme-provider.tsx  # Theme context and management
-│   │   ├── theme-toggle.tsx    # Theme switching component
-│   │   ├── AgentCard.tsx      # Individual agent display
-│   │   ├── AgentEditor.tsx    # Agent creation/editing form
-│   │   └── FileBrowser.tsx    # File system browser
+│   │   ├── theme-provider.tsx    # Theme context and management
+│   │   ├── theme-toggle.tsx      # Theme switching component
+│   │   ├── ResourceLibrary.tsx   # ✅ Unified resource browser
+│   │   ├── AssignmentManager.tsx # ✅ Resource deployment system
+│   │   ├── ProjectManager.tsx    # ✅ Project discovery and CLAUDE.md editing
+│   │   ├── AgentCard.tsx         # Individual agent display
+│   │   ├── AgentEditor.tsx       # Agent creation/editing form
+│   │   └── FileBrowser.tsx       # File system browser
 │   ├── lib/
 │   │   └── utils.ts        # Utility functions (clsx, tailwind-merge)
 │   ├── hooks/
@@ -240,6 +243,22 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 1. **Location**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 2. **Permissions**: `~/.claude/settings.json`
 3. **Auto-detection**: Available tools are shown in the agent editor
+
+## 🗺️ Development Roadmap
+
+> **📋 For complete project roadmap, current status, and detailed implementation plan, see [Project Vision.md](./Project%20Vision.md)**
+
+### Current Status (August 2025)
+- ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners
+- ✅ **Core Frontend** (70% complete) - Resource Library, Assignment Manager, Project Manager
+- 🚧 **Individual Resource Managers** (In Progress) - Hooks, Commands, Settings managers
+
+### What's Next
+- Complete remaining resource manager components
+- Final integration and polish
+- Documentation updates and release preparation
+
+---
 
 ## Development
 

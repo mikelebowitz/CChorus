@@ -62,6 +62,8 @@ docs/
 
 ### Documentation Files to Maintain
 - `README.md` - **Main project README** - primary entry point and project overview
+- `Project Vision.md` - **Master project roadmap** - single source of truth for planning and status
+- `CLAUDE.md` - **Development guidelines** - must reference Project Vision.md for current roadmap
 - `docs/user/README.md` - Primary user guide
 - `docs/developer/README.md` - Technical architecture documentation
 - `docs/user/workflows/*.md` - Step-by-step user procedures
@@ -89,10 +91,10 @@ docs/
 ### Branch Completion Triggers
 **When**: Major development branches are completed
 **Action**:
-- `feature/resource-managers`: Update all manager component sections and main README.md
-- `feature/assignment-engine`: Update deployment and assignment documentation and main README.md
-- `feature/integration-polish`: Update UX and advanced features documentation and main README.md
-- **All major releases**: Update main README.md with new features, installation steps, and usage examples
+- `feature/resource-managers`: Update manager component sections, Project Vision.md status, and main README.md
+- `feature/assignment-engine`: Update deployment documentation, Project Vision.md, and main README.md
+- `feature/integration-polish`: Update UX documentation, Project Vision.md, and main README.md
+- **All major releases**: Update Project Vision.md status, main README.md with new features, and sync CLAUDE.md references
 
 ## 📋 Documentation Update Process
 
@@ -213,6 +215,17 @@ app.get('/api/endpoint', async (req, res) => {
 7. **Validate all code examples** and commands for accuracy
 8. **Update badges and version numbers** to reflect current state
 
+### Updating Project Vision.md
+**When**: Component completion, phase transitions, major milestones, architecture changes
+**Process**:
+1. **Update current status percentages** to reflect actual completion state
+2. **Move completed items** from pending to completed sections with ✅ markers
+3. **Update phase status** (COMPLETED, IN PROGRESS, etc.)
+4. **Refresh "What's Next"** section with accurate remaining work
+5. **Validate deliverables status** and update completion indicators
+6. **Sync with CLAUDE.md** to ensure consistent project status across documents
+7. **Update timeline estimates** based on actual progress
+
 ## 📊 Quality Checklist
 
 Before marking any documentation update as complete:
@@ -223,6 +236,8 @@ Before marking any documentation update as complete:
 - [ ] API endpoints reflect server.js implementation
 - [ ] Workflow steps match actual UI behavior
 - [ ] **Main README.md accurately reflects current project state and capabilities**
+- [ ] **Project Vision.md status indicators match actual implementation completion**
+- [ ] **CLAUDE.md references to Project Vision.md are accurate and up-to-date**
 
 ### Completeness
 - [ ] All placeholder sections replaced with content
@@ -244,6 +259,7 @@ Before marking any documentation update as complete:
 3. **Test current features**: Use the Resource Library and Assignment Manager to understand user workflows
 4. **Update documentation**: Begin with completed features (Resource Library, Assignment Manager)
 5. **Review main README.md**: Ensure it accurately represents current project capabilities and installation steps
+6. **Validate Project Vision.md**: Ensure project roadmap reflects actual completion status and remaining work
 
 ### Ongoing Responsibilities
 - Monitor component changes and update documentation immediately
@@ -251,6 +267,8 @@ Before marking any documentation update as complete:
 - Maintain screenshot library as UI evolves
 - Validate documentation quality regularly
 - **Keep main README.md current** with project evolution and new features
+- **Maintain Project Vision.md as single source of truth** for project status and roadmap
+- **Ensure consistency** between Project Vision.md, CLAUDE.md, and README.md
 
 ### Integration with Development
 - Coordinate with developers for new feature documentation
