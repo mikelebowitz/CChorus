@@ -125,7 +125,71 @@ export async function scanClaudeProjectsArray(roots, options) {
     }
   }
   
-  return results;
+  // Deduplicate projects - remove worktrees and subdirectories
+  return deduplicateProjects(results);
+}
+
+/**
+ * Remove duplicate projects, preferring main project over worktrees/subdirectories
+ * 
+ * @param {Array} projects - Array of project results
+ * @returns {Array} Deduplicated project results
+ */
+function deduplicateProjects(projects) {
+  const deduplicated = [];
+  const projectMap = new Map(); // projectName -> {path, score}
+  
+  // First pass: identify all projects and score them
+  for (const project of projects) {
+    const projectName = path.basename(project.projectPath);
+    const projectPath = project.projectPath;
+    
+    // Calculate priority score (higher = better)
+    let score = 0;
+    
+    // Prefer main project directories over subdirectories
+    if (!projectPath.includes('/worktrees/')) score += 100;
+    if (!projectPath.includes('/.git/')) score += 100;
+    if (!projectPath.includes('/branches/')) score += 100;
+    if (!projectPath.includes('/temp/')) score += 50;
+    if (!projectPath.includes('/tmp/')) score += 50;
+    
+    // Prefer shorter paths (likely main project)
+    score += Math.max(0, 200 - projectPath.split('/').length);
+    
+    // Check if this is a better candidate than existing
+    const existing = projectMap.get(projectName);
+    if (!existing || score > existing.score) {
+      projectMap.set(projectName, {
+        project: project,
+        score: score,
+        path: projectPath
+      });
+    }
+  }
+  
+  // Second pass: filter out projects that are subdirectories of others
+  const finalProjects = Array.from(projectMap.values());
+  
+  for (const candidate of finalProjects) {
+    let isSubdirectory = false;
+    
+    for (const other of finalProjects) {
+      if (candidate === other) continue;
+      
+      // Check if candidate is a subdirectory of other
+      if (candidate.path.startsWith(other.path + '/')) {
+        isSubdirectory = true;
+        break;
+      }
+    }
+    
+    if (!isSubdirectory) {
+      deduplicated.push(candidate.project);
+    }
+  }
+  
+  return deduplicated;
 }
 
 /**

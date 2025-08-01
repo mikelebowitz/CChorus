@@ -1,7 +1,7 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING + PREFERENCES], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
 <!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming, client-side caching, and automated /docgit workflow integration -->
 
 ## 🚀 Quick Start
@@ -144,13 +144,15 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 <!-- UPDATE_TRIGGER: When ProjectManager.tsx is created/modified -->
 <!-- STATUS: COMPLETED WITH STREAMING + CACHING - Full project management with CLAUDE.md editing, real-time streaming, and intelligent caching -->
 
-**Purpose**: Advanced visual interface for managing Claude Code projects with comprehensive discovery, real-time streaming, intelligent caching, and CLAUDE.md editing capabilities.
+**Purpose**: Advanced visual interface for managing Claude Code projects with comprehensive discovery, real-time streaming, intelligent caching, project preferences, and CLAUDE.md editing capabilities.
 
 **Core Features:**
 - **Intelligent Caching System**: Instant project loading with smart background refresh and cache status indicators
-- **Real-time Streaming Discovery**: Server-Sent Events provide live project discovery with immediate UI updates
-- **Background Refresh**: Automatic background updates when cache becomes stale (5+ minutes old)
-- **System-wide Project Discovery**: Automatically scans entire home directory to find all projects with CLAUDE.md files
+- **Real-time Streaming Discovery**: Server-Sent Events provide live project discovery with immediate UI updates and progress tracking
+- **Background Refresh**: Automatic background updates when cache becomes stale (5+ minutes old) with visual indicators
+- **Project Preferences System**: Archive, hide, and favorite projects with client-side persistence and filtering support
+- **Advanced Status Filtering**: Filter projects by active/archived/hidden/favorited status with visual status badges
+- **System-wide Project Discovery**: Automatically scans entire system to find all projects with CLAUDE.md files
 - **Advanced Project Search**: Search and filter projects by name, path, or description with real-time filtering
 - **Dual View Modes**: Toggle between grid and list views for optimal project browsing experience
 - **Project Health Indicators**: Visual indicators showing project status based on Git repo status, agents, commands, and documentation quality
@@ -159,6 +161,7 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 - **Responsive Design**: Split-pane layout adapts to screen size with project list and editor panel
 - **Real-time Content Management**: Live editing with unsaved changes indicators and validation
 - **Performance Optimization**: Cached projects load instantly while fresh data streams in background
+- **Project Organization**: Archive completed projects, hide experimental ones, favorite frequently used projects
 
 **Project Health Assessment:**
 - **Healthy**: Projects with comprehensive setup (Git repo, agents, commands, detailed documentation)
@@ -179,12 +182,17 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 <!-- UPDATE_TRIGGER: When specialized manager components are implemented -->
 <!-- STATUS: PARTIALLY COMPLETED - Project Manager implemented, others pending -->
 
-**Project Manager** [COMPLETED]:
-- **Visual Project Interface**: Complete project discovery and management system
-- **CLAUDE.md Editor**: Built-in editor for project configuration files
-- **Project Health Assessment**: Visual indicators for project completeness
-- **Template Generation**: Automatic CLAUDE.md template creation
-- **System-wide Discovery**: Comprehensive project scanning across entire system
+**Project Manager** [COMPLETED WITH STREAMING + PREFERENCES]:
+- **Real-time Streaming Discovery**: Server-Sent Events provide live project discovery with immediate UI updates
+- **Intelligent Caching System**: Instant loading from cache with automatic background refresh
+- **Visual Project Interface**: Complete project discovery and management with preferences support
+- **CLAUDE.md Editor**: Built-in editor with template generation and automatic backup system
+- **Project Preferences**: Archive, hide, and favorite projects with localStorage persistence
+- **Advanced Filtering**: Filter by status (active/archived/hidden/favorited) with search capabilities
+- **Project Health Assessment**: Visual indicators with filtering support for project completeness
+- **Dual View Modes**: Grid and list views with responsive design
+- **Template Generation**: Automatic CLAUDE.md template creation for projects without existing files
+- **System-wide Discovery**: Comprehensive project scanning with real-time progress feedback
 
 *[Remaining managers to be implemented in future development phases]*
 
@@ -263,9 +271,9 @@ Specialized interfaces for managing each resource type:
 ### Managing Projects
 <!-- WORKFLOW_PROJECT_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
-<!-- STATUS: COMPLETED - Full project management workflow implemented -->
+<!-- STATUS: COMPLETED WITH PREFERENCES - Full project management workflow with organization features -->
 
-**Access Project Manager**: Navigate to the "Projects" tab in CChorus main interface
+**Access Project Manager**: Navigate to the "Projects" tab in CChorus main interface (default view on startup)
 
 **Intelligent Loading System:**
 1. **Instant Cache Loading**: Previously discovered projects load immediately from client-side cache
@@ -300,10 +308,18 @@ Specialized interfaces for managing each resource type:
 - **Project Metadata**: Access creation dates, modification times, and project paths
 - **Health Monitoring**: Track project setup completeness and identify improvement opportunities
 
+**Project Organization and Management:**
+- **Status-Based Organization**: Archive completed projects, hide experimental ones, favorite frequently used projects
+- **Advanced Filtering**: Use status filter tabs (Active/Favorites/Archived/Hidden/All) to organize project views
+- **Persistent Preferences**: Project organization preferences saved in browser localStorage
+- **Bulk Operations**: Apply status changes to multiple projects efficiently
+- **Project Lifecycle**: Manage projects through their complete lifecycle with appropriate status changes
+
 **Integration with Resource Management:**
 - **Resource Assignment**: Use Assignment Manager to deploy resources to discovered projects
 - **Cross-Project Visibility**: See which projects have which resources deployed
 - **Project-Specific Resources**: Identify and manage project-specific agent and command configurations
+- **Health-Based Decisions**: Use project health indicators to guide resource deployment choices
 
 ## 🔧 Troubleshooting
 
@@ -353,6 +369,15 @@ A:
 - Ensure projects have CLAUDE.md files (required for project detection)
 - Check that project paths are within accessible directories
 - Verify projects have .claude directory structure for resource storage
+- Try refreshing Projects tab to trigger fresh project discovery
+
+**Q: Project organization (archive/hide/favorite) not working**
+A:
+- Verify browser localStorage is enabled and has sufficient space
+- Check that you're not in incognito/private browsing mode
+- Try clearing localStorage 'project_preferences' key if corrupted
+- Note that preferences are browser-specific and don't sync across browsers
+- Ensure JavaScript is enabled for localStorage operations
 
 ### Error Messages
 
@@ -394,6 +419,16 @@ A:
   - Check read/write permissions on .claude directories
   - Ensure project directories are accessible
   - Verify user has permissions for target deployment locations
+  - Check CLAUDE.md file permissions for editor operations
+
+**"Project preferences not persisting"**
+- **Cause**: Browser localStorage issues or restrictions
+- **Solutions**:
+  - Enable localStorage in browser settings
+  - Check available browser storage space
+  - Exit incognito/private mode for persistent preferences
+  - Clear corrupted localStorage data and restart
+  - Verify JavaScript execution is allowed
 
 ## 📖 Advanced Topics
 

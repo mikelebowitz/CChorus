@@ -3,11 +3,11 @@
 <!-- WORKFLOW_PROJECT_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: When project management features are accessed -->
 <!-- SCREENSHOT: project-manager-interface.png -->
-<!-- STATUS: COMPLETED WITH CACHING - Dedicated ProjectManager component with CLAUDE.md editing, intelligent caching, and streaming discovery -->
+<!-- STATUS: COMPLETED WITH STREAMING + CACHING + PREFERENCES - Dedicated ProjectManager component with CLAUDE.md editing, intelligent caching, streaming discovery, and project preferences -->
 
 ## Overview
 
-The Project Management workflow provides comprehensive tools for discovering, understanding, and managing Claude Code projects across your system. The dedicated Projects tab offers a complete project management interface with built-in CLAUDE.md editing, project health assessment, and seamless integration with the resource management system.
+The Project Management workflow provides comprehensive tools for discovering, understanding, and managing Claude Code projects across your system. The dedicated Projects tab offers a complete project management interface with built-in CLAUDE.md editing, project health assessment, project preferences (archive/hide/favorite), real-time streaming discovery, intelligent caching, and seamless integration with the resource management system.
 
 ## Understanding Claude Code Projects
 
@@ -36,8 +36,10 @@ Each detected project includes:
 6. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
 7. **Progress Tracking**: See "Found X projects..." counter update in real-time during scanning
 8. **View Selection**: Choose between Grid or List view modes for optimal browsing
+9. **Project Filtering**: Use status filter tabs (Active/Favorites/Archived/Hidden/All) to organize projects
+10. **Project Organization**: Right-click projects to archive, hide, or favorite for better organization
 
-**Expected Result:** Instant loading from cache followed by real-time project discovery with immediate results and live progress updates
+**Expected Result:** Instant loading from cache followed by real-time project discovery with immediate results, live progress updates, and comprehensive project organization with preferences filtering
 
 ## Project Discovery Workflow
 
@@ -273,7 +275,99 @@ Projects are automatically assessed based on multiple criteria:
 - **Context Preservation**: CLAUDE.md files provide valuable context for AI assistants working on projects
 - **Project Evolution**: Documentation evolves with project changes through integrated editor
 
-### Advanced Project Management Features
+### Project Organization Features
+
+### Project Status Management
+
+**Understanding Project Status:**
+CChorus provides comprehensive project organization through status-based categorization:
+
+- **Active Projects**: Default status for all discovered projects, visible in main project view
+- **Archived Projects**: Completed or inactive projects moved to archive for organization
+- **Hidden Projects**: Experimental or temporary projects hidden from main view
+- **Favorited Projects**: Frequently used projects marked for quick access
+
+**Status Filter Tabs:**
+The Projects interface includes dedicated tabs for each status category:
+- **Active Tab**: Shows only active (non-archived, non-hidden) projects
+- **Favorites Tab**: Displays favorited projects regardless of other status
+- **Archived Tab**: Shows archived projects with restore options
+- **Hidden Tab**: Displays hidden projects with show options
+- **All Tab**: Shows all projects regardless of status
+
+### Project Actions and Operations
+
+**Right-Click Context Menu:**
+Each project card includes a context menu (three dots icon) with organization actions:
+
+**Archive/Unarchive:**
+- Archive completed projects to reduce clutter in main view
+- Archived projects remain accessible through Archived tab
+- Unarchive projects to restore them to active status
+- Archiving preserves all project data and metadata
+
+**Hide/Show:**
+- Hide experimental or temporary projects from main view
+- Hidden projects accessible through Hidden tab only
+- Show hidden projects to restore visibility
+- Ideal for work-in-progress or testing projects
+
+**Favorite/Unfavorite:**
+- Mark frequently used projects as favorites
+- Favorited projects appear in dedicated Favorites tab
+- Star icon indicates favorited status in all views
+- Quick access to most important projects
+
+**Mark as Viewed:**
+- Automatic timestamp tracking for project access
+- Used for analytics and recent project identification
+- Helps identify frequently accessed projects
+
+### Project Organization Workflows
+
+**Organizing Large Project Collections:**
+1. **Initial Assessment**: Review all projects in "All" tab to understand complete collection
+2. **Archive Completed**: Move finished projects to archived status for organization
+3. **Hide Experimental**: Hide work-in-progress or testing projects to reduce clutter
+4. **Favorite Key Projects**: Mark frequently used projects as favorites for quick access
+5. **Regular Maintenance**: Periodically review and reorganize project statuses
+
+**Project Lifecycle Management:**
+1. **New Project**: Starts as active project, appears in main Active tab
+2. **Development Phase**: Remains active, optionally favorite if frequently accessed
+3. **Testing Phase**: Optionally hide if experimental or unstable
+4. **Production Use**: Favorite for quick access, maintain active status
+5. **Project Completion**: Archive to preserve but remove from main view
+6. **Long-term Storage**: Remain archived with full access through Archived tab
+
+**Team Project Organization:**
+1. **Shared Standards**: Establish team conventions for project status usage
+2. **Archive Coordination**: Archive completed team projects consistently
+3. **Favorite Team Projects**: Team members favorite shared critical projects
+4. **Status Communication**: Use status to communicate project lifecycle stage
+5. **Regular Review**: Team review of project organization and status accuracy
+
+### Persistent Project Preferences
+
+**Client-Side Storage:**
+- All project preferences stored in browser localStorage
+- Preferences persist across browser sessions and application restarts
+- No server-side storage required - fully client-side preference management
+- Preferences synchronized with cached project data for consistency
+
+**Data Management:**
+- Preferences automatically cleaned up for non-existent projects
+- Export functionality for backup and migration
+- Import functionality for preference restoration
+- Version management for preference format compatibility
+
+**Performance Benefits:**
+- Instant preference application without server communication
+- Preferences preserved during cache refresh operations
+- Efficient filtering and organization without API calls
+- Responsive UI updates for all preference changes
+
+## Advanced Project Management Features
 
 **Multi-View Project Browsing:**
 - **Grid View Advantages**: Visual project cards with comprehensive metadata, health indicators, and resource badges
@@ -435,6 +529,24 @@ Projects are automatically assessed based on multiple criteria:
 4. **Browser Storage**: Clear localStorage in browser dev tools to reset cache
 5. **Network Issues**: Check browser console for network errors preventing cache updates
 6. **Backend Connectivity**: Ensure backend server is accessible for fresh data retrieval
+
+### Project Organization Issues
+
+**Symptoms:**
+- Project status changes don't persist across browser sessions
+- Archived/hidden projects still appear in active view
+- Favorite projects don't show star icons
+- Status filter tabs show incorrect project counts
+- Project preferences lost after cache refresh
+
+**Troubleshooting Project Organization:**
+1. **localStorage Issues**: Check if browser localStorage is enabled and functioning
+2. **Browser Storage Quota**: Ensure sufficient browser storage space for preferences
+3. **Incognito Mode**: Note that preferences don't persist in private browsing mode
+4. **Multiple Browsers**: Preferences are browser-specific and don't sync across browsers
+5. **Preference Conflicts**: Clear localStorage 'project_preferences' key if corrupted
+6. **Filter Reset**: Try switching between filter tabs to refresh project filtering
+7. **Cache Integration**: Ensure project preferences load correctly after cache refresh
 
 ## Best Practices for Project Management
 

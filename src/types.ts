@@ -68,6 +68,19 @@ export interface ClaudeProject {
   origin?: string;
   relativePath?: string;
   error?: string;
+  // User preferences (loaded from ProjectPreferencesService)
+  archived?: boolean;
+  hidden?: boolean;
+  favorited?: boolean;
+  lastViewed?: Date;
+}
+
+// Project filter types
+export type ProjectFilterStatus = 'all' | 'active' | 'archived' | 'hidden' | 'favorited';
+
+export interface ProjectFilters {
+  status: ProjectFilterStatus;
+  searchQuery: string;
 }
 
 // Claude Code Hook interfaces

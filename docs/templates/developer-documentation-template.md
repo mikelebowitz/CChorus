@@ -1,7 +1,7 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [PENDING], Assignment Engine [PENDING], Integration [PENDING] -->
+<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED - ProjectManager COMPLETED], Assignment Engine [COMPLETED], Integration [PENDING] -->
 
 ## 🏗️ Architecture Overview
 
@@ -58,16 +58,30 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 
 **Core Scanner Modules:**
 - `agentScanner.js` - System-wide agent discovery with project context
-- `projectScanner.js` - CLAUDE.md file discovery and project metadata extraction
+- `projectScanner.js` - CLAUDE.md file discovery and project metadata extraction with deduplication
 - `hooksScanner.js` - Hook configuration parsing from settings files
 - `commandsScanner.js` - Slash command discovery and management
 - `settingsManager.js` - Safe settings file read/write operations
 
+**Frontend Service Layer:**
+- `resourceLibraryService.ts` - Unified resource operations and API integration
+- `projectPreferencesService.ts` - Client-side project preferences with localStorage persistence
+  - Archive/hide/favorite project functionality
+  - Bulk operations for multiple projects
+  - Usage statistics and analytics
+  - Import/export capabilities for backup
+  - Cleanup for non-existent projects
+- `cacheService.ts` - Intelligent caching system with background refresh and staleness detection
+- `apiFileSystem.ts` - Backend API communication layer
+
 **Scanner Architecture:**
 - Stream-based scanning using async generators for memory efficiency
+- Real-time streaming using Server-Sent Events for immediate user feedback
 - Configurable depth limits and directory filtering
 - Error resilience with graceful handling of permissions issues
 - AbortSignal support for user-triggered cancellation
+- Automatic deduplication to prevent duplicate project entries
+- Intelligent caching with cache-first loading and background refresh
 
 ## 📦 Component Documentation
 
@@ -143,15 +157,75 @@ interface AssignmentManagerProps {
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
 <!-- STATUS: ProjectManager [COMPLETED], HooksManager [PENDING], CommandsManager [PENDING], SettingsManager [PENDING] -->
 
-**ProjectManager.tsx [COMPLETED]** - Complete project management interface with:
-- System-wide project discovery and metadata extraction
-- Built-in CLAUDE.md editor with template generation
-- Project health assessment with visual indicators
-- Grid/list view modes with advanced search capabilities
-- Complete API integration with `/api/projects/*` endpoints
-**HooksManager.tsx** - Visual hook configuration interface  
-**CommandsManager.tsx** - Slash command library and editor
-**SettingsManager.tsx** - Settings file hierarchy management
+**ProjectManager.tsx [COMPLETED WITH STREAMING + PREFERENCES]** - Complete project management interface with:
+- **Real-time Streaming**: Server-Sent Events streaming for live project discovery with immediate feedback
+- **Intelligent Caching**: Cache-first loading with automatic background refresh and staleness detection
+- **CLAUDE.md Editor**: Built-in editor with template generation, automatic backup, and change detection
+- **Project Preferences**: Archive/hide/favorite system with localStorage persistence and bulk operations
+- **Advanced Filtering**: Status-based filtering (active/archived/hidden/favorited) with real-time search
+- **Project Health Assessment**: Visual indicators with filtering support for project completeness
+- **Dual View Modes**: Grid and list views with responsive design and preference persistence
+- **Split-Pane Layout**: Project list with integrated editor panel for seamless CLAUDE.md management
+- **Performance Optimization**: Cache-first loading, background updates, cancellable operations
+- **Complete API Integration**: Full integration with streaming and CLAUDE.md endpoints
+- **Error Resilience**: Automatic fallback from streaming to batch loading, comprehensive error handling
+**HooksManager.tsx [PENDING]** - Visual hook configuration interface  
+**CommandsManager.tsx [PENDING]** - Slash command library and editor
+**SettingsManager.tsx [PENDING]** - Settings file hierarchy management
+
+## 🔧 Service Layer Architecture
+
+### ProjectPreferencesService
+<!-- SERVICE_PROJECT_PREFERENCES -->
+<!-- UPDATE_TRIGGER: When ProjectPreferencesService is modified -->
+<!-- STATUS: [COMPLETED] -->
+
+**Purpose**: Client-side project organization with localStorage persistence
+
+**Core Interface:**
+```typescript
+interface ProjectPreferences {
+  archived: boolean;
+  hidden: boolean;
+  favorited: boolean;
+  lastViewed?: Date;
+  customName?: string;
+  tags?: string[];
+}
+```
+
+**Key Methods:**
+```typescript
+// Individual project operations
+ProjectPreferencesService.getProjectPreferences(projectPath: string): ProjectPreferences
+ProjectPreferencesService.updateProjectPreferences(projectPath: string, preferences: Partial<ProjectPreferences>): void
+ProjectPreferencesService.archiveProject(projectPath: string): void
+ProjectPreferencesService.toggleFavorite(projectPath: string): boolean
+ProjectPreferencesService.markAsViewed(projectPath: string): void
+
+// Bulk operations
+ProjectPreferencesService.archiveMultipleProjects(projectPaths: string[]): void
+ProjectPreferencesService.cleanupPreferences(existingProjectPaths: string[]): void
+
+// Analytics and management
+ProjectPreferencesService.getUsageStats(): UsageStats
+ProjectPreferencesService.exportPreferences(): string
+ProjectPreferencesService.importPreferences(jsonString: string): boolean
+```
+
+**Architecture Features:**
+- **localStorage Persistence**: All preferences stored in browser localStorage with JSON serialization
+- **Version Management**: Versioned preference format (v1.0) with import compatibility
+- **Error Resilience**: Graceful handling of localStorage failures and corruption
+- **Bulk Operations**: Efficient batch operations for multiple projects
+- **Analytics**: Usage statistics for project organization insights
+- **Data Management**: Import/export for backup and cleanup for non-existent projects
+
+**Integration Patterns:**
+- **React Integration**: Used in ProjectManager component with state synchronization
+- **Real-time Updates**: Preferences applied immediately to UI state
+- **Cache Coordination**: Works with CacheService to maintain preference state across cache refreshes
+- **Filter Integration**: Powers project filtering by status (active/archived/hidden/favorited)
 
 ## 🔌 API Reference
 
@@ -161,23 +235,55 @@ interface AssignmentManagerProps {
 
 ### Projects API
 <!-- API_PROJECTS -->
-<!-- ENDPOINTS: GET /api/projects/system, GET /api/projects/:path/info -->
+<!-- ENDPOINTS: GET /api/projects/system, GET /api/projects/stream, GET /api/projects/:path/claudemd -->
 
 **GET /api/projects/system**
 - Discovers all Claude Code projects (CLAUDE.md files) system-wide
 - Returns: Array of `ClaudeProject` objects with metadata
+- Used for batch loading fallback when streaming fails
 
-**GET /api/projects/:projectPath/info**
-- Gets detailed information about a specific project
-- Returns: Project metadata including resource counts
+**GET /api/projects/stream**
+- Real-time streaming project discovery using Server-Sent Events
+- Streams project results as they're discovered across filesystem
+- Event types: 'connected', 'scan_started', 'project_found', 'project_error', 'scan_complete', 'error'
+- Automatic deduplication to prevent duplicate project entries
+- Returns: Stream of JSON events with project data and discovery progress
+- Performance: Dramatically improved user experience with immediate feedback
+- Headers: Proper SSE headers with CORS support for localhost development
+- Error Handling: Automatic fallback to batch endpoint if streaming fails
+- Cancellation: Client-side EventSource cleanup and connection management
+- Progress Tracking: Live counter updates ("Found X projects...") during discovery
 
-**GET /api/projects/:projectPath/claude-md**
-- Retrieves CLAUDE.md content for editing
-- Returns: File content as text
+**Streaming Architecture:**
+```javascript
+// Frontend EventSource integration
+const eventSource = new EventSource('/api/projects/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'project_found':
+      // Add project to UI immediately
+      break;
+    case 'scan_complete':
+      // Update UI completion state
+      break;
+  }
+};
+```
 
-**PUT /api/projects/:projectPath/claude-md**
-- Updates CLAUDE.md file content
+**GET /api/projects/:projectPath/claudemd**
+- Retrieves CLAUDE.md content for ProjectManager editor
+- URL parameter: encoded project path
+- Returns: `{ content: string, path: string }` or 404 if file doesn't exist
+- Security: Path validation prevents access to system directories
+
+**PUT /api/projects/:projectPath/claudemd**
+- Updates CLAUDE.md file content with automatic backup
+- URL parameter: encoded project path
 - Body: `{ content: string }`
+- Creates backup file before modification for safety
+- Returns: Success confirmation or error details
+- Security: Path validation and backup system for safe file operations
 
 ### Agents API
 
@@ -238,17 +344,25 @@ interface AssignmentManagerProps {
 ### Resource Management APIs
 <!-- API_RESOURCE_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: After feature/assignment-engine branch -->
-<!-- PLACEHOLDER: Assignment operations, deployment status, resource operations -->
-
-*[To be implemented in feature/assignment-engine branch]*
+<!-- STATUS: COMPLETED - Full assignment and deployment system -->
 
 **POST /api/resources/assign**
-- Assign resource to target scope
-- Body: `ResourceAssignment` object
+- Assign resource to target scope (user/project)
+- Body: `ResourceAssignment` object with source, target, and operation type
+- Supports copy (duplicate) and move (relocate) operations
+- Returns: Assignment result with success/failure status
+- Handles conflict detection and resolution
 
 **GET /api/resources/deployment-status**
-- Get deployment status for all resources
-- Returns: Resource deployment tracking data
+- Get deployment status for all resources across scopes
+- Returns: Resource deployment tracking data with active deployments
+- Includes resource counts by type and scope
+- Used by Assignment Manager for status visualization
+
+**GET /api/resources/targets**
+- Get available deployment targets (projects and user scope)
+- Returns: Array of valid target scopes with metadata
+- Used for target selection in Assignment Manager
 
 ## 🚀 Development Workflow
 
@@ -267,11 +381,15 @@ cd CChorus
 # Install dependencies
 npm install
 
-# Start development servers
-npm run dev:full  # Both frontend and backend
+# Start development servers (MANDATORY: Use tmux-dev)
+/tmux-dev start both frontend and backend in separate sessions
 # OR individually:
-npm run dev       # Frontend only (port 5173)
-npm run dev:server # Backend only (port 3001)
+/tmux-dev start frontend server in session cchorus-frontend
+/tmux-dev start backend server in session cchorus-backend
+
+# Monitor development servers
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 50 lines from cchorus-backend
 ```
 
 ### Environment Setup
@@ -318,18 +436,30 @@ npm run dev:server # Backend only (port 3001)
 
 **Status:** Ready for testing and user feedback
 
-### Phase 2: Resource Managers [PENDING]
+### Phase 2: Resource Managers [PARTIALLY COMPLETED]
 <!-- PHASE_2_STATUS -->
 <!-- UPDATE_TRIGGER: During feature/resource-managers branch -->
 <!-- CONTENT: Specialized management interfaces for each resource type -->
 
-**Planned:**
-- ✅ ProjectManager component [COMPLETED] - Full project management with CLAUDE.md editing
+**Completed:**
+- ✅ ProjectManager component [COMPLETED WITH STREAMING + PREFERENCES] - Full project management with:
+  - **Real-time Streaming**: Server-Sent Events for live project discovery with progress tracking
+  - **Intelligent Caching**: Cache-first loading with 5-minute staleness detection and background refresh
+  - **Project Preferences**: Complete archive/hide/favorite system with localStorage persistence
+  - **Advanced Filtering**: Status-based filtering with real-time search and project health indicators
+  - **CLAUDE.md Editor**: Built-in editor with template generation, backup system, and change detection
+  - **Dual View Modes**: Grid and list views with responsive design and preference persistence
+  - **Split-Pane Layout**: Integrated project list and editor for seamless workflow
+  - **Performance Architecture**: Cache-first, streaming, cancellable operations, error resilience
+  - **Complete API Integration**: Full integration with `/api/projects/stream` and `/api/projects/:path/claudemd`
+  - **Project Organization**: Bulk operations, usage analytics, import/export capabilities
+
+**Remaining:**
 - HooksManager component for visual hook configuration
 - CommandsManager component for slash command management
 - SettingsManager component for settings file hierarchy
 
-**Estimated Time:** 3-4 hours
+**Estimated Time for Remaining:** 2-3 hours
 
 ### Phase 3: Assignment Engine [PENDING]
 <!-- PHASE_3_STATUS -->
