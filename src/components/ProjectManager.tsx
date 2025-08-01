@@ -44,7 +44,9 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scanningMessage, setScanningMessage] = useState<string>('');
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -59,25 +61,144 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
     setIsDirty(editorContent !== originalContent);
   }, [editorContent, originalContent]);
 
+  // Cleanup effect to close EventSource on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
+  }, []);
+
   const loadProjects = async () => {
     setLoading(true);
     setError(null);
+    setProjects([]); // Clear existing projects
+    setFilteredProjects([]);
+    
+    try {
+      // Clean up any existing EventSource
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+      
+      // Use Server-Sent Events for streaming project discovery
+      const eventSource = new EventSource('http://localhost:3001/api/projects/stream');
+      eventSourceRef.current = eventSource;
+      
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          switch (data.type) {
+            case 'connected':
+              console.log('Project stream connected');
+              break;
+              
+            case 'scan_started':
+              console.log('Scanning started from roots:', data.roots);
+              setScanningMessage('Scanning for projects...');
+              toast({
+                title: "Scanning",
+                description: "Discovering projects across your system...",
+                duration: 2000,
+              });
+              break;
+              
+            case 'project_found':
+              // Add new project to the list as it's found
+              setProjects(prev => {
+                const updated = [...prev, data.project];
+                return updated;
+              });
+              setScanningMessage(`Found ${data.count} project${data.count !== 1 ? 's' : ''}...`);
+              break;
+              
+            case 'project_error':
+              console.warn(`Project error at ${data.path}:`, data.error);
+              break;
+              
+            case 'scan_complete':
+              console.log(`Project scan complete: ${data.total} projects found`);
+              setLoading(false);
+              setScanningMessage('');
+              toast({
+                title: "Scan Complete",
+                description: `Found ${data.total} projects`,
+                duration: 3000,
+              });
+              eventSource.close();
+              eventSourceRef.current = null;
+              break;
+              
+            case 'error':
+              throw new Error(data.error);
+          }
+        } catch (parseError) {
+          console.error('Error parsing stream data:', parseError);
+        }
+      };
+      
+      eventSource.onerror = (error) => {
+        console.error('EventSource error:', error);
+        setError('Failed to stream project data');
+        setLoading(false);
+        eventSource.close();
+        eventSourceRef.current = null;
+        
+        toast({
+          title: "Stream Error",
+          description: "Falling back to batch loading...",
+          duration: 3000,
+        });
+        
+        // Fallback to batch loading
+        loadProjectsBatch();
+      };
+      
+    } catch (error) {
+      console.error('Error setting up project stream:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load projects');
+      setLoading(false);
+      
+      // Fallback to batch loading
+      loadProjectsBatch();
+    }
+  };
+
+  // Fallback batch loading method
+  const loadProjectsBatch = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects/system');
       if (!response.ok) throw new Error('Failed to load projects');
       const data = await response.json();
       setProjects(data);
       setFilteredProjects(data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error loading projects:', error);
+      console.error('Error loading projects (batch):', error);
       setError(error instanceof Error ? error.message : 'Failed to load projects');
+      setLoading(false);
       toast({
         title: "Error",
         description: "Failed to load projects. Please check the backend server.",
         duration: 5000,
       });
-    } finally {
+    }
+  };
+
+  const cancelScan = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
       setLoading(false);
+      setScanningMessage('');
+      toast({
+        title: "Scan Cancelled",
+        description: "Project scanning has been stopped",
+        duration: 2000,
+      });
     }
   };
 
@@ -325,6 +446,17 @@ npm test
               className="pl-10"
             />
           </div>
+          {loading && eventSourceRef.current && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={cancelScan}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cancel Scan
+            </Button>
+          )}
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'grid' | 'list')}>
             <TabsList>
               <TabsTrigger value="grid">Grid</TabsTrigger>
@@ -334,7 +466,14 @@ npm test
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Found {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}
+          {loading && scanningMessage ? (
+            <span className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              {scanningMessage}
+            </span>
+          ) : (
+            `Found ${filteredProjects.length} project${filteredProjects.length !== 1 ? 's' : ''}`
+          )}
         </div>
 
         {viewMode === 'grid' ? (

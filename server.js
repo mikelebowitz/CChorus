@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
 import { scanAgentFilesArray } from './agentScanner.js';
-import { scanClaudeProjectsArray, extractProjectInfo } from './projectScanner.js';
+import { scanClaudeProjects, scanClaudeProjectsArray, extractProjectInfo } from './projectScanner.js';
 import { scanHookConfigurations, extractHookConfigurations, readSettingsFile, updateSettingsHooks, validateHookConfiguration, createHookTemplate } from './hooksScanner.js';
 import { scanSlashCommands, saveSlashCommand, deleteSlashCommand, validateSlashCommand, createCommandTemplate, getBuiltInCommands } from './commandsScanner.js';
 import { SettingsManager } from './settingsManager.js';
@@ -77,14 +77,26 @@ async function scanAgentDirectory(dirPath) {
 // System-wide agent scanning function
 async function scanSystemAgents() {
   try {
-    // Define comprehensive scan roots for finding all projects with Claude agents
-    const scanRoots = [
-      os.homedir(), // User's entire home directory - captures all projects
-      // Could add other common locations like:
-      // path.join(os.homedir(), 'Documents'),
-      // path.join(os.homedir(), 'Projects'),
-      // path.join(os.homedir(), 'Development'),
+    // Define targeted scan roots for finding agent files
+    // Use same targeted approach as project scanner to avoid performance issues
+    const homeDir = os.homedir();
+    const potentialRoots = [
+      process.cwd(), // Current directory (where CChorus is running from)
+      path.join(homeDir, 'Desktop'),
+      path.join(homeDir, 'Documents', 'Code'), // More specific - just Code directory
+      path.join(homeDir, 'Projects'), // Common project directory
     ];
+    
+    // Filter to only existing directories
+    const scanRoots = [];
+    for (const dir of potentialRoots) {
+      try {
+        await fs.access(dir);
+        scanRoots.push(dir);
+      } catch {
+        console.log(`Skipping non-existent directory: ${dir}`);
+      }
+    }
     
     console.log('Starting system-wide agent scan from roots:', scanRoots);
     
@@ -99,8 +111,8 @@ async function scanSystemAgents() {
       try {
         const content = await fs.readFile(filePath, 'utf-8');
         
-        // Extract project information from the file path
-        const projectInfo = extractProjectInfo(filePath, origin);
+        // Extract project information from the agent file path
+        const projectInfo = extractProjectInfoFromAgentPath(filePath, origin);
         
         agents.push({
           name: path.basename(filePath, '.md'),
@@ -132,6 +144,36 @@ async function scanSystemAgents() {
   }
 }
 
+// Helper function to extract project information from agent file paths
+function extractProjectInfoFromAgentPath(agentFilePath, origin) {
+  // Agent files are typically located at: /some/path/project/.claude/agents/agent-name.md
+  // We need to extract the project name and path from this structure
+  
+  const parts = agentFilePath.split(path.sep);
+  const claudeIndex = parts.lastIndexOf('.claude');
+  
+  if (claudeIndex === -1) {
+    // Not in a .claude directory structure, use parent directory
+    const projectPath = path.dirname(agentFilePath);
+    const projectName = path.basename(projectPath);
+    return {
+      projectName: projectName,
+      projectPath: projectPath,
+      sourceType: 'file'
+    };
+  }
+  
+  // Extract project directory (the directory containing .claude)
+  const projectPath = parts.slice(0, claudeIndex).join(path.sep);
+  const projectName = path.basename(projectPath);
+  
+  return {
+    projectName: projectName,
+    projectPath: projectPath,
+    sourceType: 'project' // This is a proper .claude structure
+  };
+}
+
 // API Routes
 
 // Get user-level agents
@@ -160,10 +202,26 @@ app.get('/api/agents/system', async (req, res) => {
 // System-wide project scanning function
 async function scanSystemProjects() {
   try {
-    // Define comprehensive scan roots for finding all Claude Code projects
-    const scanRoots = [
-      os.homedir(), // User's entire home directory - captures all projects
+    // Define targeted scan roots for finding Claude Code projects
+    // Avoid scanning entire home directory due to performance and system directory issues
+    const homeDir = os.homedir();
+    const potentialRoots = [
+      process.cwd(), // Current directory (where CChorus is running from)
+      path.join(homeDir, 'Desktop'),
+      path.join(homeDir, 'Documents', 'Code'), // More specific - just Code directory
+      path.join(homeDir, 'Projects'), // Common project directory
     ];
+    
+    // Filter to only existing directories
+    const scanRoots = [];
+    for (const dir of potentialRoots) {
+      try {
+        await fs.access(dir);
+        scanRoots.push(dir);
+      } catch {
+        console.log(`Skipping non-existent directory: ${dir}`);
+      }
+    }
     
     console.log('Starting system-wide project scan from roots:', scanRoots);
     
@@ -209,6 +267,95 @@ app.get('/api/projects/system', async (req, res) => {
   } catch (error) {
     console.error('Failed to load system projects:', error);
     res.status(500).json({ error: 'Failed to load system projects' });
+  }
+});
+
+// Stream system-wide Claude Code projects as they're discovered
+app.get('/api/projects/stream', async (req, res) => {
+  try {
+    // Set up Server-Sent Events headers
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Credentials': 'true'
+    });
+
+    // Send initial connection confirmation
+    res.write(`data: ${JSON.stringify({ type: 'connected', message: 'Stream started' })}\n\n`);
+
+    // Set up the same scan roots as the batch version
+    const homeDir = os.homedir();
+    const potentialRoots = [
+      process.cwd(),
+      path.join(homeDir, 'Desktop'),
+      path.join(homeDir, 'Documents', 'Code'),
+      path.join(homeDir, 'Projects'),
+    ];
+    
+    const scanRoots = [];
+    for (const dir of potentialRoots) {
+      try {
+        await fs.access(dir);
+        scanRoots.push(dir);
+      } catch {
+        // Skip non-existent directories
+      }
+    }
+
+    res.write(`data: ${JSON.stringify({ type: 'scan_started', roots: scanRoots, message: 'Scanning for projects...' })}\n\n`);
+
+    let projectCount = 0;
+
+    // Use streaming scanner to send results as they're found
+    for await (const { file: claudeMdPath, origin, projectPath } of scanClaudeProjects(scanRoots)) {
+      try {
+        // Extract project information
+        const projectInfo = await extractProjectInfo(projectPath, claudeMdPath);
+        
+        const project = {
+          ...projectInfo,
+          origin: origin,
+          relativePath: path.relative(origin, projectPath)
+        };
+
+        projectCount++;
+
+        // Send individual project as it's discovered
+        res.write(`data: ${JSON.stringify({ 
+          type: 'project_found', 
+          project: project,
+          count: projectCount 
+        })}\n\n`);
+
+      } catch (error) {
+        console.warn(`Failed to process project ${projectPath}:`, error.message);
+        // Send error but continue scanning
+        res.write(`data: ${JSON.stringify({ 
+          type: 'project_error', 
+          path: projectPath, 
+          error: error.message 
+        })}\n\n`);
+      }
+    }
+
+    // Send completion message
+    res.write(`data: ${JSON.stringify({ 
+      type: 'scan_complete', 
+      total: projectCount,
+      message: `Found ${projectCount} projects` 
+    })}\n\n`);
+    
+    res.end();
+
+  } catch (error) {
+    console.error('Streaming project scan failed:', error);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'error', 
+      error: error.message 
+    })}\n\n`);
+    res.end();
   }
 });
 

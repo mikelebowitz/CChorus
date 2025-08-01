@@ -29,25 +29,42 @@ Each detected project includes:
 
 ### Navigation to Projects View
 1. **Open CChorus**: Navigate to `http://localhost:5173`
-2. **Projects Tab**: Click the "Projects" tab in the main navigation
-3. **System Scan**: Allow initial project discovery to complete (scans entire home directory)
-4. **View Selection**: Choose between Grid or List view modes for optimal browsing
+2. **Projects Tab**: Projects is now the default view - opens automatically on launch
+3. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
+4. **Progress Tracking**: See "Found X projects..." counter update in real-time during scanning
+5. **View Selection**: Choose between Grid or List view modes for optimal browsing
 
-**Expected Result:** Comprehensive project interface with discovery, health assessment, and CLAUDE.md editing capabilities
+**Expected Result:** Real-time project discovery with immediate results and live progress updates
 
 ## Project Discovery Workflow
 
-### 1.System-Wide Project Scan
-**Automatic Process:**
-- CChorus scans your entire home directory for CLAUDE.md files
-- Each CLAUDE.md file indicates a Claude Code project
-- Project metadata extracted from file content and directory structure
-- Resource counts calculated by scanning .claude subdirectories
+### 1. Real-Time Project Discovery
+**Streaming Discovery Process:**
+- CChorus uses Server-Sent Events to stream project discovery results in real-time
+- Projects appear immediately as they're found during system scanning
+- Live progress counter shows "Found X projects..." during discovery
+- Users can cancel scanning operations if needed using the "Cancel" button
+- Automatic fallback to batch loading if streaming encounters issues
+
+**Discovery Experience:**
+- **Immediate Feedback**: Projects appear as soon as they're discovered
+- **Live Progress**: Real-time counters show discovery progress
+- **Cancellable**: Stop scanning operations at any time using the Cancel button
+- **Resilient**: Automatic fallback ensures discovery always works
+- **Performance**: Same backend speed, dramatically improved user experience
+
+**Streaming User Interface:**
+1. **Connection Indicator**: "Stream started" confirmation when discovery begins
+2. **Progress Messages**: Real-time "Found X projects..." updates during scanning
+3. **Project Appearance**: Projects appear immediately in grid/list as discovered
+4. **Cancel Button**: Active cancel button allows stopping discovery at any time
+5. **Completion Status**: "Scan completed" message when discovery finishes
+6. **Error Handling**: Toast notifications for connection issues with automatic fallback
 
 **Manual Refresh:**
-- Use the "Refresh" button in Assignment Manager header
-- Triggers new system-wide scan for recently created projects
-- Updates project metadata and resource counts
+- Use the "Refresh" button to trigger new project discovery
+- Streaming discovery provides immediate feedback on newly created projects
+- Live progress updates throughout the refresh process
 
 ### 2. Project Grid/List Overview
 
@@ -327,7 +344,8 @@ Projects are automatically assessed based on multiple criteria:
 **Symptoms:**
 - Expected projects don't appear in Projects tab
 - Project Manager shows fewer projects than expected
-- System scan completes but missing known projects
+- Streaming discovery completes but missing known projects
+- "Found X projects..." counter stops updating prematurely
 
 **Common Causes & Solutions:**
 
@@ -341,10 +359,12 @@ Projects are automatically assessed based on multiple criteria:
 - Check for proper directory permissions
 - Ensure projects aren't in excluded directories (node_modules, .git, etc.)
 
-**Scanning Issues:**
-- Use Refresh button to trigger new project scan
-- Check browser console for scan errors
-- Verify backend server is running and accessible
+**Streaming Discovery Issues:**
+- Use Refresh button to trigger new streaming discovery
+- Check browser console for EventSource connection errors
+- Verify backend server is running and accessible on port 3001
+- If streaming fails, system automatically falls back to batch loading
+- Look for "Stream Error" toast notifications indicating connection issues
 
 ### CLAUDE.md Editor Issues
 

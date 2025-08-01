@@ -83,9 +83,22 @@ export async function scanAgentFilesArray(roots, options) {
       // Use readdirpPromise for array-based results (readdirp v4 API)
       const entries = await readdirpPromise(root, {
         fileFilter: (entry) => entry.basename.endsWith('.md'),
-        directoryFilter: (entry) => !['node_modules', '.git'].includes(entry.basename),
+        directoryFilter: (entry) => {
+          const excluded = [
+            'node_modules', '.git', 'dist', 'build',
+            // System directories that often cause issues
+            'Library', '.Trash', 'Applications', 'System',
+            // Common problematic directories
+            '.npm', '.cache', '.local', '.config',
+            'target', 'bin', 'obj', '.vs', '.vscode',
+            // Temp and log directories
+            'tmp', 'temp', 'logs', 'log'
+          ];
+          
+          return !excluded.includes(entry.basename);
+        },
         type: 'files',
-        depth: 100  // Ensure we scan deep enough for nested .claude/agents directories
+        depth: 5  // Limit depth to avoid performance issues
       });
 
       // Check abort signal

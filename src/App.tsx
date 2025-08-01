@@ -35,7 +35,7 @@ function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // New state for main navigation
-  const [currentView, setCurrentView] = useState<'agents' | 'library' | 'assignments' | 'projects'>('library');
+  const [currentView, setCurrentView] = useState<'agents' | 'library' | 'assignments' | 'projects'>('projects');
   const [selectedResource, setSelectedResource] = useState<ResourceItem | undefined>(undefined);
   
   // Form state for the new column layout

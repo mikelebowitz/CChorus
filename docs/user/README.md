@@ -1,8 +1,8 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
-<!-- LAST_UPDATED: 2025-08-01 - Project Manager fully implemented with CLAUDE.md editing functionality -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming for real-time project discovery -->
 
 ## 🚀 Quick Start
 
@@ -31,13 +31,15 @@ npm run dev:server # Backend only (port 3001)
 ### First Time Access
 
 1. **Navigate to CChorus**: Open `http://localhost:5173` in your browser
-2. **Resource Library**: Start with the Resource Library tab to discover your resources
-3. **System Scan**: Allow the initial system scan to complete (may take a few seconds)
-4. **Explore**: Browse, filter, and search your complete Claude Code ecosystem
+2. **Projects View**: CChorus now opens directly to the Projects tab by default
+3. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
+4. **Live Progress**: See "Found X projects..." counter update in real-time during scanning
+5. **Explore**: Browse all tabs to discover your complete Claude Code ecosystem
 
 ### Navigation Overview
 
-CChorus features three main sections:
+CChorus features four main sections:
+- **Projects**: Real-time project discovery with CLAUDE.md editing (default view)
 - **Resource Library**: Discover and browse all Claude Code resources
 - **Assignment Manager**: Deploy resources between user and project scopes
 - **Agents (Legacy)**: Traditional agent editor interface
@@ -259,15 +261,18 @@ Specialized interfaces for managing each resource type:
 
 **Access Project Manager**: Navigate to the "Projects" tab in CChorus main interface
 
-**Project Discovery and Overview:**
-1. **Automatic System Scan**: Project Manager automatically discovers all Claude Code projects across your system
-2. **Project Grid/List View**: Browse projects in your preferred view mode (grid for overview, list for details)
-3. **Project Health Assessment**: Each project shows visual health indicators based on:
+**Real-time Project Discovery:**
+1. **Streaming Discovery**: Projects appear immediately as they're discovered using Server-Sent Events
+2. **Live Progress Tracking**: "Found X projects..." counter updates in real-time during scanning
+3. **Cancellable Operations**: Stop project discovery at any time using the Cancel button
+4. **Automatic Fallback**: If streaming fails, automatically switches to batch loading
+5. **Project Grid/List View**: Browse projects in your preferred view mode (grid for overview, list for details)
+6. **Project Health Assessment**: Each project shows visual health indicators based on:
    - Git repository status (version control setup)
    - Agent presence and count
    - Command configurations
    - Documentation quality (CLAUDE.md completeness)
-4. **Search and Filter**: Use search bar to find projects by name, path, or description
+7. **Advanced Search**: Real-time search across project names, paths, and descriptions
 
 **CLAUDE.md Management:**
 1. **Select Project**: Click any project card to load its CLAUDE.md content

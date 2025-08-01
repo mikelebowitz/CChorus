@@ -1,8 +1,8 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-08-01 - Project Manager component fully implemented with CLAUDE.md editing -->
+<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming implementation for real-time discovery -->
 
 ## 🏗️ Architecture Overview
 
@@ -23,11 +23,13 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 ```
 
 ### Data Flow
-1. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
-2. **API Layer**: RESTful endpoints provide unified access to all resource types
-3. **Frontend Services**: Service layer abstracts API calls and provides unified data models
-4. **Component Tree**: React components consume services and manage UI state
-5. **Assignment Engine**: Handles resource deployment operations between scopes
+1. **Real-time Project Discovery**: Backend streams project discovery via Server-Sent Events for immediate user feedback
+2. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
+3. **API Layer**: RESTful endpoints provide unified access to all resource types with streaming capabilities
+4. **Frontend Services**: Service layer abstracts API calls and provides unified data models with EventSource integration
+5. **Component Tree**: React components consume services and manage UI state with real-time updates
+6. **Assignment Engine**: Handles resource deployment operations between scopes
+7. **Streaming Updates**: Progressive UI updates as data becomes available through SSE connections
 
 ### Technology Stack
 <!-- TECH_STACK -->
@@ -66,9 +68,80 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 
 **Scanner Architecture:**
 - Stream-based scanning using async generators for memory efficiency
-- Configurable depth limits and directory filtering
+- Real-time Server-Sent Events streaming for immediate user feedback
+- Configurable depth limits and directory filtering for performance optimization
 - Error resilience with graceful handling of permissions issues
 - AbortSignal support for user-triggered cancellation
+- EventSource client integration with automatic fallback systems
+- Progressive UI updates with live progress counters
+
+### Streaming Implementation Architecture
+<!-- STREAMING_ARCHITECTURE -->
+<!-- UPDATE_TRIGGER: When streaming capabilities are enhanced -->
+<!-- CONTENT: Server-Sent Events, EventSource, real-time discovery -->
+
+**Real-time Project Discovery System:**
+
+The CChorus streaming implementation transforms the user experience from batch-loading delays to immediate, progressive results using Server-Sent Events (SSE) technology.
+
+**Technical Architecture:**
+```typescript
+// Backend: Express SSE endpoint
+app.get('/api/projects/stream', async (req, res) => {
+  // Set SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+  
+  // Stream projects as discovered
+  for await (const projectData of scanClaudeProjects(scanRoots)) {
+    res.write(`data: ${JSON.stringify({
+      type: 'project_found',
+      project: projectData,
+      count: ++projectCount
+    })}\n\n`);
+  }
+  
+  res.write(`data: ${JSON.stringify({
+    type: 'scan_complete',
+    total: projectCount
+  })}\n\n`);
+});
+
+// Frontend: EventSource client
+const eventSource = new EventSource('/api/projects/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'project_found':
+      setProjects(prev => [...prev, data.project]);
+      setScanningMessage(`Found ${data.count} projects...`);
+      break;
+  }
+};
+```
+
+**User Experience Benefits:**
+- **Immediate Feedback**: Projects appear as soon as they're discovered, not after full scan completion
+- **Live Progress**: Real-time counters show discovery progress ("Found X projects...")
+- **Perceived Performance**: Same backend discovery speed, dramatically improved user experience
+- **Cancellation Support**: Users can stop operations in progress via EventSource.close()
+- **Resilient Fallback**: Automatic fallback to batch loading if streaming fails
+
+**Technical Benefits:**
+- **Memory Efficiency**: Streaming prevents large result set accumulation in memory
+- **Network Optimization**: Progressive data transfer instead of single large response
+- **User Control**: Client-side cancellation capability via EventSource management
+- **Error Isolation**: Individual project errors don't halt entire discovery process
+- **Connection Management**: Proper EventSource lifecycle with cleanup on component unmount
+
+**Performance Optimizations:**
+- **Scanner Enhancements**: Improved depth limits and directory filtering in `agentScanner.js` and `projectScanner.js`
+- **Debug Logging Removal**: Eliminated verbose console output for production performance
+- **Stream Processing**: Async generator patterns prevent blocking operations
+- **Connection Reuse**: EventSource maintains persistent connection for entire discovery session
 
 ## 📦 Component Documentation
 
@@ -247,12 +320,12 @@ ResourceLibraryService.loadAllResources(): Promise<ResourceItem[]>
 ### Specialized Manager Components
 <!-- COMPONENT_MANAGERS -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
-<!-- STATUS: PROJECT_MANAGER_COMPLETED - ProjectManager.tsx fully implemented -->
+<!-- STATUS: PROJECT_MANAGER_COMPLETED_WITH_STREAMING - ProjectManager.tsx with SSE streaming -->
 
-#### ProjectManager.tsx [COMPLETED]
+#### ProjectManager.tsx [COMPLETED WITH STREAMING]
 <!-- COMPONENT_PROJECT_MANAGER -->
 <!-- UPDATE_TRIGGER: When ProjectManager.tsx is modified -->
-<!-- STATUS: COMPLETED - Full implementation with CLAUDE.md editing -->
+<!-- STATUS: COMPLETED WITH STREAMING - Full implementation with CLAUDE.md editing and real-time discovery -->
 
 **Purpose**: Visual interface for managing Claude Code projects with comprehensive project discovery and CLAUDE.md editing capabilities
 
@@ -289,7 +362,10 @@ const getProjectHealth = (project: ClaudeProject) => {
 ```
 
 **Key Features:**
-- **System-wide Project Discovery**: Uses `/api/projects/system` endpoint for comprehensive project scanning
+- **Real-time Project Discovery**: Uses `/api/projects/stream` Server-Sent Events for streaming project discovery
+- **Live Progress Indicators**: "Found X projects..." counters update in real-time during scanning
+- **Cancellable Operations**: Users can stop project discovery scans in progress
+- **Fallback System**: Automatic fallback to batch loading if streaming fails
 - **Dual View Modes**: Toggle between grid and list views with responsive layouts
 - **Advanced Search and Filtering**: Real-time search across project names, paths, and descriptions
 - **Project Health Assessment**: Visual health indicators based on multiple criteria
@@ -309,9 +385,26 @@ const getProjectHealth = (project: ClaudeProject) => {
 **API Integration:**
 ```typescript
 // Core API endpoints used
-GET /api/projects/system              // System-wide project discovery
-GET /api/projects/:path/claudemd      // Load CLAUDE.md content
-PUT /api/projects/:path/claudemd      // Save CLAUDE.md content
+GET /api/projects/stream             // Real-time streaming project discovery
+GET /api/projects/system             // Batch project discovery (fallback)
+GET /api/projects/:path/claudemd     // Load CLAUDE.md content
+PUT /api/projects/:path/claudemd     // Save CLAUDE.md content
+
+// EventSource streaming implementation
+const eventSource = new EventSource('http://localhost:3001/api/projects/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'project_found':
+      // Add project to state in real-time
+      setProjects(prev => [...prev, data.project]);
+      setScanningMessage(`Found ${data.count} projects...`);
+      break;
+    case 'scan_complete':
+      setLoading(false);
+      break;
+  }
+};
 
 // Project health data from ClaudeProject interface
 interface ClaudeProject {
@@ -370,7 +463,7 @@ interface ClaudeProject {
 <!-- STATUS: COMPLETED - Full project discovery and management -->
 
 **GET /api/projects/system**
-- **Purpose**: System-wide discovery of all Claude Code projects
+- **Purpose**: System-wide discovery of all Claude Code projects (batch loading)
 - **Implementation**: Uses `scanClaudeProjectsArray()` for comprehensive filesystem scanning
 - **Returns**: Array of `ClaudeProject` objects with complete metadata
 - **Response Format**:
@@ -385,6 +478,32 @@ ClaudeProject {
   relativePath: string;   // Relative path from scan origin
 }
 ```
+
+**GET /api/projects/stream** [NEW STREAMING ENDPOINT]
+- **Purpose**: Real-time streaming discovery of Claude Code projects using Server-Sent Events
+- **Technology**: EventSource/Server-Sent Events for real-time project discovery
+- **Implementation**: Uses `scanClaudeProjects()` async generator for streaming results
+- **Response Format**: Server-Sent Events stream with multiple event types:
+```typescript
+// Connection confirmation
+{ type: 'connected', message: 'Stream started' }
+
+// Scan initiation
+{ type: 'scan_started', roots: string[], message: 'Scanning for projects...' }
+
+// Individual project discovery
+{ type: 'project_found', project: ClaudeProject, count: number }
+
+// Project processing errors
+{ type: 'project_error', path: string, error: string }
+
+// Scan completion
+{ type: 'scan_complete', total: number, message: 'Scan completed' }
+```
+- **User Experience**: Projects appear in real-time as discovered, with live progress counters
+- **Performance**: Same backend discovery speed, dramatically improved perceived performance
+- **Cancellation**: Supports client-side cancellation via EventSource.close()
+- **Fallback**: Automatic fallback to batch loading if streaming fails
 
 **GET /api/projects/:projectPath/info**
 - **Purpose**: Detailed information about specific project
