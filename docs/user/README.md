@@ -1,8 +1,8 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
-<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming for real-time project discovery -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming, client-side caching, and automated /docgit workflow integration -->
 
 ## 🚀 Quick Start
 
@@ -32,9 +32,11 @@ npm run dev:server # Backend only (port 3001)
 
 1. **Navigate to CChorus**: Open `http://localhost:5173` in your browser
 2. **Projects View**: CChorus now opens directly to the Projects tab by default
-3. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
-4. **Live Progress**: See "Found X projects..." counter update in real-time during scanning
-5. **Explore**: Browse all tabs to discover your complete Claude Code ecosystem
+3. **Instant Loading**: Projects load instantly from cache with background refresh when needed
+4. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
+5. **Live Progress**: See "Found X projects..." counter update in real-time during scanning
+6. **Smart Caching**: Subsequent loads are instantaneous with automatic background updates
+7. **Explore**: Browse all tabs to discover your complete Claude Code ecosystem
 
 ### Navigation Overview
 
@@ -140,11 +142,14 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 ### Project Manager
 <!-- FEATURE_PROJECT_MANAGER -->
 <!-- UPDATE_TRIGGER: When ProjectManager.tsx is created/modified -->
-<!-- STATUS: COMPLETED - Full project management with CLAUDE.md editing -->
+<!-- STATUS: COMPLETED WITH STREAMING + CACHING - Full project management with CLAUDE.md editing, real-time streaming, and intelligent caching -->
 
-**Purpose**: Visual interface for managing Claude Code projects with comprehensive project discovery and CLAUDE.md editing capabilities.
+**Purpose**: Advanced visual interface for managing Claude Code projects with comprehensive discovery, real-time streaming, intelligent caching, and CLAUDE.md editing capabilities.
 
 **Core Features:**
+- **Intelligent Caching System**: Instant project loading with smart background refresh and cache status indicators
+- **Real-time Streaming Discovery**: Server-Sent Events provide live project discovery with immediate UI updates
+- **Background Refresh**: Automatic background updates when cache becomes stale (5+ minutes old)
 - **System-wide Project Discovery**: Automatically scans entire home directory to find all projects with CLAUDE.md files
 - **Advanced Project Search**: Search and filter projects by name, path, or description with real-time filtering
 - **Dual View Modes**: Toggle between grid and list views for optimal project browsing experience
@@ -153,6 +158,7 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 - **Template Generation**: Automatically creates CLAUDE.md templates for projects without existing files
 - **Responsive Design**: Split-pane layout adapts to screen size with project list and editor panel
 - **Real-time Content Management**: Live editing with unsaved changes indicators and validation
+- **Performance Optimization**: Cached projects load instantly while fresh data streams in background
 
 **Project Health Assessment:**
 - **Healthy**: Projects with comprehensive setup (Git repo, agents, commands, detailed documentation)
@@ -261,6 +267,13 @@ Specialized interfaces for managing each resource type:
 
 **Access Project Manager**: Navigate to the "Projects" tab in CChorus main interface
 
+**Intelligent Loading System:**
+1. **Instant Cache Loading**: Previously discovered projects load immediately from client-side cache
+2. **Smart Background Refresh**: Automatic background updates when cache is stale (5+ minutes)
+3. **Cache Status Indicators**: Visual badges show "Cached" status and "Updating..." during background refresh
+4. **Manual Refresh Control**: Force refresh button bypasses cache for immediate fresh data
+5. **Toast Notifications**: User-friendly feedback for cache operations and refresh status
+
 **Real-time Project Discovery:**
 1. **Streaming Discovery**: Projects appear immediately as they're discovered using Server-Sent Events
 2. **Live Progress Tracking**: "Found X projects..." counter updates in real-time during scanning
@@ -327,6 +340,13 @@ A:
 - Check that .claude directories contain agent .md files
 - Ensure proper file permissions for reading resource files
 - Try manually refreshing the Resource Library
+- Clear cache using browser dev tools if data appears stale
+
+**Q: Projects show "Cached" but data seems outdated**
+A:
+- Use the manual "Refresh" button to force fresh data retrieval
+- Cache automatically refreshes after 5 minutes, but manual refresh is immediate
+- Check browser console for any caching or network errors
 
 **Q: Assignment Manager shows empty project list**
 A:

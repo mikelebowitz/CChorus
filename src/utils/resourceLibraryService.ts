@@ -60,13 +60,21 @@ export class ResourceLibraryService {
         this.loadSettings()
       ]);
       
-      return [
+      const allResources = [
         ...projects,
         ...agents,
         ...commands,
         ...hooks,
         ...settings
-      ].sort((a, b) => a.name.localeCompare(b.name));
+      ];
+      
+      // Deduplicate by ID to prevent duplicate key warnings
+      const deduplicatedResources = new Map<string, ResourceItem>();
+      for (const resource of allResources) {
+        deduplicatedResources.set(resource.id, resource);
+      }
+      
+      return Array.from(deduplicatedResources.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Failed to load all resources:', error);
       return [];

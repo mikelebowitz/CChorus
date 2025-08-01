@@ -136,8 +136,8 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
   };
 
   const ResourceCard = ({ resource }: { resource: ResourceItem }) => {
-    const TypeIcon = RESOURCE_TYPE_ICONS[resource.type];
-    const ScopeIcon = SCOPE_ICONS[resource.scope];
+    const TypeIcon = RESOURCE_TYPE_ICONS[resource.type] || FolderOpen;
+    const ScopeIcon = SCOPE_ICONS[resource.scope] || Globe;
     const isSelected = selectedResources.has(resource.id);
 
     return (
@@ -177,7 +177,7 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Badge 
-                className={`text-xs ${SCOPE_COLORS[resource.scope]}`}
+                className={`text-xs ${SCOPE_COLORS[resource.scope] || SCOPE_COLORS.system}`}
                 variant="secondary"
               >
                 <ScopeIcon size={12} className="mr-1" />

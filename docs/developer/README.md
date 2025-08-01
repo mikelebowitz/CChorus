@@ -1,8 +1,8 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming implementation for real-time discovery -->
+<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED], Caching [COMPLETED] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming, client-side caching, and automated GitOps workflow integration -->
 
 ## 🏗️ Architecture Overview
 
@@ -23,13 +23,15 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 ```
 
 ### Data Flow
-1. **Real-time Project Discovery**: Backend streams project discovery via Server-Sent Events for immediate user feedback
-2. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
-3. **API Layer**: RESTful endpoints provide unified access to all resource types with streaming capabilities
-4. **Frontend Services**: Service layer abstracts API calls and provides unified data models with EventSource integration
-5. **Component Tree**: React components consume services and manage UI state with real-time updates
-6. **Assignment Engine**: Handles resource deployment operations between scopes
-7. **Streaming Updates**: Progressive UI updates as data becomes available through SSE connections
+1. **Client-side Caching**: Intelligent caching layer provides instant loading with background refresh capabilities
+2. **Real-time Project Discovery**: Backend streams project discovery via Server-Sent Events for immediate user feedback
+3. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
+4. **API Layer**: RESTful endpoints provide unified access to all resource types with streaming capabilities
+5. **Frontend Services**: Service layer abstracts API calls and provides unified data models with EventSource integration
+6. **Component Tree**: React components consume services and manage UI state with real-time updates
+7. **Assignment Engine**: Handles resource deployment operations between scopes
+8. **Streaming Updates**: Progressive UI updates as data becomes available through SSE connections
+9. **Cache Management**: Intelligent cache invalidation and background refresh for optimal performance
 
 ### Technology Stack
 <!-- TECH_STACK -->
@@ -66,6 +68,19 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - `commandsScanner.js` - Slash command discovery and management
 - `settingsManager.js` - Safe settings file read/write operations
 
+**Frontend Services:**
+- `cacheService.ts` - Client-side caching with TTL and version management
+- `resourceLibraryService.ts` - Resource discovery API integration with deduplication
+
+**GitOps Integration:**
+- `.claude/hooks/pre-compact.py` - Enhanced with automated /docgit workflow invocation
+  - **Automated Documentation**: Detects pending documentation changes and auto-invokes `/docgit`
+  - **Workflow Integration**: Seamlessly integrates documentation and GitOps workflows
+  - **Claude CLI Integration**: Uses Claude CLI to execute `/docgit` command automatically
+  - **Error Handling**: Graceful fallback to manual workflow if automation fails
+  - **Timeout Management**: 5-minute timeout for automated workflow execution
+  - **Status Reporting**: Enhanced session documentation with automation status
+
 **Scanner Architecture:**
 - Stream-based scanning using async generators for memory efficiency
 - Real-time Server-Sent Events streaming for immediate user feedback
@@ -74,6 +89,13 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - AbortSignal support for user-triggered cancellation
 - EventSource client integration with automatic fallback systems
 - Progressive UI updates with live progress counters
+
+**Caching Architecture:**
+- Client-side localStorage caching with 24-hour TTL
+- Version-aware cache invalidation with automatic cleanup
+- Background refresh for stale data (5+ minutes old)
+- Cache statistics and monitoring capabilities
+- Memory-efficient cache management with size tracking
 
 ### Streaming Implementation Architecture
 <!-- STREAMING_ARCHITECTURE -->
@@ -217,10 +239,12 @@ const SCOPE_COLORS = {
 - **Selection Persistence**: Multi-select state maintained across filter changes
 
 **Performance Optimizations:**
+- **Resource Deduplication**: Prevents duplicate resources from appearing in UI
 - **Lazy Loading**: Resources loaded on component mount with caching
 - **Efficient Filtering**: Client-side filtering with optimized algorithms
 - **Responsive Design**: Grid layout adapts to screen size with CSS Grid
 - **Memoized Calculations**: Resource counts and filter results cached
+- **Safe Icon Rendering**: Fallback icons prevent crashes when resource types are unknown
 
 #### AssignmentManager.tsx
 <!-- COMPONENT_ASSIGNMENT_MANAGER -->
@@ -317,6 +341,46 @@ ResourceLibraryService.loadAllResources(): Promise<ResourceItem[]>
 - **Real-time Updates**: Deployment status refreshed after operations
 - **Assignment Tracking**: Recent assignments maintained for user feedback
 
+#### CacheService.ts [NEW SERVICE]
+<!-- COMPONENT_CACHE_SERVICE -->
+<!-- UPDATE_TRIGGER: When CacheService.ts is modified -->
+<!-- STATUS: COMPLETED - Full client-side caching implementation -->
+
+**Purpose**: Client-side caching service providing instant loading with background refresh capabilities
+
+**Cache Interface:**
+```typescript
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  version: string;
+}
+
+export class CacheService {
+  static set<T>(key: string, data: T, options?: Partial<CacheOptions>): void;
+  static get<T>(key: string, options?: Partial<CacheOptions>): T | null;
+  static isStale(key: string, refreshThresholdMs?: number): boolean;
+  static remove(key: string): void;
+  static clearAll(): void;
+  static getStats(): CacheStats;
+}
+```
+
+**Key Features:**
+- **TTL Management**: 24-hour default TTL with customizable expiration
+- **Version Control**: Version-aware cache invalidation for API changes
+- **Stale Detection**: Automatic detection of stale data (5+ minutes old)
+- **Background Refresh**: Smart background updates without blocking UI
+- **Storage Management**: localStorage-based persistence with cleanup
+- **Statistics**: Cache performance monitoring and size tracking
+- **Error Resilience**: Graceful fallback when localStorage is unavailable
+
+**Integration Points:**
+- **ProjectManager**: Primary consumer for project data caching
+- **ResourceLibrary**: Potential future integration for resource caching
+- **Component State**: Seamless integration with React component lifecycle
+- **Toast Notifications**: User feedback for cache operations
+
 ### Specialized Manager Components
 <!-- COMPONENT_MANAGERS -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
@@ -350,6 +414,10 @@ const [originalContent, setOriginalContent] = useState('');
 const [isEditing, setIsEditing] = useState(false);
 const [isDirty, setIsDirty] = useState(false);
 
+// Enhanced with caching state
+const [loadedFromCache, setLoadedFromCache] = useState(false);
+const [refreshing, setRefreshing] = useState(false);
+
 // Project health assessment
 const getProjectHealth = (project: ClaudeProject) => {
   let score = 0;
@@ -362,8 +430,11 @@ const getProjectHealth = (project: ClaudeProject) => {
 ```
 
 **Key Features:**
+- **Intelligent Caching**: Client-side caching with instant loading and background refresh
+- **Cache Management**: Visual cache status indicators and manual refresh controls
 - **Real-time Project Discovery**: Uses `/api/projects/stream` Server-Sent Events for streaming project discovery
 - **Live Progress Indicators**: "Found X projects..." counters update in real-time during scanning
+- **Background Refresh**: Automatic background updates for stale cached data
 - **Cancellable Operations**: Users can stop project discovery scans in progress
 - **Fallback System**: Automatic fallback to batch loading if streaming fails
 - **Dual View Modes**: Toggle between grid and list views with responsive layouts
@@ -422,7 +493,8 @@ interface ClaudeProject {
 ```
 
 **Layout Structure:**
-- **Projects List Panel**: Left panel with search, view mode toggle, and project cards
+- **Projects List Panel**: Left panel with search, view mode toggle, cache controls, and project cards
+- **Cache Status Section**: Visual indicators for cache status ("Cached", "Updating...") and manual refresh button
 - **Editor Panel**: Right panel with CLAUDE.md editor and controls (shown when project selected)
 - **Project Cards**: Rich cards displaying project metadata, health indicators, and resource counts
 - **Editor Controls**: Save/cancel buttons, change indicators, and status feedback
@@ -440,10 +512,13 @@ interface ClaudeProject {
 - **Theme System**: Full support for light/dark themes with consistent styling
 
 **Performance Optimizations:**
+- **Intelligent Caching**: Client-side caching eliminates redundant API calls
+- **Background Refresh**: Non-blocking updates when cache becomes stale
 - **Efficient Filtering**: Client-side filtering with optimized search algorithms
 - **Lazy Loading**: Content loaded only when projects are selected
 - **Responsive Updates**: Smart state management to minimize unnecessary re-renders
-- **Memory Management**: Proper cleanup of editor content and project data
+- **Memory Management**: Proper cleanup of editor content, project data, and cache
+- **EventSource Management**: Proper connection lifecycle with cleanup on unmount
 
 *[Other managers to be implemented in future development phases]*
 
@@ -960,10 +1035,17 @@ npm run dev:server # Backend only (port 3001)
 
 **Completed Backend Services:**
 - ✅ agentScanner.js - System-wide agent discovery with project context
-- ✅ projectScanner.js - CLAUDE.md project discovery and metadata extraction
+- ✅ projectScanner.js - CLAUDE.md project discovery and metadata extraction with streaming support
 - ✅ hooksScanner.js - Hook configuration parsing from settings files
 - ✅ commandsScanner.js - Slash command discovery and management
 - ✅ settingsManager.js - Safe settings file operations with backup
+
+**Completed Frontend Services:**
+- ✅ cacheService.ts - Client-side caching with TTL and version management
+- ✅ resourceLibraryService.ts - Enhanced with resource deduplication and error handling
+
+**Completed Automation:**
+- ✅ .claude/hooks/pre-compact.py - Enhanced with automated /docgit workflow invocation
 
 **Completed API Endpoints:**
 - ✅ GET /api/agents/system - System-wide agent discovery
@@ -991,14 +1073,18 @@ npm run dev:server # Backend only (port 3001)
 <!-- UPDATE_TRIGGER: During feature/resource-managers branch -->
 <!-- COMPLETION_DATE: 2025-08-01 - Project Manager completed; others integrated through Assignment Manager -->
 
-**Project Manager - Standalone Component [COMPLETED]:**
-- ✅ **ProjectManager.tsx**: Complete standalone project management interface
+**Project Manager - Enhanced with Streaming & Caching [COMPLETED]:**
+- ✅ **ProjectManager.tsx**: Complete standalone project management interface with intelligent caching
+- ✅ **Intelligent Caching**: Client-side caching with instant loading and background refresh
+- ✅ **Server-Sent Events**: Real-time streaming project discovery with live progress updates
+- ✅ **Cache Management**: Visual cache status indicators and manual refresh controls
 - ✅ **System-wide Project Discovery**: Comprehensive scanning across entire home directory
 - ✅ **CLAUDE.md Editor**: Built-in editor with template generation and content management
 - ✅ **Project Health Assessment**: Visual indicators based on Git status, agents, commands, and documentation
 - ✅ **Search and Filtering**: Real-time project search with advanced filtering capabilities
 - ✅ **Responsive Design**: Grid/list view modes with split-pane editor layout
 - ✅ **API Integration**: Complete backend integration with `/api/projects/*` endpoints
+- ✅ **Performance Optimization**: Background refresh and cache-first loading for optimal UX
 
 **Other Resource Managers - Assignment Manager Integration:**
 - ✅ Hook Management - Hook assignment, deployment, and settings file integration
@@ -1042,7 +1128,7 @@ Phase 2 was implemented using a hybrid approach:
 - Settings assignment and merging capabilities
 - Safe settings file modification with backup
 
-**Status:** Fully integrated and production-ready
+**Status:** Fully integrated and production-ready with advanced caching and streaming capabilities
 
 ### Phase 3: Assignment Engine [COMPLETED]
 <!-- PHASE_3_STATUS -->

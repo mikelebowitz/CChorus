@@ -25,6 +25,7 @@ import {
   FolderGit2
 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import { CacheService } from '../utils/cacheService';
 
 interface ProjectManagerProps {
   onProjectSelect?: (project: ClaudeProject) => void;
@@ -45,6 +46,8 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanningMessage, setScanningMessage] = useState<string>('');
+  const [loadedFromCache, setLoadedFromCache] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const { toast } = useToast();
@@ -71,12 +74,45 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
     };
   }, []);
 
-  const loadProjects = async () => {
+  const loadProjects = async (forceRefresh: boolean = false) => {
+    const CACHE_KEY = 'projects';
+    
+    // Try to load from cache first (unless forcing refresh)
+    if (!forceRefresh) {
+      const cachedProjects = CacheService.get<ClaudeProject[]>(CACHE_KEY);
+      if (cachedProjects && cachedProjects.length > 0) {
+        setProjects(cachedProjects);
+        setFilteredProjects(cachedProjects);
+        setLoadedFromCache(true);
+        setLoading(false);
+        
+        toast({
+          title: "Loaded from cache",
+          description: `${cachedProjects.length} projects loaded instantly`,
+          duration: 2000,
+        });
+        
+        // Check if we should refresh in background
+        if (CacheService.isStale(CACHE_KEY)) {
+          setRefreshing(true);
+          loadProjectsStreaming(true); // Refresh in background
+        }
+        return;
+      }
+    }
+    
+    // No cache or forced refresh - load fresh data
     setLoading(true);
     setError(null);
-    setProjects([]); // Clear existing projects
-    setFilteredProjects([]);
+    if (!loadedFromCache) {
+      setProjects([]); // Only clear if not loaded from cache
+      setFilteredProjects([]);
+    }
     
+    loadProjectsStreaming(forceRefresh);
+  };
+
+  const loadProjectsStreaming = async (isBackgroundRefresh: boolean = false) => {
     try {
       // Clean up any existing EventSource
       if (eventSourceRef.current) {
@@ -122,12 +158,30 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
             case 'scan_complete':
               console.log(`Project scan complete: ${data.total} projects found`);
               setLoading(false);
+              setRefreshing(false);
               setScanningMessage('');
-              toast({
-                title: "Scan Complete",
-                description: `Found ${data.total} projects`,
-                duration: 3000,
-              });
+              
+              // Cache the results
+              const currentProjects = projects.length > 0 ? projects : [];
+              if (currentProjects.length > 0) {
+                CacheService.set('projects', currentProjects);
+              }
+              
+              // Show appropriate toast message
+              if (isBackgroundRefresh) {
+                toast({
+                  title: "Projects Updated",
+                  description: `Refreshed ${data.total} projects`,
+                  duration: 2000,
+                });
+              } else {
+                toast({
+                  title: "Scan Complete", 
+                  description: `Found ${data.total} projects`,
+                  duration: 3000,
+                });
+              }
+              
               eventSource.close();
               eventSourceRef.current = null;
               break;
@@ -144,6 +198,7 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
         console.error('EventSource error:', error);
         setError('Failed to stream project data');
         setLoading(false);
+        setRefreshing(false);
         eventSource.close();
         eventSourceRef.current = null;
         
@@ -154,32 +209,50 @@ export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManage
         });
         
         // Fallback to batch loading
-        loadProjectsBatch();
+        loadProjectsBatch(isBackgroundRefresh);
       };
       
     } catch (error) {
       console.error('Error setting up project stream:', error);
       setError(error instanceof Error ? error.message : 'Failed to load projects');
       setLoading(false);
+      setRefreshing(false);
       
       // Fallback to batch loading
-      loadProjectsBatch();
+      loadProjectsBatch(isBackgroundRefresh);
     }
   };
 
   // Fallback batch loading method
-  const loadProjectsBatch = async () => {
+  const loadProjectsBatch = async (isBackgroundRefresh: boolean = false) => {
     try {
       const response = await fetch('http://localhost:3001/api/projects/system');
       if (!response.ok) throw new Error('Failed to load projects');
       const data = await response.json();
+      
       setProjects(data);
       setFilteredProjects(data);
       setLoading(false);
+      setRefreshing(false);
+      
+      // Cache the results
+      if (data.length > 0) {
+        CacheService.set('projects', data);
+      }
+      
+      // Show appropriate toast
+      if (isBackgroundRefresh) {
+        toast({
+          title: "Projects Updated",
+          description: `Refreshed ${data.length} projects`,
+          duration: 2000,
+        });
+      }
     } catch (error) {
       console.error('Error loading projects (batch):', error);
       setError(error instanceof Error ? error.message : 'Failed to load projects');
       setLoading(false);
+      setRefreshing(false);
       toast({
         title: "Error",
         description: "Failed to load projects. Please check the backend server.",
@@ -446,6 +519,32 @@ npm test
               className="pl-10"
             />
           </div>
+          
+          {/* Cache status and refresh controls */}
+          <div className="flex items-center gap-2">
+            {loadedFromCache && (
+              <Badge variant="secondary" className="text-xs">
+                Cached
+              </Badge>
+            )}
+            {refreshing && (
+              <Badge variant="outline" className="text-xs">
+                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                Updating...
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => loadProjects(true)}
+              disabled={loading || refreshing}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+          
           {loading && eventSourceRef.current && (
             <Button
               variant="outline"

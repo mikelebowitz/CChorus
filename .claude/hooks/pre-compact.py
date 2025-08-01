@@ -2,6 +2,7 @@
 """
 CChorus Project-Level Pre-Compact Hook
 Integrates with documentation manager and GitOps agents for seamless workflow.
+Enhanced to actively invoke /docgit workflow when changes are detected.
 """
 
 import sys
@@ -93,9 +94,14 @@ class CChorusPreCompactHook:
         pending_changes = self._detect_pending_doc_changes()
         
         if pending_changes:
-            self.log("Detected pending documentation changes - documentation agent should be invoked")
-            # Note: We can't directly invoke the agent, but we can flag the need
-            return False
+            self.log("Detected pending documentation changes - attempting to invoke /docgit workflow")
+            # Try to actively invoke the /docgit workflow
+            if self._invoke_docgit_workflow():
+                self.log("Successfully executed /docgit workflow")
+                return True
+            else:
+                self.log("Failed to execute /docgit workflow - documentation agent should be invoked manually")
+                return False
         else:
             self.log("No pending documentation changes detected")
             return True
@@ -120,6 +126,54 @@ class CChorusPreCompactHook:
             
         except Exception as e:
             self.log(f"Could not detect pending changes: {e}")
+            return False
+    
+    def _invoke_docgit_workflow(self) -> bool:
+        """Invoke the /docgit slash command to execute documentation and GitOps workflow."""
+        self.log("Attempting to invoke /docgit workflow")
+        
+        try:
+            # Check if claude command is available
+            result = subprocess.run(['which', 'claude'], 
+                                  capture_output=True, 
+                                  text=True)
+            
+            if result.returncode != 0:
+                self.log("Claude CLI command not found in PATH - cannot invoke /docgit")
+                return False
+            
+            claude_path = result.stdout.strip()
+            self.log(f"Found Claude CLI at: {claude_path}")
+            
+            # Execute the /docgit command
+            self.log("Executing: claude /docgit")
+            result = subprocess.run([claude_path, '/docgit'],
+                                  capture_output=True,
+                                  text=True,
+                                  cwd=self.project_root,
+                                  timeout=300)  # 5 minute timeout
+            
+            # Log the command output
+            if result.stdout:
+                self.log(f"Command stdout: {result.stdout[:500]}...")
+            if result.stderr:
+                self.log(f"Command stderr: {result.stderr[:500]}...")
+            
+            if result.returncode == 0:
+                self.log("Successfully completed /docgit workflow")
+                return True
+            else:
+                self.log(f"Command failed with return code: {result.returncode}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            self.log("Command timed out after 5 minutes")
+            return False
+        except FileNotFoundError:
+            self.log("Claude CLI command not found - cannot invoke /docgit")
+            return False
+        except Exception as e:
+            self.log(f"Error invoking /docgit workflow: {e}")
             return False
     
     def _generate_cchorus_session_doc(self, session_id: str, trigger: str, 
@@ -148,7 +202,7 @@ class CChorusPreCompactHook:
 
 **Development Area**: {self._identify_development_focus(changes_analysis)}
 **Component Work**: {self._identify_component_work(changes_analysis)}
-**Agent Workflow**: Documentation → GitOps sequence {'✅ Followed' if doc_agent_status else '⚠️ Pending doc updates'}
+**Agent Workflow**: Documentation → GitOps sequence {'✅ Followed' if doc_agent_status else '🤖 Auto-invoked via /docgit' if doc_agent_status is None else '⚠️ Pending doc updates'}
 
 ## 📊 Session Metrics
 
@@ -180,9 +234,9 @@ class CChorusPreCompactHook:
 
 ## 🔄 Agent Workflow Status
 
-**Documentation Agent**: {'✅ Coordinated' if doc_agent_status else '⚠️ May need invocation for pending changes'}
-**GitOps Agent**: 🕐 Ready to handle commits after session end
-**Workflow Sequence**: Code → Documentation → GitOps ({'✅ Followed' if doc_agent_status else '⚠️ Pending'})
+**Documentation Agent**: {'✅ Coordinated' if doc_agent_status else '🤖 Auto-invoked via /docgit workflow'}
+**GitOps Agent**: {'✅ Completed via /docgit' if doc_agent_status else '🕐 Ready to handle commits after session end'}
+**Workflow Sequence**: Code → Documentation → GitOps ({'✅ Completed' if doc_agent_status else '🤖 Auto-executed via /docgit'})
 
 ## 📂 Git Status
 
@@ -287,6 +341,7 @@ Check `docs/sessions/` for the latest session summary with detailed context.
 - **Agent Architecture**: Documentation manager handles docs, GitOps handles Git
 - **Server Management**: Always use `/tmux-dev` for development servers
 - **Component System**: shadcn/ui + Radix UI with accessibility features
+- **Automated Workflow**: Pre-compact hook now auto-invokes `/docgit` when changes detected
 
 ---
 
@@ -578,7 +633,9 @@ Check `docs/sessions/` for the latest session summary with detailed context.
         
         # Documentation workflow TODOs
         if not doc_agent_status:
-            todos.append("- [ ] **PRIORITY**: Invoke @documentation-manager for pending changes")
+            todos.append("- [ ] **INFO**: /docgit workflow was auto-invoked for pending changes")
+        else:
+            todos.append("- [x] **COMPLETED**: Documentation and GitOps workflow handled automatically")
         
         # Component-specific TODOs
         if changes_analysis.get('resource_library_work') != 'No changes':

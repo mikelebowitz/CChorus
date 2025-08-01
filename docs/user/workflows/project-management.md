@@ -3,7 +3,7 @@
 <!-- WORKFLOW_PROJECT_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: When project management features are accessed -->
 <!-- SCREENSHOT: project-manager-interface.png -->
-<!-- STATUS: COMPLETED - Dedicated ProjectManager component with CLAUDE.md editing -->
+<!-- STATUS: COMPLETED WITH CACHING - Dedicated ProjectManager component with CLAUDE.md editing, intelligent caching, and streaming discovery -->
 
 ## Overview
 
@@ -30,18 +30,36 @@ Each detected project includes:
 ### Navigation to Projects View
 1. **Open CChorus**: Navigate to `http://localhost:5173`
 2. **Projects Tab**: Projects is now the default view - opens automatically on launch
-3. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
-4. **Progress Tracking**: See "Found X projects..." counter update in real-time during scanning
-5. **View Selection**: Choose between Grid or List view modes for optimal browsing
+3. **Instant Loading**: Previously discovered projects load immediately from intelligent cache
+4. **Cache Indicators**: Visual "Cached" badge shows when data was loaded from cache
+5. **Background Refresh**: Automatic background updates when cached data becomes stale (5+ minutes)
+6. **Real-time Discovery**: Watch projects appear live as they're discovered across your system
+7. **Progress Tracking**: See "Found X projects..." counter update in real-time during scanning
+8. **View Selection**: Choose between Grid or List view modes for optimal browsing
 
-**Expected Result:** Real-time project discovery with immediate results and live progress updates
+**Expected Result:** Instant loading from cache followed by real-time project discovery with immediate results and live progress updates
 
 ## Project Discovery Workflow
 
-### 1. Real-Time Project Discovery
+### 1. Intelligent Cache-First Loading
+**Smart Loading Process:**
+- Previously discovered projects load instantly from client-side cache
+- Cache timestamp shows "Cached" badge indicating instant loading
+- Background refresh automatically triggered when cache is stale (5+ minutes old)
+- Manual "Refresh" button forces fresh discovery bypassing cache
+- Toast notifications provide feedback on cache operations and refresh status
+
+**Cache Management Features:**
+- **Instant Loading**: Cached projects appear immediately with no waiting
+- **Background Updates**: Fresh data loads in background without blocking UI
+- **Visual Indicators**: "Cached" and "Updating..." badges show current data status
+- **Smart Refresh**: Cache automatically refreshes when data becomes stale
+- **Manual Control**: Force refresh button for immediate fresh data
+
+### 2. Real-Time Project Discovery
 **Streaming Discovery Process:**
 - CChorus uses Server-Sent Events to stream project discovery results in real-time
-- Projects appear immediately as they're found during system scanning
+- Fresh projects appear immediately as they're found during system scanning
 - Live progress counter shows "Found X projects..." during discovery
 - Users can cancel scanning operations if needed using the "Cancel" button
 - Automatic fallback to batch loading if streaming encounters issues
@@ -62,9 +80,11 @@ Each detected project includes:
 6. **Error Handling**: Toast notifications for connection issues with automatic fallback
 
 **Manual Refresh:**
-- Use the "Refresh" button to trigger new project discovery
+- Use the "Refresh" button to bypass cache and trigger fresh project discovery
 - Streaming discovery provides immediate feedback on newly created projects
 - Live progress updates throughout the refresh process
+- Manual refresh overrides intelligent caching for immediate fresh data
+- "Updating..." badge shows when background refresh is in progress
 
 ### 2. Project Grid/List Overview
 
@@ -389,14 +409,32 @@ Projects are automatically assessed based on multiple criteria:
 - Health indicators show incorrect status (wrong color)
 - Project health doesn't reflect recent changes
 - All projects show same health status
+- Recently added projects not showing expected health status
 
 **Resolution Steps:**
-1. **Refresh Project Data**: Use browser refresh or restart application to reload project information
-2. **Check Project Changes**: Verify recent changes (Git setup, resource additions) are actually present
-3. **Health Calculation**: Understand that health is based on Git status, agents, commands, and documentation quality
-4. **File System Sync**: Ensure file system changes are reflected in project discovery
-5. **Backend Restart**: Restart backend server to refresh project scanning
-6. **Clear Cache**: Clear browser cache if health indicators seem cached incorrectly
+1. **Force Fresh Data**: Use manual "Refresh" button to bypass cache and get fresh project data
+2. **Check Cache Status**: Look for "Cached" badge and wait for automatic background refresh
+3. **Check Project Changes**: Verify recent changes (Git setup, resource additions) are actually present
+4. **Health Calculation**: Understand that health is based on Git status, agents, commands, and documentation quality
+5. **Cache Management**: Use browser dev tools to clear CChorus cache if data appears stale
+6. **File System Sync**: Ensure file system changes are reflected in project discovery
+7. **Backend Restart**: Restart backend server to refresh project scanning
+
+### Cache-Related Issues
+
+**Symptoms:**
+- Projects show "Cached" but data appears outdated
+- Cache doesn't refresh automatically after expected 5 minutes
+- Manual refresh doesn't override cached data
+- "Updating..." indicator appears but never completes
+
+**Troubleshooting Cache Issues:**
+1. **Manual Refresh**: Use "Refresh" button to force bypass cache and get fresh data
+2. **Check Background Updates**: Look for "Updating..." badge during background refresh operations
+3. **Cache Timeout**: Wait for automatic cache expiration (5 minutes) or force refresh
+4. **Browser Storage**: Clear localStorage in browser dev tools to reset cache
+5. **Network Issues**: Check browser console for network errors preventing cache updates
+6. **Backend Connectivity**: Ensure backend server is accessible for fresh data retrieval
 
 ## Best Practices for Project Management
 
