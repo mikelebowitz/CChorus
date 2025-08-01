@@ -1,6 +1,6 @@
 # Next Session Brief
 
-**Generated**: 2025-08-01 14:39
+**Generated**: 2025-08-01 15:12
 
 ## Quick Context
 
@@ -22,8 +22,11 @@ Check `docs/sessions/` for the latest session summary.
 
 ```
  M NEXT_SESSION.md
-?? docs/sessions/SESSION_2025-08-01_14-39.md
-?? docs/sessions/SESSION_2025-08-01_14-39_CCHORUS.md
+ M src/components/ProjectManager.tsx
+ M src/components/ThreeColumnLayout.tsx
+?? docs/sessions/SESSION_2025-08-01_15-12.md
+?? docs/sessions/SESSION_2025-08-01_15-12_CCHORUS.md
+?? src/utils/resourceDataService.ts
 
 ```
 
