@@ -27,19 +27,25 @@
 - **Performance Optimized** - Memory-efficient streaming scanner handles large directory structures
 - **Robust Error Handling** - Gracefully handles filesystem issues and permissions
 
-### **🚀 System-Wide Agent Discovery**
+### **🚀 System-Wide Resource Discovery**
 
-CChorus now provides **comprehensive agent discovery** across your entire system, not just the current project:
+CChorus provides **comprehensive resource discovery** across your entire system with enhanced reliability and performance:
 
-- **📡 Intelligent Scanning** - Recursively scans from your home directory to find all `.claude/agents/` directories
-- **🏗️ Project Context** - Automatically identifies and displays the project each agent belongs to
+- **📡 Intelligent Scanning** - Recursively scans from your home directory to find all Claude Code resources
+- **🏗️ Project Context** - Automatically identifies and displays the project each resource belongs to
 - **⚡ High Performance** - Uses streaming technology (readdirp v4) for memory-efficient scanning
-- **🛡️ Bulletproof Resilience** - Advanced error handling for permissions, broken symlinks, and filesystem edge cases
-- **🎯 Smart Filtering** - Ignores system directories (`node_modules`, `.git`) while finding all your agents
-- **📊 Rich Metadata** - Each agent includes project name, path, and source classification
+- **🛡️ Enhanced Reliability** - Fixed duplicate detection and missing user-level resource issues
+- **🎯 Smart Filtering** - Ignores system directories while finding all your resources
+- **📊 Rich Metadata** - Each resource includes project name, path, and source classification
+- **🔧 Robust Hook Discovery** - Handles both legacy and modern hook configuration formats
+- **✅ Deduplication System** - Prevents duplicate resources from overlapping scan roots
 
-### **Experimental Features**
+### **Advanced Resource Management**
 
+- **Project Manager** - Enhanced CLAUDE.md editing with react-md-editor for live preview and rich markdown editing
+- **Hook Configuration Support** - Handles both legacy (with matcher field) and modern (without matcher) hook formats
+- **Enhanced API Integration** - Improved endpoint reliability with home directory inclusion for complete resource discovery
+- **Duplicate Prevention** - Advanced deduplication prevents duplicate agents from overlapping scan paths
 - **MCP Server Integration** - Automatic detection and management of MCP (Model Context Protocol) tools
 - **File Import System** - Import existing Markdown files as agents with YAML frontmatter parsing
 
@@ -134,11 +140,13 @@ npm run dev:full
 - **shadcn/ui** - Modern component library built on Radix UI primitives
 - **Radix UI** - Unstyled, accessible components with keyboard navigation
 - **Lucide React** - Beautiful, consistent icon library
+- **@uiw/react-md-editor** - Rich markdown editor with live preview for CLAUDE.md editing
 
 ### Backend Stack
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web application framework
-- **File System API** - Direct file operations for agent storage
+- **Enhanced Resource Scanners** - Improved discovery with deduplication and error handling
+- **readdirp v4** - Streaming filesystem traversal for efficient resource discovery
 - **CORS Support** - Cross-origin resource sharing for development
 
 ### Project Structure
@@ -355,10 +363,21 @@ You are an expert code reviewer with deep knowledge of software engineering best
 - Verify theme provider is wrapping the app in `App.tsx`
 - Clear localStorage: `localStorage.removeItem('cchorus-theme')`
 
-**Agents not loading**
-- Verify YAML frontmatter syntax
-- Check file permissions on agent directories
+**Resources not loading**
+- Verify YAML frontmatter syntax for agents
+- Check file permissions on resource directories
 - Ensure backend server is running on port 3001
+- Restart server if home directory scanning is not working
+
+**Duplicate agents appearing**
+- This issue has been fixed with enhanced deduplication
+- Restart the backend server to apply the fix
+- Clear browser cache if duplicates persist
+
+**Hooks not discovered**
+- Verify settings.json file format is correct
+- Both legacy (with matcher) and modern (without matcher) formats are now supported
+- Check console for hook parsing errors
 
 **MCP tools not appearing**
 - Verify Claude Desktop configuration exists

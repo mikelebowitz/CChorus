@@ -1,8 +1,8 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING + PREFERENCES], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
-<!-- LAST_UPDATED: 2025-08-01 - Project Manager enhanced with Server-Sent Events streaming, client-side caching, and automated /docgit workflow integration -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING + PREFERENCES + BUG FIXES], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- LAST_UPDATED: 2025-08-01 - Major bug fixes: duplicate detection, missing user agents, hook discovery issues, enhanced markdown editing -->
 
 ## 🚀 Quick Start
 
@@ -57,6 +57,7 @@ The Resource Library provides a unified view of all your Claude Code resources a
 
 **Core Features:**
 - **Universal Discovery**: System-wide scanning finds all agents, hooks, commands, settings, and projects
+- **Enhanced Reliability**: Fixed duplicate detection and missing user-level resource issues  
 - **Advanced Filtering**: Multi-dimensional filtering by resource type, scope, and search queries
 - **Visual Organization**: Clean card-based interface with status indicators and project associations
 - **Bulk Selection**: Multi-select resources with checkboxes for batch operations
@@ -81,6 +82,18 @@ The Resource Library provides a unified view of all your Claude Code resources a
 - **Efficient Organization**: Understand your complete Claude Code ecosystem at a glance
 - **Quick Access**: Find the right resource for any task with powerful search and filtering
 - **Batch Management**: Select and assign multiple related resources simultaneously
+
+### Recent Improvements (August 2025)
+
+**Enhanced Discovery Reliability:**
+- **No More Duplicates**: Fixed issue where agents appeared multiple times in the resource list
+- **Complete Coverage**: User-level agents in `~/.claude/agents` are now properly discovered
+- **Robust Hook Detection**: Support for both old and new hook configuration formats
+
+**Improved User Experience:**  
+- **Better Error Handling**: Clearer error messages when resources can't be loaded
+- **Faster Loading**: Enhanced deduplication improves resource loading performance
+- **Consistent Results**: Reliable discovery across different project structures
 
 ### Assignment Manager  
 <!-- FEATURE_ASSIGNMENT_MANAGER -->
@@ -182,11 +195,12 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 <!-- UPDATE_TRIGGER: When specialized manager components are implemented -->
 <!-- STATUS: PARTIALLY COMPLETED - Project Manager implemented, others pending -->
 
-**Project Manager** [COMPLETED WITH STREAMING + PREFERENCES]:
+**Project Manager** [COMPLETED WITH STREAMING + PREFERENCES + ENHANCED EDITING]:
 - **Real-time Streaming Discovery**: Server-Sent Events provide live project discovery with immediate UI updates
 - **Intelligent Caching System**: Instant loading from cache with automatic background refresh
 - **Visual Project Interface**: Complete project discovery and management with preferences support
-- **CLAUDE.md Editor**: Built-in editor with template generation and automatic backup system
+- **Enhanced Markdown Editor**: Professional react-md-editor with live preview, toolbar, and rich formatting
+- **Visual CLAUDE.md Editing**: Full WYSIWYG editing experience with split-view preview and markdown shortcuts
 - **Project Preferences**: Archive, hide, and favorite projects with localStorage persistence
 - **Advanced Filtering**: Filter by status (active/archived/hidden/favorited) with search capabilities
 - **Project Health Assessment**: Visual indicators with filtering support for project completeness

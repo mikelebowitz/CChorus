@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Textarea } from './ui/textarea';
+import MDEditor from '@uiw/react-md-editor';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -863,18 +864,30 @@ npm test
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">
               {isEditing ? (
-                <Textarea
-                  ref={editorRef}
-                  value={editorContent}
-                  onChange={(e) => setEditorContent(e.target.value)}
-                  className="h-full w-full resize-none font-mono text-sm"
-                  placeholder="Enter CLAUDE.md content..."
-                />
+                <div className="h-full w-full" data-color-mode="auto">
+                  <MDEditor
+                    value={editorContent}
+                    onChange={(value) => setEditorContent(value || '')}
+                    height={400}
+                    visibleDragBar={false}
+                    textareaProps={{
+                      placeholder: 'Enter CLAUDE.md content...',
+                      style: { fontSize: 14, fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace' }
+                    }}
+                  />
+                </div>
               ) : (
                 <div className="h-full overflow-auto">
-                  <pre className="whitespace-pre-wrap font-mono text-sm text-muted-foreground">
-                    {editorContent || <span className="italic">No CLAUDE.md file found. Click Edit to create one.</span>}
-                  </pre>
+                  <div 
+                    className="prose prose-sm dark:prose-invert max-w-none font-mono text-sm"
+                    data-color-mode="auto"
+                  >
+                    {editorContent ? (
+                      <MDEditor.Markdown source={editorContent} />
+                    ) : (
+                      <span className="italic text-muted-foreground">No CLAUDE.md file found. Click Edit to create one.</span>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>

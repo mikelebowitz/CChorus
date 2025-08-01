@@ -15,7 +15,7 @@ The Resource Discovery workflow helps you find and explore all Claude Code resou
 - Click the **"Resource Library"** tab in the main navigation
 - Wait for the initial resource scan to complete
 
-**Expected Result:** You'll see a unified view of all your Claude Code resources with search and filter options on the left sidebar.
+**Expected Result:** You'll see a unified view of all your Claude Code resources with search and filter options on the left sidebar. Resources now load without duplicates and include complete user-level coverage.
 
 ### 2. Browse All Resources
 - View the complete list of resources in the main grid area

@@ -129,15 +129,20 @@ export function extractHookConfigurations(settingsFiles) {
         continue;
       }
       
-      for (const matcher of matchers) {
-        if (!matcher.matcher || !Array.isArray(matcher.hooks)) {
+      for (let i = 0; i < matchers.length; i++) {
+        const matcher = matchers[i];
+        
+        if (!Array.isArray(matcher.hooks)) {
           continue;
         }
         
+        // Handle both old format (with matcher field) and new format (without matcher)
+        const matcherPattern = matcher.matcher || `hook-${i}`;
+        
         hooks.push({
-          id: `${settingsFile.path}:${eventType}:${matcher.matcher}`,
+          id: `${settingsFile.path}:${eventType}:${matcherPattern}`,
           eventType: eventType,
-          matcher: matcher.matcher,
+          matcher: matcherPattern,
           hooks: matcher.hooks,
           sourceFile: settingsFile.path,
           sourceType: settingsFile.type,

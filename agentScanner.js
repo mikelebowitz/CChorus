@@ -131,7 +131,28 @@ export async function scanAgentFilesArray(roots, options) {
     }
   }
   
-  return results;
+  // Deduplicate results by file path
+  return deduplicateAgentFiles(results);
+}
+
+/**
+ * Remove duplicate agent files based on file path
+ * 
+ * @param {Array} agentFiles - Array of agent file results
+ * @returns {Array} Deduplicated agent file results
+ */
+function deduplicateAgentFiles(agentFiles) {
+  const seen = new Set();
+  const deduplicated = [];
+  
+  for (const agentFile of agentFiles) {
+    if (!seen.has(agentFile.file)) {
+      seen.add(agentFile.file);
+      deduplicated.push(agentFile);
+    }
+  }
+  
+  return deduplicated;
 }
 
 /**

@@ -43,11 +43,13 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - shadcn/ui + Radix UI for component library
 - Tailwind CSS 3.4.17 for styling
 - Lucide React for icons
+- @uiw/react-md-editor for enhanced CLAUDE.md editing
 
 **Backend:**
 - Node.js with Express.js framework
-- readdirp v4 for efficient filesystem scanning
+- readdirp v4 for efficient filesystem scanning with deduplication
 - js-yaml for YAML frontmatter parsing
+- Enhanced error handling and filesystem resilience
 - CORS enabled for development
 
 **Development Tools:**
@@ -62,9 +64,9 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 <!-- CONTENT: agentScanner.js, projectScanner.js, hooksScanner.js, etc. -->
 
 **Core Scanner Modules:**
-- `agentScanner.js` - System-wide agent discovery with project context
+- `agentScanner.js` - System-wide agent discovery with enhanced deduplication and home directory inclusion
 - `projectScanner.js` - CLAUDE.md file discovery and project metadata extraction
-- `hooksScanner.js` - Hook configuration parsing from settings files
+- `hooksScanner.js` - Hook configuration parsing supporting both legacy and modern formats
 - `commandsScanner.js` - Slash command discovery and management
 - `settingsManager.js` - Safe settings file read/write operations
 
@@ -96,6 +98,59 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - Background refresh for stale data (5+ minutes old)
 - Cache statistics and monitoring capabilities
 - Memory-efficient cache management with size tracking
+
+### Recent Bug Fixes and Improvements (August 2025)
+
+<!-- BUG_FIXES_AUGUST_2025 -->
+<!-- UPDATE_TRIGGER: When critical bug fixes are implemented -->
+<!-- STATUS: COMPLETED - All fixes implemented and tested -->
+
+**Fixed Agent Discovery Duplicate Detection:**
+- **Issue**: Agents were appearing multiple times in API responses due to overlapping scan roots
+- **Solution**: Implemented `deduplicateAgentFiles()` function in `agentScanner.js`
+- **Technical Details**: Uses Set-based deduplication by file path to prevent duplicates
+- **Impact**: Clean, unique agent lists without redundant entries
+
+**Fixed Missing User-Level Agents:**
+- **Issue**: User-level agents in `~/.claude/agents` were not being discovered
+- **Solution**: Added home directory to scan roots in `server.js`
+- **Technical Details**: Includes `os.homedir()` in the `potentialRoots` array for system-wide scanning
+- **Impact**: Complete resource discovery across both user and project scopes
+
+**Fixed Hook Discovery Issues:**
+- **Issue**: Hooks array was empty despite settings files having `hasHooks: true`
+- **Solution**: Enhanced `hooksScanner.js` to handle both legacy and modern hook formats
+- **Technical Details**: 
+  - Legacy format: `{ matcher: "pattern", hooks: [...] }`
+  - Modern format: `{ hooks: [...] }` (without matcher field)
+  - Fallback pattern generation: `hook-${index}` for configurations without matcher
+- **Impact**: Robust hook discovery supporting all configuration variants
+
+**Integrated react-md-editor:**
+- **Enhancement**: Replaced basic textarea with full markdown editor in ProjectManager
+- **Features**: Live preview, toolbar, proper markdown rendering
+- **Technical Details**: Added `@uiw/react-md-editor` package with TypeScript support
+- **Impact**: Professional CLAUDE.md editing experience with visual feedback
+
+**Enhanced Documentation Manager Configuration:**
+- **Enhancement**: Updated documentation-manager agent to maintain main README.md
+- **Scope**: Includes feature sections, installation steps, architecture updates, troubleshooting
+- **Technical Details**: Comprehensive instructions for README.md maintenance as part of documentation workflow
+- **Impact**: Consistent, up-to-date project documentation across all files
+
+### API Endpoint Improvements
+
+**Enhanced `/api/agents/system` Endpoint:**
+- Fixed duplicate agent responses through backend deduplication
+- Added home directory scanning for complete user-level agent discovery
+- Improved error handling for filesystem access issues
+- Enhanced project context extraction for better resource organization
+
+**Improved Hook Discovery Endpoints:**
+- Updated hook parsing to handle configuration format variations
+- Added validation for both legacy and modern hook structures
+- Enhanced error reporting for malformed hook configurations
+- Improved compatibility with existing settings files
 
 ### Streaming Implementation Architecture
 <!-- STREAMING_ARCHITECTURE -->

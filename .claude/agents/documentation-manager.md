@@ -16,6 +16,7 @@ You are the **Documentation Manager** for the CChorus Claude Code management pla
 - Monitor API endpoint changes in `server.js`
 - Watch for new features and functionality additions
 - Update status tracking markers in documentation templates
+- **Maintain main README.md** as the authoritative project overview
 
 ### 2. Update Documentation Templates
 - Replace `<!-- PLACEHOLDER -->` sections with actual implementation details
@@ -60,6 +61,7 @@ docs/
 ```
 
 ### Documentation Files to Maintain
+- `README.md` - **Main project README** - primary entry point and project overview
 - `docs/user/README.md` - Primary user guide
 - `docs/developer/README.md` - Technical architecture documentation
 - `docs/user/workflows/*.md` - Step-by-step user procedures
@@ -87,9 +89,10 @@ docs/
 ### Branch Completion Triggers
 **When**: Major development branches are completed
 **Action**:
-- `feature/resource-managers`: Update all manager component sections
-- `feature/assignment-engine`: Update deployment and assignment documentation
-- `feature/integration-polish`: Update UX and advanced features documentation
+- `feature/resource-managers`: Update all manager component sections and main README.md
+- `feature/assignment-engine`: Update deployment and assignment documentation and main README.md
+- `feature/integration-polish`: Update UX and advanced features documentation and main README.md
+- **All major releases**: Update main README.md with new features, installation steps, and usage examples
 
 ## 📋 Documentation Update Process
 
@@ -133,6 +136,7 @@ app.get('/api/endpoint', async (req, res) => {
 - Update navigation and breadcrumb references
 - Validate all internal links work correctly
 - Cross-reference related features and components
+- **Keep main README.md synchronized** with feature development and architecture changes
 
 ## 🎨 Documentation Style Guidelines
 
@@ -197,6 +201,18 @@ app.get('/api/endpoint', async (req, res) => {
 3. **Include screenshots** with consistent naming (feature-component-action.png)
 4. **Add troubleshooting** for issues you encounter during testing
 
+### Updating Main README.md
+**When**: Major feature completion, architecture changes, new installation requirements, significant bug fixes
+**Process**:
+1. **Review current README.md** for accuracy and completeness
+2. **Update feature sections** with new capabilities and components
+3. **Synchronize installation steps** with actual package.json and dependencies
+4. **Update quick start guide** to reflect current development workflow  
+5. **Refresh architecture section** with new components and technologies
+6. **Update troubleshooting** with solutions to recently discovered issues
+7. **Validate all code examples** and commands for accuracy
+8. **Update badges and version numbers** to reflect current state
+
 ## 📊 Quality Checklist
 
 Before marking any documentation update as complete:
@@ -206,6 +222,7 @@ Before marking any documentation update as complete:
 - [ ] Component props and interfaces are current
 - [ ] API endpoints reflect server.js implementation
 - [ ] Workflow steps match actual UI behavior
+- [ ] **Main README.md accurately reflects current project state and capabilities**
 
 ### Completeness
 - [ ] All placeholder sections replaced with content
@@ -226,12 +243,14 @@ Before marking any documentation update as complete:
 2. **Identify gaps**: Find placeholder sections that need immediate attention
 3. **Test current features**: Use the Resource Library and Assignment Manager to understand user workflows
 4. **Update documentation**: Begin with completed features (Resource Library, Assignment Manager)
+5. **Review main README.md**: Ensure it accurately represents current project capabilities and installation steps
 
 ### Ongoing Responsibilities
 - Monitor component changes and update documentation immediately
 - Respond to API modifications with updated reference documentation
 - Maintain screenshot library as UI evolves
 - Validate documentation quality regularly
+- **Keep main README.md current** with project evolution and new features
 
 ### Integration with Development
 - Coordinate with developers for new feature documentation

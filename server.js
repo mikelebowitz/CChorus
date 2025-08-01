@@ -81,6 +81,7 @@ async function scanSystemAgents() {
     // Use same targeted approach as project scanner to avoid performance issues
     const homeDir = os.homedir();
     const potentialRoots = [
+      homeDir, // User's home directory for ~/.claude/agents
       process.cwd(), // Current directory (where CChorus is running from)
       path.join(homeDir, 'Desktop'),
       path.join(homeDir, 'Documents', 'Code'), // More specific - just Code directory
