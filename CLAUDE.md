@@ -651,6 +651,33 @@ docs/
 
 ## 🚨 **CRITICAL REMINDERS: Development Standards**
 
+### **🚨 MANDATORY: Task Completion Workflow**
+
+**NEVER mark any task as "completed" unless ALL requirements are satisfied:**
+
+#### **Frontend Work Completion Requirements:**
+1. **Playwright Testing**: MUST use MCP Playwright tools for comprehensive testing
+2. **User Demonstration**: MUST show functioning work to user via screenshots/demo  
+3. **User Approval**: MUST receive explicit user approval before marking complete
+
+#### **All Development Work Completion Requirements:**
+1. **Documentation Agent**: MUST use `@documentation-manager` for ALL documentation updates
+2. **GitOps Agent**: MUST use `@gitops-workflow-manager` for ALL Git operations
+3. **Agent Sequence**: Code → Documentation → GitOps → User Approval → Complete
+
+#### **VIOLATION CONSEQUENCES:**
+- **Immediate Correction**: Revert improperly completed tasks to pending
+- **Mandatory Re-work**: Complete proper workflow for all violated tasks
+- **Session Documentation**: All violations logged in session documentation
+
+#### **COMPLETION VALIDATION CHECKLIST:**
+Before marking ANY task "completed", verify:
+- [ ] Testing completed (Playwright for frontend, appropriate testing for backend)
+- [ ] Documentation agent used for all doc updates  
+- [ ] GitOps agent used for all Git operations
+- [ ] User demonstration provided (for user-facing work)
+- [ ] User approval received (explicit confirmation)
+
 ### **📚 Documentation Management**
 **MANDATORY REQUIREMENT**: ALL documentation work MUST be performed through the dedicated documentation management agent (`@documentation-manager`). 
 

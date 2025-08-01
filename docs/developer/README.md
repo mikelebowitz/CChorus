@@ -1,8 +1,8 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-07-31 - Resource Library and Assignment Manager fully implemented -->
+<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager component fully implemented with CLAUDE.md editing -->
 
 ## 🏗️ Architecture Overview
 
@@ -247,11 +247,113 @@ ResourceLibraryService.loadAllResources(): Promise<ResourceItem[]>
 ### Specialized Manager Components
 <!-- COMPONENT_MANAGERS -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
-<!-- PLACEHOLDER: ProjectManager, HooksManager, CommandsManager, SettingsManager -->
+<!-- STATUS: PROJECT_MANAGER_COMPLETED - ProjectManager.tsx fully implemented -->
 
-*[To be documented when manager components are implemented]*
+#### ProjectManager.tsx [COMPLETED]
+<!-- COMPONENT_PROJECT_MANAGER -->
+<!-- UPDATE_TRIGGER: When ProjectManager.tsx is modified -->
+<!-- STATUS: COMPLETED - Full implementation with CLAUDE.md editing -->
 
-**ProjectManager.tsx** - Project discovery and CLAUDE.md editing
+**Purpose**: Visual interface for managing Claude Code projects with comprehensive project discovery and CLAUDE.md editing capabilities
+
+**Props Interface:**
+```typescript
+interface ProjectManagerProps {
+  onProjectSelect?: (project: ClaudeProject) => void;
+  onProjectEdit?: (project: ClaudeProject, content: string) => void;
+}
+```
+
+**Component Architecture:**
+```typescript
+// Core state management
+const [projects, setProjects] = useState<ClaudeProject[]>([]);
+const [filteredProjects, setFilteredProjects] = useState<ClaudeProject[]>([]);
+const [selectedProject, setSelectedProject] = useState<ClaudeProject | null>(null);
+const [searchQuery, setSearchQuery] = useState('');
+const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+const [editorContent, setEditorContent] = useState('');
+const [originalContent, setOriginalContent] = useState('');
+const [isEditing, setIsEditing] = useState(false);
+const [isDirty, setIsDirty] = useState(false);
+
+// Project health assessment
+const getProjectHealth = (project: ClaudeProject) => {
+  let score = 0;
+  if (project.hasAgents) score += 25;
+  if (project.hasCommands) score += 25;
+  if (project.isGitRepo) score += 25;
+  if (project.description && project.description.length > 50) score += 25;
+  // Returns health status and color coding
+};
+```
+
+**Key Features:**
+- **System-wide Project Discovery**: Uses `/api/projects/system` endpoint for comprehensive project scanning
+- **Dual View Modes**: Toggle between grid and list views with responsive layouts
+- **Advanced Search and Filtering**: Real-time search across project names, paths, and descriptions
+- **Project Health Assessment**: Visual health indicators based on multiple criteria
+- **Built-in CLAUDE.md Editor**: Complete editor with save/cancel functionality
+- **Template Generation**: Automatic template creation for projects without CLAUDE.md files
+- **Change Detection**: Real-time tracking of unsaved changes with visual indicators
+- **Responsive Design**: Split-pane layout adapting to different screen sizes
+
+**CLAUDE.md Editor Features:**
+- **Content Loading**: Loads existing CLAUDE.md content or generates templates
+- **Live Editing**: Real-time content modification with immediate feedback
+- **Save Operations**: Atomic save operations with automatic backup creation
+- **Content Validation**: Ensures proper content structure and format
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Undo Functionality**: Cancel changes to revert to original content
+
+**API Integration:**
+```typescript
+// Core API endpoints used
+GET /api/projects/system              // System-wide project discovery
+GET /api/projects/:path/claudemd      // Load CLAUDE.md content
+PUT /api/projects/:path/claudemd      // Save CLAUDE.md content
+
+// Project health data from ClaudeProject interface
+interface ClaudeProject {
+  name: string;           // Project name
+  path: string;           // Full project path
+  claudeMdPath: string;   // CLAUDE.md file path
+  description: string;    // Project description
+  lastModified: Date;     // Last modification time
+  isGitRepo: boolean;     // Git repository status
+  hasAgents: boolean;     // Agent presence
+  hasCommands: boolean;   // Command presence
+  agentCount: number;     // Number of agents
+  commandCount: number;   // Number of commands
+}
+```
+
+**Layout Structure:**
+- **Projects List Panel**: Left panel with search, view mode toggle, and project cards
+- **Editor Panel**: Right panel with CLAUDE.md editor and controls (shown when project selected)
+- **Project Cards**: Rich cards displaying project metadata, health indicators, and resource counts
+- **Editor Controls**: Save/cancel buttons, change indicators, and status feedback
+
+**Error Handling:**
+- **Loading Errors**: Graceful handling of project discovery failures
+- **Content Errors**: CLAUDE.md loading/saving error management
+- **Network Errors**: Backend connectivity error handling with retry options
+- **File System Errors**: Permission and file access error handling
+
+**Integration Points:**
+- **Resource Library**: Project information used for resource filtering and association
+- **Assignment Manager**: Project discovery shared with assignment target selection
+- **Toast Notifications**: User feedback for all operations using `useToast` hook
+- **Theme System**: Full support for light/dark themes with consistent styling
+
+**Performance Optimizations:**
+- **Efficient Filtering**: Client-side filtering with optimized search algorithms
+- **Lazy Loading**: Content loaded only when projects are selected
+- **Responsive Updates**: Smart state management to minimize unnecessary re-renders
+- **Memory Management**: Proper cleanup of editor content and project data
+
+*[Other managers to be implemented in future development phases]*
+
 **HooksManager.tsx** - Visual hook configuration interface  
 **CommandsManager.tsx** - Slash command library and editor
 **SettingsManager.tsx** - Settings file hierarchy management
@@ -290,17 +392,33 @@ ClaudeProject {
 - **Implementation**: Uses `extractProjectInfo()` for metadata extraction
 - **Returns**: Enhanced project metadata with resource analysis
 
-**GET /api/projects/:projectPath/claude-md**
-- **Purpose**: Retrieve CLAUDE.md content for editing
+**GET /api/projects/:projectPath/claude-md** [LEGACY ENDPOINT]
+- **Purpose**: Retrieve CLAUDE.md content for editing (legacy hyphenated version)
 - **Security**: Validates project path and file existence
 - **Returns**: Raw file content as text
 - **Error Handling**: 404 if CLAUDE.md not found, 403 for access violations
 
-**PUT /api/projects/:projectPath/claude-md**
-- **Purpose**: Update CLAUDE.md file content
+**PUT /api/projects/:projectPath/claude-md** [LEGACY ENDPOINT]
+- **Purpose**: Update CLAUDE.md file content (legacy hyphenated version)
 - **Body**: `{ content: string }`
 - **Security**: Full path validation and write permission checks
 - **Implementation**: Atomic file writes with backup on failure
+
+**GET /api/projects/:projectPath/claudemd** [ACTIVE ENDPOINT]
+- **Purpose**: Retrieve CLAUDE.md content for ProjectManager component (current implementation)
+- **Security**: Path validation with decodeURIComponent for URL encoding
+- **Implementation**: File existence checking with 404 handling for missing files
+- **Returns**: `{ content: string }` for existing files, 404 status for missing files
+- **Error Handling**: 404 if CLAUDE.md not found, 403 for access violations, 500 for read errors
+- **Template Support**: ProjectManager handles missing files by generating default templates
+
+**PUT /api/projects/:projectPath/claudemd** [ACTIVE ENDPOINT]
+- **Purpose**: Update CLAUDE.md file content from ProjectManager editor
+- **Body**: `{ content: string }` - Complete CLAUDE.md content
+- **Security**: Full path validation with decodeURIComponent and write permission checks
+- **Implementation**: Atomic file writes with proper directory creation and backup handling
+- **Safety Features**: Creates parent directories if needed, handles file permissions
+- **Integration**: Used by ProjectManager save functionality with comprehensive error handling
 
 ### Agents API
 <!-- STATUS: COMPLETED - Full agent management with assignment support -->
@@ -749,31 +867,43 @@ npm run dev:server # Backend only (port 3001)
 
 **Status:** Production-ready with comprehensive testing completed
 
-### Phase 2: Resource Managers [COMPLETED]
+### Phase 2: Resource Managers [PARTIALLY COMPLETED]
 <!-- PHASE_2_STATUS -->
 <!-- UPDATE_TRIGGER: During feature/resource-managers branch -->
-<!-- COMPLETION_DATE: 2025-07-31 - Implemented through integrated Assignment Manager -->
+<!-- COMPLETION_DATE: 2025-08-01 - Project Manager completed; others integrated through Assignment Manager -->
 
-**Completed Through Assignment Manager Integration:**
-- ✅ Project Management - Project discovery, metadata display, and resource overview
+**Project Manager - Standalone Component [COMPLETED]:**
+- ✅ **ProjectManager.tsx**: Complete standalone project management interface
+- ✅ **System-wide Project Discovery**: Comprehensive scanning across entire home directory
+- ✅ **CLAUDE.md Editor**: Built-in editor with template generation and content management
+- ✅ **Project Health Assessment**: Visual indicators based on Git status, agents, commands, and documentation
+- ✅ **Search and Filtering**: Real-time project search with advanced filtering capabilities
+- ✅ **Responsive Design**: Grid/list view modes with split-pane editor layout
+- ✅ **API Integration**: Complete backend integration with `/api/projects/*` endpoints
+
+**Other Resource Managers - Assignment Manager Integration:**
 - ✅ Hook Management - Hook assignment, deployment, and settings file integration
 - ✅ Command Management - Slash command assignment and configuration management
 - ✅ Settings Management - Settings file assignment and scope management
 
 **Implementation Approach:**
-Rather than separate manager components, Phase 2 was implemented through:
-- **Unified Assignment Interface**: Single interface handles all resource types
+Phase 2 was implemented using a hybrid approach:
+- **Standalone Project Manager**: Dedicated component for comprehensive project management
+- **Unified Assignment Interface**: Single interface handles resource deployment and management
 - **Type-Specific Logic**: Backend APIs provide specialized handling per resource type
 - **Scope-based Management**: Tabbed interface separates user-level and project-level management
 - **Resource-Specific Actions**: Assignment cards adapt to resource type capabilities
 
 **Specialized Features by Resource Type:**
 
-**Project Management:**
-- Complete project discovery with CLAUDE.md detection
-- Project metadata extraction and display
-- Resource count statistics per project
-- Project-specific resource filtering and management
+**Project Management [ENHANCED WITH DEDICATED COMPONENT]:**
+- **Complete Standalone Interface**: Dedicated ProjectManager component with full project lifecycle management
+- **Advanced Project Discovery**: System-wide scanning with comprehensive metadata extraction
+- **Built-in CLAUDE.md Editor**: Visual editor with template generation, save/cancel functionality, and change tracking
+- **Project Health Assessment**: Visual health indicators based on multiple criteria (Git, agents, commands, documentation)
+- **Dual View Modes**: Grid and list views with responsive design and search capabilities
+- **Resource Integration**: Seamless integration with Assignment Manager for resource deployment to projects
+- **API Backend**: Complete REST API for project operations (`/api/projects/*` endpoints)
 
 **Hook Management:**
 - Hook discovery from all settings files (user and project)

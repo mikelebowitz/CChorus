@@ -6,6 +6,7 @@ import { AgentTabbedEditor } from './components/AgentTabbedEditor';
 import { FileBrowser } from './components/FileBrowser';
 import { ResourceLibrary } from './components/ResourceLibrary';
 import { AssignmentManager } from './components/AssignmentManager';
+import { ProjectManager } from './components/ProjectManager';
 import { ThemeProvider } from './components/theme-provider';
 import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
@@ -17,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { ApiFileSystemService } from './utils/apiFileSystem';
 import { parseAgentFile } from './utils/agentUtils';
 import { ResourceItem } from './utils/resourceLibraryService';
-import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu, Library, Target } from 'lucide-react';
+import { Plus, Bot, RefreshCw, Search, Filter, User, Folder, FileText, Menu, Library, Target, FolderOpen } from 'lucide-react';
 import { Toaster } from './components/ui/toaster';
 import { useToast } from './hooks/use-toast';
 
@@ -34,7 +35,7 @@ function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // New state for main navigation
-  const [currentView, setCurrentView] = useState<'agents' | 'library' | 'assignments'>('library');
+  const [currentView, setCurrentView] = useState<'agents' | 'library' | 'assignments' | 'projects'>('library');
   const [selectedResource, setSelectedResource] = useState<ResourceItem | undefined>(undefined);
   
   // Form state for the new column layout
@@ -460,6 +461,10 @@ function AppContent() {
                 <Target size={16} />
                 Assignments
               </TabsTrigger>
+              <TabsTrigger value="projects" className="flex items-center gap-2">
+                <FolderOpen size={16} />
+                Projects
+              </TabsTrigger>
               <TabsTrigger value="agents" className="flex items-center gap-2">
                 <Bot size={16} />
                 Agents (Legacy)
@@ -493,6 +498,10 @@ function AppContent() {
                 setCurrentView('library');
               }}
             />
+          </TabsContent>
+
+          <TabsContent value="projects" className="h-full m-0">
+            <ProjectManager />
           </TabsContent>
 
           <TabsContent value="agents" className="h-full m-0">

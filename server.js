@@ -290,6 +290,73 @@ app.put('/api/projects/:projectPath(*)/claude-md', async (req, res) => {
   }
 });
 
+// Project Manager Component Endpoints
+// Get CLAUDE.md content for ProjectManager component (without dash)
+app.get('/api/projects/:projectPath(*)/claudemd', async (req, res) => {
+  try {
+    const projectPath = decodeURIComponent(req.params.projectPath);
+    const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
+    
+    // Security check
+    if (!projectPath.includes(os.homedir()) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    try {
+      const content = await fs.readFile(claudeMdPath, 'utf-8');
+      res.json({ content, path: claudeMdPath });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        res.status(404).json({ error: 'CLAUDE.md not found' });
+      } else {
+        throw error;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to read CLAUDE.md:', error);
+    res.status(500).json({ error: 'Failed to read CLAUDE.md file' });
+  }
+});
+
+// Update CLAUDE.md content for ProjectManager component (without dash)
+app.put('/api/projects/:projectPath(*)/claudemd', async (req, res) => {
+  try {
+    const projectPath = decodeURIComponent(req.params.projectPath);
+    const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
+    const { content } = req.body;
+    
+    if (content === undefined) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+    
+    // Security check
+    if (!projectPath.includes(os.homedir()) && !projectPath.startsWith('/Users/') && !projectPath.startsWith('/home/')) {
+      return res.status(403).json({ error: 'Access denied to system directories' });
+    }
+    
+    // Create backup of existing file if it exists
+    try {
+      const existingContent = await fs.readFile(claudeMdPath, 'utf-8');
+      const backupPath = claudeMdPath + '.backup.' + Date.now();
+      await fs.writeFile(backupPath, existingContent, 'utf-8');
+    } catch (error) {
+      // File doesn't exist, no backup needed
+      if (error.code !== 'ENOENT') {
+        console.warn('Could not create backup:', error.message);
+      }
+    }
+    
+    // Ensure directory exists
+    await fs.mkdir(path.dirname(claudeMdPath), { recursive: true });
+    
+    await fs.writeFile(claudeMdPath, content, 'utf-8');
+    res.json({ success: true, path: claudeMdPath });
+  } catch (error) {
+    console.error('Failed to update CLAUDE.md:', error);
+    res.status(500).json({ error: 'Failed to update CLAUDE.md file' });
+  }
+});
+
 // Get system-wide hook configurations
 app.get('/api/hooks/system', async (req, res) => {
   try {

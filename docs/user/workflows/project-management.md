@@ -2,12 +2,12 @@
 
 <!-- WORKFLOW_PROJECT_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: When project management features are accessed -->
-<!-- SCREENSHOT: assignment-manager-projects.png -->
-<!-- STATUS: COMPLETED - Implemented through Assignment Manager integration -->
+<!-- SCREENSHOT: project-manager-interface.png -->
+<!-- STATUS: COMPLETED - Dedicated ProjectManager component with CLAUDE.md editing -->
 
 ## Overview
 
-The Project Management workflow helps you discover, understand, and manage Claude Code projects across your system. Through the Assignment Manager's Projects tab, you can view all your Claude Code projects, understand their resource distributions, and manage project-specific resources effectively.
+The Project Management workflow provides comprehensive tools for discovering, understanding, and managing Claude Code projects across your system. The dedicated Projects tab offers a complete project management interface with built-in CLAUDE.md editing, project health assessment, and seamless integration with the resource management system.
 
 ## Understanding Claude Code Projects
 
@@ -29,11 +29,11 @@ Each detected project includes:
 
 ### Navigation to Projects View
 1. **Open CChorus**: Navigate to `http://localhost:5173`
-2. **Assignment Manager**: Click the "Assignments" tab in main navigation  
-3. **Projects Tab**: Click the "Projects" tab within Assignment Manager
-4. **System Scan**: Allow initial project discovery to complete
+2. **Projects Tab**: Click the "Projects" tab in the main navigation
+3. **System Scan**: Allow initial project discovery to complete (scans entire home directory)
+4. **View Selection**: Choose between Grid or List view modes for optimal browsing
 
-**Expected Result:** Grid view of all discovered Claude Code projects with statistics
+**Expected Result:** Comprehensive project interface with discovery, health assessment, and CLAUDE.md editing capabilities
 
 ## Project Discovery Workflow
 
@@ -49,192 +49,276 @@ Each detected project includes:
 - Triggers new system-wide scan for recently created projects
 - Updates project metadata and resource counts
 
-### 2. Project Grid Overview
+### 2. Project Grid/List Overview
+
+**Grid View Features:**
 Each project card displays:
-- **Project Icon**: Folder icon indicating project type
+- **Project Icon**: Folder with Git icon indicating project type
 - **Project Name**: Primary project identifier
-- **Project Path**: Full filesystem location (truncated for display)
-- **Resource Statistics**: Breakdown by type
-  - Agents count with bot icon
-  - Commands count with terminal icon
-  - Hooks count with webhook icon
-  - Settings count with settings icon
-- **Total Resources**: Combined count across all types
+- **Project Description**: Extracted from CLAUDE.md or "No description available"
+- **Health Indicator**: Color-coded status (green=healthy, blue=good, yellow=fair, red=needs attention)
+- **Status Badges**: Visual indicators for:
+  - Git repository status (GitBranch icon)
+  - Agent presence and count (Bot icon)
+  - Command presence and count (Terminal icon)
+- **Project Path**: Full filesystem location with truncation for display
+- **Last Modified**: Timestamp of most recent project changes
 
-### 3. Project Filtering and Search
-**Via Resource Library:**
-- Filter by "Project" scope to see project-specific resources
-- Search by project name to find project-associated resources
-- Use project name badges to identify resource sources
+**List View Features:**
+- **Compact Layout**: Optimized for viewing many projects quickly
+- **Essential Information**: Project name, path, and key status indicators
+- **Quick Access**: Click any project for immediate selection and CLAUDE.md loading
+- **Status Icons**: Git, agents, and commands indicators for rapid assessment
 
-**Via Assignment Manager:**
-- Projects tab shows all projects regardless of resource content
-- Overview tab provides system-wide project statistics
-- User Level tab shows resources that could be deployed to projects
+### 3. Project Search and Filtering
 
-## Project-Specific Resource Management
+**Advanced Search Capabilities:**
+- **Real-time Search**: Search bar provides instant filtering as you type
+- **Multi-field Search**: Searches across project names, paths, and descriptions simultaneously
+- **Case-insensitive**: Search works regardless of capitalization
+- **Partial Matching**: Find projects with partial name or path matches
 
-### Understanding Project Resources
+**View Mode Selection:**
+- **Grid View Toggle**: Comprehensive project cards with full metadata display
+- **List View Toggle**: Compact listing for rapid browsing of many projects
+- **Responsive Design**: Both views adapt to screen size for optimal viewing
+- **Quick Switching**: Toggle between views without losing search or selection state
 
-**Project-Level Resources Location:**
-- **Agents**: `./project/.claude/agents/*.md`
-- **Commands**: In project `settings.json` file
-- **Hooks**: In project `settings.json` file  
-- **Settings**: `./project/.claude/settings.json` or `.claude_settings.json`
+**Integration with Resource Management:**
+- **Resource Library Integration**: Projects appear in resource filtering and association
+- **Assignment Manager Integration**: Projects available as deployment targets
+- **Cross-Navigation**: Seamless flow between project management and resource operations
 
-**Project Resource Characteristics:**
-- Available only within the specific project context
-- Override user-level resources with same names
-- Can be deployed to other projects or user level
-- Inherit from user-level resources when not overridden
+## CLAUDE.md Management
 
-### Project Resource Workflows
+### Understanding CLAUDE.md Files
 
-#### Discover Project Resources
-1. **Resource Library Method:**
-   - Filter by "Project" scope
-   - Look for resources with project name badges
-   - Each project's resources clearly identified
+**CLAUDE.md Purpose:**
+- **Project Configuration**: Primary configuration file for Claude Code projects
+- **Development Guidance**: Instructions and context for AI assistants working on the project
+- **Project Documentation**: Overview, setup instructions, and important notes
+- **AI Context**: Helps Claude Code understand project structure and requirements
 
-2. **Assignment Manager Method:**
-   - Click on specific project card in Projects tab
-   - View resource statistics and breakdowns
-   - Navigate to other tabs to see project resources in context
+**CLAUDE.md Structure:**
+- **Project Overview**: Description of the project's purpose and goals
+- **Development Guidelines**: Coding standards, architecture decisions, and patterns
+- **Key Files and Directories**: Important project structure information
+- **Getting Started**: Setup and development instructions
+- **Important Notes**: Project-specific considerations and requirements
 
-#### Deploy Resources to Projects
-1. **From Resource Library:**
-   - Select resource (agent, command, hook, or settings)
-   - Click copy icon to start assignment
-   - Choose target project from available targets
-   - Select Copy or Move operation
+### CLAUDE.md Editor Interface
 
-2. **From Assignment Manager:**
-   - Navigate to Projects tab
-   - Select target project card
-   - Use assignment actions to deploy resources to project
+**Editor Features:**
+- **Split-Pane Layout**: Project list on left, editor on right when project selected
+- **Live Content Loading**: Automatic loading of existing CLAUDE.md content
+- **Template Generation**: Automatic template creation for projects without CLAUDE.md
+- **Change Detection**: Real-time tracking of modifications with "Unsaved changes" indicator
+- **Edit Mode Toggle**: Switch between read-only preview and edit modes
+- **Save/Cancel Operations**: Atomic save operations with cancel functionality
 
-#### Standardize Resources Across Projects
-1. **Identify Standard Resources:**
-   - Use Resource Library to find proven resources
-   - Filter by User scope for globally available resources
-   - Select resources suitable for standardization
+**Template Auto-Generation:**
+For projects without existing CLAUDE.md files, the editor automatically generates a structured template including:
+- Project name and description placeholders
+- Standard development guidelines section
+- Key files and directories section
+- Getting started instructions with common commands
+- Important notes section for project-specific information
 
-2. **Bulk Deployment:**
-   - Multi-select resources for standardization
-   - Use "Assign Selected Resources" for batch deployment
-   - Choose multiple target projects for consistent deployment
+### CLAUDE.md Editing Workflows
 
-3. **Verify Standardization:**
-   - Check Projects tab for consistent resource counts
-   - Use Overview tab to verify deployment success
-   - Test resources in target projects to ensure functionality
+#### Creating/Editing CLAUDE.md Files
+1. **Select Project:**
+   - Browse projects in grid or list view
+   - Use search to find specific project quickly
+   - Click project card to select and load CLAUDE.md content
 
-## Project Analysis Workflows
+2. **Edit Mode:**
+   - Click "Edit" button in editor panel header
+   - Modify content in built-in text editor
+   - Real-time change detection shows "Unsaved changes" badge
+   - Full-height editor with proper text formatting
 
-### Project Resource Audit
+3. **Save Changes:**
+   - Click "Save" button to write changes to filesystem
+   - Automatic backup creation before save operations
+   - Success notification with toast message
+   - Changes immediately reflected in project metadata
 
-**Objective**: Understand what resources each project has and identify gaps or duplications
+4. **Cancel Changes:**
+   - Click "Cancel" button to revert unsaved modifications
+   - Content automatically restored to last saved state
+   - No confirmation required for cancel operation
 
-**Steps:**
-1. **Projects Tab Overview**: Review all project cards for resource distribution patterns
-2. **Resource Library Analysis**: Filter by Project scope and analyze project-specific resources
-3. **Comparison Analysis**: Compare similar projects to identify resource standardization opportunities
-4. **Gap Identification**: Look for projects with unusually low resource counts that might need additional resources
+#### Working with Project Templates
+1. **Template Generation:**
+   - Select project without existing CLAUDE.md file
+   - Editor automatically generates structured template
+   - Template includes project-specific information where available
+   - Placeholder sections for customization
 
-**Expected Insights:**
-- Which projects are resource-rich vs resource-sparse
-- Common resources that should be standardized
-- Project-specific customizations that might be useful elsewhere
-- Opportunities for resource consolidation
+2. **Template Customization:**
+   - Edit generated template sections with project-specific information
+   - Add development guidelines specific to the project
+   - Document key files and directory structure
+   - Include project-specific setup and deployment instructions
 
-### Resource Distribution Analysis
+3. **Template Standardization:**
+   - Use successful project CLAUDE.md files as templates for new projects
+   - Copy content structure and adapt for new project context
+   - Maintain consistency across team projects with standard sections
 
-**Objective**: Understand how resources are distributed across your project ecosystem
+#### Integration with Resource Management
+1. **Resource Discovery Integration:**
+   - Projects discovered in Project Manager appear in Assignment Manager
+   - Project health indicators help identify projects needing resources
+   - CLAUDE.md content provides context for resource deployment decisions
 
-**Steps:**
-1. **Overview Tab**: Review system-wide statistics
-   - Total resource counts by type
-   - Distribution patterns across projects
-   - Resource density metrics
+2. **Project-Specific Resource Deployment:**
+   - Use Assignment Manager to deploy resources to projects discovered in Project Manager
+   - Project health assessments help prioritize resource deployment
+   - Well-documented projects (healthy CLAUDE.md) make better deployment targets
 
-2. **Comparative Analysis**: Compare projects by resource type
-   - Which projects have many agents vs commands vs hooks
-   - Identify resource usage patterns
-   - Find projects with unique resource combinations
+3. **Documentation-Driven Development:**
+   - Update CLAUDE.md when deploying new resources to projects
+   - Document resource usage and configuration in project files
+   - Maintain consistency between project documentation and actual resource deployment
 
-3. **Standardization Opportunities**: Identify resources that appear in multiple projects
-   - Find commonly duplicated resources
-   - Identify candidates for user-level deployment
-   - Plan resource consolidation strategies
+## Project Health Assessment
 
-### Project Health Assessment
+### Understanding Project Health Indicators
 
-**Objective**: Evaluate project configuration health and completeness
+**Health Scoring System:**
+Projects are automatically assessed based on multiple criteria:
+- **Git Repository Status** (25 points): Project is under version control
+- **Agent Presence** (25 points): Project has specialized Claude Code agents
+- **Command Configuration** (25 points): Project has custom slash commands
+- **Documentation Quality** (25 points): CLAUDE.md exists and has substantial content (50+ characters)
 
-**Indicators of Healthy Projects:**
-- **CLAUDE.md Present**: Project has proper configuration file
-- **Resource Balance**: Appropriate mix of agents, commands, and hooks
-- **Settings Configuration**: Project-specific settings when needed
-- **Resource Organization**: Clean separation of project vs user resources
+**Health Status Categories:**
+- **Healthy (75+ points)**: Green indicator - Well-configured project with comprehensive setup
+- **Good (50-74 points)**: Blue indicator - Solid project with most essential components
+- **Fair (25-49 points)**: Yellow indicator - Basic project setup with room for improvement
+- **Needs Attention (0-24 points)**: Red indicator - Minimal setup requiring attention
 
-**Assessment Workflow:**
-1. **Project Detection**: Verify all expected projects are discovered
-2. **Resource Completeness**: Check that projects have expected resource types
-3. **Configuration Validation**: Ensure CLAUDE.md files are present and readable
-4. **Resource Conflicts**: Identify potential naming conflicts between project and user resources
+### Project Health Analysis Workflow
+
+**Visual Health Assessment:**
+1. **Grid View Overview**: Quickly scan project cards for health indicator colors
+2. **Identify Patterns**: Look for projects with similar health statuses
+3. **Prioritize Improvements**: Focus on red and yellow projects for enhancement
+4. **Resource Planning**: Use health indicators to guide resource deployment decisions
+
+**Improvement Actions:**
+- **Red Projects**: Create or improve CLAUDE.md files, set up Git repositories, deploy basic resources
+- **Yellow Projects**: Add specialized agents or commands, enhance documentation
+- **Blue Projects**: Fine-tune configurations and add advanced resources
+- **Green Projects**: Use as templates for other projects, maintain current quality
+
+### Project Documentation Analysis
+
+**Documentation Quality Assessment:**
+
+**CLAUDE.md Content Analysis:**
+1. **Content Completeness**: Review projects with substantial CLAUDE.md content vs those with minimal documentation
+2. **Template Consistency**: Identify projects using similar documentation structures
+3. **Best Practices**: Find well-documented projects to use as templates
+4. **Improvement Opportunities**: Identify projects with missing or inadequate documentation
+
+**Documentation Improvement Workflow:**
+1. **Baseline Assessment**: Review all projects to understand current documentation state
+2. **Template Development**: Create standard CLAUDE.md templates based on best practices
+3. **Systematic Improvement**: Use Project Manager editor to enhance documentation across projects
+4. **Quality Maintenance**: Regular review and updates to maintain documentation quality
+
+**Documentation-Driven Project Organization:**
+- **Consistent Structure**: Use Project Manager to maintain consistent CLAUDE.md structure across projects
+- **Knowledge Transfer**: Well-documented projects facilitate team collaboration and onboarding
+- **Context Preservation**: CLAUDE.md files provide valuable context for AI assistants working on projects
+- **Project Evolution**: Documentation evolves with project changes through integrated editor
+
+### Advanced Project Management Features
+
+**Multi-View Project Browsing:**
+- **Grid View Advantages**: Visual project cards with comprehensive metadata, health indicators, and resource badges
+- **List View Advantages**: Compact display for quick browsing of many projects, efficient use of screen space
+- **Responsive Design**: Both views adapt to screen size and user preferences
+- **View State Persistence**: Selected view mode maintained across sessions
+
+**Advanced Search and Discovery:**
+- **Multi-field Search**: Simultaneously searches project names, paths, and descriptions
+- **Real-time Filtering**: Instant results as you type with no search delays
+- **Case-insensitive Matching**: Find projects regardless of capitalization
+- **Partial Match Support**: Locate projects with incomplete information
+
+**Editor Integration Benefits:**
+- **Immediate Context**: Select project and immediately access/edit its CLAUDE.md file
+- **Template Automation**: Automatic template generation reduces setup time for new projects
+- **Change Tracking**: Visual indicators prevent loss of unsaved work
+- **Atomic Operations**: Save/cancel operations ensure data integrity
 
 ## Integration with Development Workflows
 
-### New Project Setup
+### New Project Setup with Project Manager
 
-**When Creating New Claude Code Projects:**
-1. **Create CLAUDE.md**: Establish project as Claude Code project
-2. **Initialize .claude Structure**: Create necessary subdirectories
-3. **Deploy Standard Resources**: Use Assignment Manager to deploy standard agents/commands/hooks
-4. **Project-Specific Customization**: Create or modify resources for project-specific needs
-5. **Verify Setup**: Check Projects tab to confirm proper project detection and resource deployment
+**Enhanced Project Setup Workflow:**
+1. **Project Discovery**: Project Manager automatically discovers new projects with CLAUDE.md files
+2. **Template Creation**: Use Project Manager editor to create comprehensive CLAUDE.md files
+3. **Health Assessment**: Monitor project health indicators to ensure proper setup
+4. **Documentation First**: Create thorough CLAUDE.md documentation before resource deployment
+5. **Resource Integration**: Use health-assessed projects as targets for resource deployment
+6. **Iterative Improvement**: Use Project Manager to continuously improve project documentation and setup
 
-### Project Maintenance
+### Project Maintenance with Integrated Management
 
-**Regular Project Maintenance Tasks:**
-1. **Resource Updates**: Deploy updated standard resources to all projects
-2. **Cleanup Unused Resources**: Remove obsolete project-specific resources
-3. **Standardization**: Move useful project-specific resources to user level for sharing
-4. **Documentation**: Update CLAUDE.md files with current project configuration
+**Comprehensive Project Maintenance:**
+1. **Documentation Maintenance**: Use Project Manager editor to keep CLAUDE.md files current
+2. **Health Monitoring**: Regular review of project health indicators to identify maintenance needs
+3. **Template Updates**: Update and standardize CLAUDE.md templates across projects
+4. **Resource Coordination**: Coordinate resource deployment with documentation updates
+5. **Quality Assurance**: Use health assessments to maintain high project standards
+6. **Knowledge Management**: Maintain project documentation as institutional knowledge
 
-### Team Collaboration
+### Team Collaboration with Project Manager
 
-**Coordinating Project Resources Across Team:**
-1. **Resource Standards**: Establish team standards for resource deployment
-2. **Project Templates**: Create standard resource sets for new projects
-3. **Resource Sharing**: Use Assignment Manager to share useful project-specific resources
-4. **Version Control**: Coordinate resource changes through version control systems
+**Enhanced Team Collaboration:**
+1. **Documentation Standards**: Use Project Manager to establish and maintain consistent CLAUDE.md standards
+2. **Template Sharing**: Share well-documented projects as templates for new team projects
+3. **Knowledge Transfer**: Comprehensive project documentation facilitates team member onboarding
+4. **Quality Standards**: Use health indicators to maintain consistent project quality across team
+5. **Collaborative Editing**: Team members can use Project Manager to contribute to project documentation
+6. **Best Practice Propagation**: Identify and replicate successful project documentation patterns
 
 ## Advanced Project Management
 
-### Project Resource Templates
+### CLAUDE.md Template Management
 
-**Creating Standard Project Configurations:**
-1. **Template Development**: Create "template" project with standard resource set
-2. **Resource Export**: Use copy operations to deploy template resources to new projects
-3. **Customization**: Modify template resources for project-specific needs
-4. **Template Maintenance**: Update template and redeploy to existing projects
+**Creating Standard Documentation Templates:**
+1. **Template Development**: Create comprehensive CLAUDE.md templates based on successful projects
+2. **Template Standardization**: Use Project Manager to apply consistent templates across projects
+3. **Template Evolution**: Continuously improve templates based on project experience
+4. **Template Distribution**: Share successful templates across team and projects
+5. **Customization Framework**: Create flexible templates that adapt to different project types
+6. **Quality Templates**: Use health indicators to identify projects with exemplary documentation
 
-### Project Resource Synchronization
+### Documentation Synchronization
 
-**Keeping Projects Updated with Standard Resources:**
-1. **Identify Standard Resources**: Determine which resources should be consistent across projects
-2. **Deployment Strategy**: Use Assignment Manager for systematic deployment
-3. **Update Coordination**: Plan resource updates to minimize disruption
-4. **Verification**: Use Projects tab to verify successful deployment across all target projects
+**Keeping Project Documentation Current:**
+1. **Documentation Audits**: Regular review of CLAUDE.md content across all projects
+2. **Template Updates**: Systematic application of improved templates using Project Manager
+3. **Content Standards**: Maintain consistency in documentation structure and quality
+4. **Version Coordination**: Coordinate documentation updates with project development cycles
+5. **Health Monitoring**: Use health indicators to identify projects needing documentation updates
+6. **Continuous Improvement**: Iterative enhancement of project documentation quality
 
-### Project Migration and Archival
+### Project Lifecycle Management
 
-**Managing Project Lifecycle:**
-1. **Resource Extraction**: Before archiving projects, extract useful resources to user level
-2. **Resource Cleanup**: Remove project-specific resources that won't be needed
-3. **Documentation**: Update project documentation with final resource configuration
-4. **Archive Verification**: Confirm all valuable resources preserved before project archival
+**Complete Project Lifecycle with Documentation Management:**
+1. **Project Onboarding**: Use Project Manager to establish comprehensive CLAUDE.md documentation for new projects
+2. **Documentation Evolution**: Continuously update project documentation through Project Manager as projects evolve
+3. **Knowledge Preservation**: Maintain thorough CLAUDE.md files as institutional knowledge throughout project lifecycle
+4. **Migration Preparation**: Use Project Manager to document final project state before migration or archival
+5. **Archive Documentation**: Ensure CLAUDE.md files capture complete project context for future reference
+6. **Template Extraction**: Extract successful documentation patterns for use in future projects
 
 ## Troubleshooting Project Management
 
@@ -242,8 +326,8 @@ Each project card displays:
 
 **Symptoms:**
 - Expected projects don't appear in Projects tab
-- Resource Library shows no project-scoped resources for known projects
-- Assignment Manager shows fewer projects than expected
+- Project Manager shows fewer projects than expected
+- System scan completes but missing known projects
 
 **Common Causes & Solutions:**
 
@@ -262,64 +346,74 @@ Each project card displays:
 - Check browser console for scan errors
 - Verify backend server is running and accessible
 
-### Project Resource Mismatches
+### CLAUDE.md Editor Issues
 
 **Symptoms:**
-- Project shows resource counts that don't match expectations
-- Resources visible in file system but not in CChorus
-- Resource counts change unexpectedly
+- CLAUDE.md content doesn't load when project selected
+- Save operation fails with error message
+- Editor shows "No CLAUDE.md file found" for existing files
+- Unsaved changes indicator doesn't clear after successful save
 
 **Troubleshooting Steps:**
-1. **Refresh Resource Data**: Use refresh button to update resource counts
-2. **Check File Formats**: Ensure resources follow proper format (YAML frontmatter for agents)
-3. **Verify Directory Structure**: Confirm resources are in correct .claude subdirectories
-4. **File Permissions**: Check read permissions on resource files
-5. **Resource Validation**: Test resources individually to ensure they're properly formatted
+1. **Check Backend Connection**: Ensure backend server is running on port 3001
+2. **Verify File Permissions**: Confirm read/write access to CLAUDE.md files
+3. **Check Project Path**: Ensure project path doesn't contain special characters causing encoding issues
+4. **File System Issues**: Verify CLAUDE.md file exists and is accessible
+5. **Browser Console**: Check for JavaScript errors or network failures
+6. **Refresh Project**: Click another project and return to refresh state
+7. **Restart Application**: Restart both frontend and backend if issues persist
 
-### Assignment Operations to Projects Fail
+### Project Health Indicators Not Updating
 
 **Symptoms:**
-- Resource assignment to project fails with error
-- Success notification but resource doesn't appear in project
-- Partial assignment success in batch operations
+- Health indicators show incorrect status (wrong color)
+- Project health doesn't reflect recent changes
+- All projects show same health status
 
 **Resolution Steps:**
-1. **Check Project Structure**: Ensure target project has .claude directory structure
-2. **Verify Permissions**: Confirm write access to project .claude directories
-3. **Disk Space**: Ensure sufficient space for resource files
-4. **Path Validation**: Verify project paths are accessible
-5. **Resource Conflicts**: Check for existing resources with same names
+1. **Refresh Project Data**: Use browser refresh or restart application to reload project information
+2. **Check Project Changes**: Verify recent changes (Git setup, resource additions) are actually present
+3. **Health Calculation**: Understand that health is based on Git status, agents, commands, and documentation quality
+4. **File System Sync**: Ensure file system changes are reflected in project discovery
+5. **Backend Restart**: Restart backend server to refresh project scanning
+6. **Clear Cache**: Clear browser cache if health indicators seem cached incorrectly
 
 ## Best Practices for Project Management
 
-### Project Organization
-- **Consistent Naming**: Use clear, consistent project naming conventions
-- **Resource Standards**: Establish team standards for resource organization
-- **Documentation**: Maintain up-to-date CLAUDE.md files with project descriptions
-- **Directory Structure**: Keep consistent .claude directory organization
+### Project Documentation Standards
+- **Comprehensive CLAUDE.md**: Use Project Manager to maintain thorough, up-to-date CLAUDE.md files
+- **Template Consistency**: Apply consistent documentation templates across projects
+- **Regular Updates**: Keep project documentation current with project evolution
+- **Quality Focus**: Use health indicators to maintain high documentation standards
+- **Team Standards**: Establish and maintain team-wide documentation standards
 
-### Resource Management
-- **Separation of Concerns**: Clear distinction between project-specific and global resources
-- **Resource Lifecycle**: Manage resource creation, modification, and removal systematically
-- **Version Control**: Consider version control for important project resources
-- **Backup Strategy**: Backup project resources before major changes
+### Project Health Management
+- **Regular Assessment**: Monitor project health indicators to identify improvement opportunities
+- **Systematic Improvement**: Use health indicators to prioritize project enhancement efforts
+- **Template Application**: Apply successful project patterns to improve lower-health projects
+- **Continuous Monitoring**: Regular review of project health trends and patterns
+- **Quality Maintenance**: Maintain high standards across all projects using health indicators
 
-### Team Collaboration
-- **Resource Sharing**: Share useful project-specific resources through Assignment Manager
-- **Standards Documentation**: Document team standards for project resource management
-- **Change Coordination**: Coordinate resource changes across team projects
-- **Knowledge Transfer**: Use Assignment Manager for onboarding new team members
+### Documentation-Driven Collaboration
+- **Shared Templates**: Use Project Manager to develop and share documentation templates
+- **Knowledge Management**: Maintain project documentation as team institutional knowledge
+- **Onboarding Support**: Use comprehensive CLAUDE.md files to facilitate new team member onboarding
+- **Best Practice Sharing**: Identify and replicate successful documentation patterns across team
+- **Collaborative Editing**: Enable team members to contribute to project documentation through Project Manager
 
-### Performance Optimization
-- **Efficient Scanning**: Organize projects to optimize discovery scanning
-- **Resource Cleanup**: Regularly clean up unused project resources
-- **Batch Operations**: Use bulk assignment for efficient resource deployment
-- **Monitoring**: Regular review of project resource distribution and health
+### Performance and Efficiency
+- **Efficient Discovery**: Organize projects to optimize system-wide scanning performance
+- **Documentation Efficiency**: Use templates and standardized structures to reduce documentation effort
+- **Health Monitoring**: Use automated health indicators to efficiently identify projects needing attention
+- **Batch Documentation**: Apply template updates across multiple projects efficiently
+- **Search Optimization**: Use advanced search features to quickly locate specific projects
 
 ## Next Steps
 
-After mastering project management:
-- **Advanced Resource Development**: Create sophisticated project-specific resources
-- **Automation Integration**: Integrate project management with CI/CD pipelines
-- **Team Workflows**: Develop team-specific project management workflows
-- **Custom Tooling**: Build custom tools that leverage project discovery and management APIs
+After mastering Project Manager:
+- **Advanced Documentation**: Develop sophisticated CLAUDE.md templates and standards
+- **Integration Workflows**: Integrate project documentation with development and deployment workflows
+- **Team Documentation Standards**: Establish comprehensive team-wide documentation practices
+- **Automation**: Develop automated tools that leverage project discovery and documentation APIs
+- **Quality Systems**: Build systems that use health indicators for project quality assurance
+- **Knowledge Management**: Develop comprehensive knowledge management systems using project documentation

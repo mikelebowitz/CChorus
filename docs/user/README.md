@@ -1,8 +1,8 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [PENDING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
-<!-- LAST_UPDATED: 2025-07-31 - Resource Library and Assignment Manager fully implemented with complete API integration -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- LAST_UPDATED: 2025-08-01 - Project Manager fully implemented with CLAUDE.md editing functionality -->
 
 ## 🚀 Quick Start
 
@@ -138,23 +138,47 @@ The Assignment Manager provides comprehensive resource deployment and scope mana
 ### Project Manager
 <!-- FEATURE_PROJECT_MANAGER -->
 <!-- UPDATE_TRIGGER: When ProjectManager.tsx is created/modified -->
-<!-- PLACEHOLDER: Project discovery, CLAUDE.md editing, project-specific resource management -->
+<!-- STATUS: COMPLETED - Full project management with CLAUDE.md editing -->
 
-*[To be implemented in feature/resource-managers branch]*
+**Purpose**: Visual interface for managing Claude Code projects with comprehensive project discovery and CLAUDE.md editing capabilities.
 
-The Project Manager discovers and manages Claude Code projects:
+**Core Features:**
+- **System-wide Project Discovery**: Automatically scans entire home directory to find all projects with CLAUDE.md files
+- **Advanced Project Search**: Search and filter projects by name, path, or description with real-time filtering
+- **Dual View Modes**: Toggle between grid and list views for optimal project browsing experience
+- **Project Health Indicators**: Visual indicators showing project status based on Git repo status, agents, commands, and documentation quality
+- **Visual CLAUDE.md Editor**: Built-in editor with save/cancel functionality and automatic backup system
+- **Template Generation**: Automatically creates CLAUDE.md templates for projects without existing files
+- **Responsive Design**: Split-pane layout adapts to screen size with project list and editor panel
+- **Real-time Content Management**: Live editing with unsaved changes indicators and validation
 
-- **Project Discovery**: Automatically find all projects with CLAUDE.md files
-- **Project Overview**: See resource counts and project metadata
-- **CLAUDE.md Editor**: Edit project configuration files directly
-- **Resource Summary**: View all resources associated with each project
+**Project Health Assessment:**
+- **Healthy**: Projects with comprehensive setup (Git repo, agents, commands, detailed documentation)
+- **Good**: Projects with solid foundation and most essential components
+- **Fair**: Basic projects with some components but room for improvement
+- **Needs Attention**: Projects requiring setup or additional resources
+
+**CLAUDE.md Editor Features:**
+- **Template Generation**: Creates structured templates for new CLAUDE.md files
+- **Live Editing**: Real-time content editing with immediate feedback
+- **Change Detection**: Visual indicators for unsaved changes
+- **Automatic Backup**: Safe file operations with backup creation before saves
+- **Content Validation**: Ensures proper file format and content structure
+- **Preview Mode**: Read-only preview with formatted display
 
 ### Resource Managers
 <!-- FEATURE_RESOURCE_MANAGERS -->
 <!-- UPDATE_TRIGGER: When specialized manager components are implemented -->
-<!-- PLACEHOLDER: Hooks, Commands, Settings management interfaces -->
+<!-- STATUS: PARTIALLY COMPLETED - Project Manager implemented, others pending -->
 
-*[To be implemented in feature/resource-managers branch]*
+**Project Manager** [COMPLETED]:
+- **Visual Project Interface**: Complete project discovery and management system
+- **CLAUDE.md Editor**: Built-in editor for project configuration files
+- **Project Health Assessment**: Visual indicators for project completeness
+- **Template Generation**: Automatic CLAUDE.md template creation
+- **System-wide Discovery**: Comprehensive project scanning across entire system
+
+*[Remaining managers to be implemented in future development phases]*
 
 Specialized interfaces for managing each resource type:
 
@@ -231,9 +255,37 @@ Specialized interfaces for managing each resource type:
 ### Managing Projects
 <!-- WORKFLOW_PROJECT_MANAGEMENT -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
-<!-- PLACEHOLDER: Project-specific resource management workflows -->
+<!-- STATUS: COMPLETED - Full project management workflow implemented -->
 
-*[To be documented when Project Manager is implemented]*
+**Access Project Manager**: Navigate to the "Projects" tab in CChorus main interface
+
+**Project Discovery and Overview:**
+1. **Automatic System Scan**: Project Manager automatically discovers all Claude Code projects across your system
+2. **Project Grid/List View**: Browse projects in your preferred view mode (grid for overview, list for details)
+3. **Project Health Assessment**: Each project shows visual health indicators based on:
+   - Git repository status (version control setup)
+   - Agent presence and count
+   - Command configurations
+   - Documentation quality (CLAUDE.md completeness)
+4. **Search and Filter**: Use search bar to find projects by name, path, or description
+
+**CLAUDE.md Management:**
+1. **Select Project**: Click any project card to load its CLAUDE.md content
+2. **Edit Mode**: Click "Edit" button to modify CLAUDE.md content
+3. **Template Generation**: For projects without CLAUDE.md, automatic template is provided
+4. **Content Editing**: Use built-in editor with syntax highlighting and formatting
+5. **Save Changes**: Click "Save" to write changes (automatic backup created)
+6. **Cancel Changes**: Click "Cancel" to revert unsaved modifications
+
+**Project Analysis:**
+- **Resource Statistics**: View counts of agents, commands, and other resources per project
+- **Project Metadata**: Access creation dates, modification times, and project paths
+- **Health Monitoring**: Track project setup completeness and identify improvement opportunities
+
+**Integration with Resource Management:**
+- **Resource Assignment**: Use Assignment Manager to deploy resources to discovered projects
+- **Cross-Project Visibility**: See which projects have which resources deployed
+- **Project-Specific Resources**: Identify and manage project-specific agent and command configurations
 
 ## 🔧 Troubleshooting
 
