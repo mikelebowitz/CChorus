@@ -1,11 +1,11 @@
 # Next Session Brief
 
-**Generated**: 2025-07-31 20:56
+**Generated**: 2025-08-01 00:21
 
 ## Quick Context
 
 **Branch**: feature/individual-resource-managers
-**Last Activity**: July 31, 2025
+**Last Activity**: August 01, 2025
 
 ## Resume Command
 
@@ -21,7 +21,7 @@ Check `docs/sessions/` for the latest session summary.
 ## Git Status Summary
 
 ```
-?? docs/sessions/SESSION_2025-07-31_20-56.md
+?? docs/sessions/SESSION_2025-08-01_00-21.md
 
 ```
 
