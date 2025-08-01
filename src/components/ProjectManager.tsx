@@ -45,15 +45,22 @@ import { ProjectPreferencesService } from '../utils/projectPreferencesService';
 interface ProjectManagerProps {
   onProjectSelect?: (project: ClaudeProject) => void;
   onProjectEdit?: (project: ClaudeProject, content: string) => void;
+  showEditor?: boolean; // Control whether to show the editor panel
+  layoutMode?: 'standalone' | 'list-only'; // Layout mode for 3-column integration
 }
 
-export function ProjectManager({ onProjectSelect, onProjectEdit }: ProjectManagerProps) {
+export function ProjectManager({ 
+  onProjectSelect, 
+  onProjectEdit, 
+  showEditor = true, 
+  layoutMode = 'standalone' 
+}: ProjectManagerProps) {
   const [projects, setProjects] = useState<ClaudeProject[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<ClaudeProject[]>([]);
   const [selectedProject, setSelectedProject] = useState<ClaudeProject | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<ProjectFilterStatus>('active');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [editorContent, setEditorContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -690,9 +697,13 @@ npm test
   }
 
   return (
-    <div className="flex h-full gap-4">
+    <div className={`flex h-full gap-4 ${layoutMode === 'list-only' ? 'flex-col' : ''}`}>
       {/* Projects List */}
-      <div className={`${selectedProject ? 'w-1/2' : 'w-full'} space-y-4`}>
+      <div className={`${
+        layoutMode === 'list-only' 
+          ? 'w-full' 
+          : (selectedProject && showEditor ? 'w-1/2' : 'w-full')
+      } space-y-4`}>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -742,12 +753,6 @@ npm test
                 Cancel Scan
               </Button>
             )}
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'grid' | 'list')}>
-              <TabsList>
-                <TabsTrigger value="grid">Grid</TabsTrigger>
-                <TabsTrigger value="list">List</TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
 
           {/* Project Filter Tabs */}
@@ -773,46 +778,45 @@ npm test
           )}
         </div>
 
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.path} project={project} />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filteredProjects.map((project) => (
-              <Card 
-                key={project.path}
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => handleProjectSelect(project)}
-              >
-                <CardContent className="py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      <FolderGit2 className="h-5 w-5 text-muted-foreground" />
-                      <div className="flex-1">
+        <div className="space-y-2">
+          {filteredProjects.map((project) => (
+            <Card 
+              key={project.path}
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => handleProjectSelect(project)}
+            >
+              <CardContent className="py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <FolderGit2 className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
                         <h4 className="font-medium">{project.name}</h4>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {project.path}
-                        </p>
+                        {project.favorited && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
+                        {project.archived && <Archive className="h-4 w-4 text-orange-500" />}
+                        {project.hidden && <EyeOff className="h-4 w-4 text-gray-500" />}
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {project.isGitRepo && <GitBranch className="h-4 w-4 text-muted-foreground" />}
-                      {project.hasAgents && <Bot className="h-4 w-4 text-muted-foreground" />}
-                      {project.hasCommands && <Terminal className="h-4 w-4 text-muted-foreground" />}
+                      {project.description && (
+                        <p className="text-sm text-muted-foreground truncate">
+                          {project.description}
+                        </p>
+                      )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                  <div className="flex items-center gap-2">
+                    {project.isGitRepo && <GitBranch className="h-4 w-4 text-muted-foreground" />}
+                    {project.hasAgents && <Bot className="h-4 w-4 text-muted-foreground" />}
+                    {project.hasCommands && <Terminal className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Editor Panel */}
-      {selectedProject && (
+      {selectedProject && showEditor && layoutMode !== 'list-only' && (
         <div className="w-1/2 border-l pl-4">
           <Card className="h-full flex flex-col">
             <CardHeader>

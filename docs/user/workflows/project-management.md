@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Project Management workflow provides comprehensive tools for discovering, understanding, and managing Claude Code projects across your system. The dedicated Projects tab offers a complete project management interface with built-in CLAUDE.md editing, project health assessment, project preferences (archive/hide/favorite), real-time streaming discovery, intelligent caching, and seamless integration with the resource management system.
+The Project Management workflow provides comprehensive tools for discovering, understanding, and managing Claude Code projects through CChorus's modern 3-column interface. The integrated project management system offers seamless project browsing, built-in CLAUDE.md editing with live preview, project preferences, real-time streaming discovery, intelligent caching, and professional resource management - all within a cohesive 3-column layout.
 
 ## Understanding Claude Code Projects
 
@@ -27,7 +27,22 @@ Each detected project includes:
 
 ## Accessing Project Management
 
-### Navigation to Projects View
+### Primary Method: 3-Column Interface (Default)
+1. **Open CChorus** - Application defaults to modern 3-column layout
+2. **Left Sidebar Navigation** - Click **Projects** (🔔 FolderOpen icon)
+3. **Middle Column** - Browse project list with descriptions and metadata
+4. **Right Column** - Edit CLAUDE.md files with integrated react-md-editor
+
+### Alternative Method: Tabbed Interface
+1. **Layout Toggle** - Use the toggle in the header to switch to tabbed interface
+2. **Projects Tab** - Click the dedicated Projects tab in the main navigation
+3. **Embedded Interface** - Projects component integrated within tab layout
+
+### Key Interface Benefits
+- **Streamlined Workflow**: Select project → Edit CLAUDE.md in one flow
+- **Context Awareness**: Project information always visible while editing
+- **Professional Layout**: Clean, organized interface following modern UX patterns
+- **Responsive Design**: Adapts to different screen sizes and preferences
 1. **Open CChorus**: Navigate to `http://localhost:5173`
 2. **Projects Tab**: Projects is now the default view - opens automatically on launch
 3. **Instant Loading**: Previously discovered projects load immediately from intelligent cache

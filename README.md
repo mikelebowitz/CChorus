@@ -16,6 +16,15 @@
 
 ## Features
 
+### **🎯 Professional 3-Column Interface**
+- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, context-aware lists, and enhanced editors
+- **Integrated CLAUDE.md Editor** - Full react-md-editor integration with live preview, edit/save workflows, and template generation
+- **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md)
+- **Context-Aware Middle Column** - Dynamic resource lists with filtering and search capabilities
+- **Enhanced Right Column Editor** - Full-width content editing with theme-aware markdown rendering
+- **Information-Rich Header** - Contextual breadcrumbs, action buttons, and metadata display
+- **Layout Flexibility** - Toggle between modern 3-column and classic tabbed interfaces
+
 ### **Agent Management**
 - **Modern Visual Editor** - Clean, accessible form interface with shadcn/ui components
 - **Professional Theme System** - Light/dark theme switching with keyboard shortcuts (Ctrl/Cmd + T)
@@ -42,7 +51,8 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 
 ### **Advanced Resource Management**
 
-- **Project Manager** - Enhanced CLAUDE.md editing with react-md-editor for live preview and rich markdown editing
+- **Integrated Project Manager** - Full CLAUDE.md editing within 3-column layout with react-md-editor, live preview, and professional editing workflows
+- **Smart Content Organization** - Clean project display showing descriptions instead of file paths for better user experience
 - **Hook Configuration Support** - Handles both legacy (with matcher field) and modern (without matcher) hook formats
 - **Enhanced API Integration** - Improved endpoint reliability with home directory inclusion for complete resource discovery
 - **Duplicate Prevention** - Advanced deduplication prevents duplicate agents from overlapping scan paths
@@ -88,6 +98,8 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    Frontend: http://localhost:5173
    Backend API: http://localhost:3001
    ```
+   
+   **Note**: CChorus now opens with the modern 3-column interface by default. Use the layout toggle button to switch between 3-column and classic tabbed interfaces.
 
 ### Alternative Start Methods
 
