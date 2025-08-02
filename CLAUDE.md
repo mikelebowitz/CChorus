@@ -43,10 +43,12 @@ npm start
 - **Theme**: CSS custom properties with light/dark modes
 
 ### Key Components
-- **ThreeColumnLayout**: NEW - Professional 3-column interface with navigation sidebar, context lists, and content editor
-- **ClaudeMdEditor**: NEW - Integrated CLAUDE.md editor with react-md-editor, save/cancel workflows, and template generation
-- **LayoutToggle**: NEW - Toggle between 3-column and tabbed interfaces
-- **ProjectManager**: Enhanced with layoutMode prop for 3-column integration
+- **ThreeColumnLayout**: Professional 3-column interface with real resource data integration, navigation sidebar, and enhanced content editor
+- **ClaudeMdEditor**: Integrated CLAUDE.md editor with react-md-editor, save/cancel workflows, and template generation
+- **LayoutToggle**: Toggle between 3-column and tabbed interfaces
+- **ResourceAssignmentPanel**: NEW - Cross-project resource assignment with visual tracking and copy/activate operations
+- **ResourceDataService**: NEW - Unified service for loading agents, commands, hooks, and CLAUDE.md files across scopes
+- **ProjectManager**: Enhanced with caching improvements and layoutMode prop for 3-column integration
 - **ResourceLibrary**: System-wide resource discovery and browsing
 - **AssignmentManager**: Resource deployment between user/project scopes
 - **Agent Management**: Full CRUD for Claude Code agents
@@ -113,18 +115,22 @@ const { theme, setTheme } = useTheme()
 ## Current Development
 
 **Branch**: `feature/3-column-layout`
-**Status**: 3-Column UI Architecture COMPLETED ✅ (August 1, 2025)
+**Status**: 3-Column UI with Resource Integration COMPLETED ✅ (August 2, 2025)
 **Vision**: See [Project Vision.md](./Project%20Vision.md) for complete roadmap
 
 ### Completed Features
-- ✅ Professional 3-column layout with sidebar navigation
+- ✅ Professional 3-column layout with real resource data integration
 - ✅ CLAUDE.md editor integration with react-md-editor
+- ✅ ResourceAssignmentPanel for cross-project resource management
+- ✅ ResourceDataService for unified resource discovery across user/system/project scopes
 - ✅ Default layout experience (useNewLayout = true)
+- ✅ Enhanced project caching and streaming improvements
 - ✅ Clean project display showing descriptions vs file paths
-- ✅ Component architecture: ThreeColumnLayout, ClaudeMdEditor, LayoutToggle
+- ✅ Component architecture: ThreeColumnLayout, ClaudeMdEditor, LayoutToggle, ResourceAssignmentPanel
 
 ### Next Priority
-- Individual resource managers (HooksManager, CommandsManager, SettingsManager) within 3-column layout
+- Enhanced resource editing capabilities for hooks, commands, and settings within 3-column layout
+- Improved visual editing interfaces for individual resource types
 
 ### Testing Strategy
 - Manual testing with comprehensive user workflows

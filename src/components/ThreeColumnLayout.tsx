@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 // import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable';
@@ -14,12 +14,16 @@ import {
   Home,
   Search,
   Settings,
-  Menu
+  Menu,
+  RefreshCw
 } from 'lucide-react';
 import { Input } from './ui/input';
 import { ProjectManager } from './ProjectManager';
 import { ClaudeMdEditor } from './ClaudeMdEditor';
+import { ResourceAssignmentPanel } from './ResourceAssignmentPanel';
 import { ClaudeProject } from '../types';
+import { ResourceDataService, ResourceItem, AgentResource } from '../utils/resourceDataService';
+import MDEditor from '@uiw/react-md-editor';
 
 // Navigation item types
 type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files';
@@ -41,27 +45,194 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<ClaudeProject | null>(null);
+  const [selectedResource, setSelectedResource] = useState<ResourceItem | null>(null);
+  
+  // Resource data state
+  const [resources, setResources] = useState<ResourceItem[]>([]);
+  const [allResources, setAllResources] = useState<ResourceItem[]>([]);
+  const [projects, setProjects] = useState<ClaudeProject[]>([]);
+  const [resourceAssignments, setResourceAssignments] = useState<Map<string, string[]>>(new Map());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resourceCounts, setResourceCounts] = useState<Record<string, number>>({
+    agents: 0,
+    commands: 0,
+    hooks: 0,
+    'claude-files': 0
+  });
 
-  // Navigation structure
+  // Load resources when nav item changes
+  useEffect(() => {
+    loadResourcesForNavItem(selectedNavItem);
+  }, [selectedNavItem]);
+
+  // Load all resource counts on component mount for better UX
+  useEffect(() => {
+    loadAllResourceCounts();
+  }, []);
+
+  const loadAllResourceCounts = async () => {
+    try {
+      console.log('Loading all resource counts...');
+      const allResourcesData = await ResourceDataService.fetchAllResources();
+      
+      // Combine all resources
+      const combinedResources = [
+        ...allResourcesData.agents,
+        ...allResourcesData.commands,
+        ...allResourcesData.hooks,
+        ...allResourcesData.claudeFiles
+      ];
+      setAllResources(combinedResources);
+      
+      // Build assignment map
+      const assignments = new Map<string, string[]>();
+      combinedResources.forEach(resource => {
+        if (resource.projectPath) {
+          const existing = assignments.get(resource.name) || [];
+          if (!existing.includes(resource.projectPath)) {
+            assignments.set(resource.name, [...existing, resource.projectPath]);
+          }
+        }
+      });
+      setResourceAssignments(assignments);
+      
+      // Load projects for assignment panel
+      try {
+        const projectsResponse = await fetch('http://localhost:3001/api/projects/system');
+        if (projectsResponse.ok) {
+          const projectsData = await projectsResponse.json();
+          setProjects(projectsData);
+        }
+      } catch (err) {
+        console.error('Error loading projects:', err);
+      }
+      
+      setResourceCounts({
+        agents: allResourcesData.agents.length,
+        commands: allResourcesData.commands.length,
+        hooks: allResourcesData.hooks.length,
+        'claude-files': allResourcesData.claudeFiles.length
+      });
+      
+      console.log('Resource counts loaded:', {
+        agents: allResourcesData.agents.length,
+        commands: allResourcesData.commands.length,
+        hooks: allResourcesData.hooks.length,
+        claudeFiles: allResourcesData.claudeFiles.length
+      });
+    } catch (error) {
+      console.error('Error loading resource counts:', error);
+    }
+  };
+
+  const loadResourcesForNavItem = async (navItem: NavItemType) => {
+    if (navItem === 'projects') {
+      // Projects are handled by ProjectManager
+      return;
+    }
+
+    if (navItem === 'users') {
+      // Users section loads only user-level resources
+      setLoading(true);
+      setError(null);
+      try {
+        const { userLevel } = await ResourceDataService.fetchUserResources();
+        setResources(userLevel);
+      } catch (error) {
+        console.error('Error loading user resources:', error);
+        setError('Failed to load user resources');
+        setResources([]);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (navItem === 'claude-files') {
+      // Load CLAUDE.md files
+      setLoading(true);
+      setError(null);
+      try {
+        const claudeFiles = await ResourceDataService.fetchResourcesByType('claude-files');
+        setResources(claudeFiles);
+        setResourceCounts(prev => ({
+          ...prev,
+          ['claude-files']: claudeFiles.length
+        }));
+      } catch (error) {
+        console.error('Error loading CLAUDE.md files:', error);
+        setError('Failed to load CLAUDE.md files');
+        setResources([]);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let resourceData: ResourceItem[] = [];
+      
+      switch (navItem) {
+        case 'agents':
+          resourceData = await ResourceDataService.fetchResourcesByType('agents');
+          break;
+        case 'commands':
+          resourceData = await ResourceDataService.fetchResourcesByType('commands');
+          break;
+        case 'hooks':
+          resourceData = await ResourceDataService.fetchResourcesByType('hooks');
+          break;
+      }
+      
+      setResources(resourceData);
+      
+      // Update counts
+      setResourceCounts(prev => ({
+        ...prev,
+        [navItem]: resourceData.length
+      }));
+      
+    } catch (error) {
+      console.error(`Error loading ${navItem}:`, error);
+      setError(`Failed to load ${navItem}`);
+      setResources([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Navigation structure with dynamic counts
   const navItems: NavItem[] = [
     { id: 'users', label: 'Users', icon: User, count: 1 },
     { id: 'projects', label: 'Projects', icon: FolderOpen, count: 5, expanded: true },
-    { id: 'agents', label: 'Agents', icon: Bot, count: 4 },
-    { id: 'commands', label: 'Commands', icon: Terminal, count: 2 },
-    { id: 'hooks', label: 'Hooks', icon: Webhook, count: 4 },
-    { id: 'claude-files', label: 'CLAUDE.md', icon: FileText, count: 3 },
+    { id: 'agents', label: 'Agents', icon: Bot, count: resourceCounts.agents },
+    { id: 'commands', label: 'Commands', icon: Terminal, count: resourceCounts.commands },
+    { id: 'hooks', label: 'Hooks', icon: Webhook, count: resourceCounts.hooks },
+    { id: 'claude-files', label: 'CLAUDE.md', icon: FileText, count: resourceCounts['claude-files'] },
   ];
 
   const handleNavItemClick = (itemId: NavItemType) => {
     setSelectedNavItem(itemId);
-    // Clear selected project when switching nav items
+    // Clear selections when switching nav items
     if (itemId !== 'projects') {
       setSelectedProject(null);
     }
+    setSelectedResource(null);
   };
 
   const handleProjectSelect = (project: ClaudeProject) => {
     setSelectedProject(project);
+  };
+
+  const handleAssignmentChange = async (resourceName: string) => {
+    // Reload all resources to update assignment map
+    await loadAllResourceCounts();
+    // Reload current view
+    await loadResourcesForNavItem(selectedNavItem);
   };
 
   const renderSidebar = () => (
@@ -141,7 +312,7 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
       return (
         <div className="h-full flex flex-col bg-background border-r">
           {/* For projects, we'll embed the ProjectManager here but customized for middle column */}
-          <div className="h-full p-4">
+          <div className="h-full">
             <ProjectManager 
               onProjectSelect={handleProjectSelect}
               onProjectEdit={(project, content) => {
@@ -151,6 +322,72 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
               showEditor={false}
               layoutMode="list-only"
             />
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedNavItem === 'users') {
+      return (
+        <div className="h-full flex flex-col bg-background border-r">
+          {/* Users Header */}
+          <div className="p-4 border-b">
+            <h3 className="font-medium text-sm">User-Level Resources</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Resources available across all projects
+            </p>
+          </div>
+
+          {/* Users Content */}
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-32 text-destructive">
+                <p className="text-sm">{error}</p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {resources.length > 0 ? (
+                  resources.map((resource, i) => (
+                    <div 
+                      key={resource.id} 
+                      className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 ${
+                        i % 2 === 0 ? 'bg-background' : 'bg-muted/30'
+                      } ${selectedResource?.id === resource.id ? 'bg-accent' : ''}`}
+                      onClick={() => setSelectedResource(resource)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm">{resource.name}</h4>
+                            {resource.lastModified && (
+                              <p className="text-xs text-muted-foreground">
+                                Last updated {ResourceDataService.formatDate(resource.lastModified)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-blue-600 dark:text-blue-400 capitalize">
+                            {resource.type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-32">
+                    <p className="text-sm text-muted-foreground">
+                      No user-level resources found
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       );
@@ -174,44 +411,65 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
 
         {/* Content List */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
-            {/* Placeholder content - this will be dynamic based on selectedNavItem */}
-            {Array.from({ length: 8 }, (_, i) => (
-              <Card key={i} className="mb-2 cursor-pointer hover:bg-muted/50 transition-colors">
-                <CardContent className="p-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className={`w-2 h-2 rounded-full bg-primary`} />
-                        <h4 className="font-medium text-sm truncate">
-                          {selectedNavItem === 'agents' ? `Agent ${i + 1}` :
-                           `${selectedNavItem} Item ${i + 1}`}
-                        </h4>
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-32 text-destructive">
+              <p className="text-sm">{error}</p>
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {resources.length > 0 ? (
+                resources.map((resource, i) => (
+                  <div 
+                    key={resource.id} 
+                    className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 ${
+                      i % 2 === 0 ? 'bg-background' : 'bg-muted/30'
+                    } ${selectedResource?.id === resource.id ? 'bg-accent' : ''}`}
+                    onClick={() => setSelectedResource(resource)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className={`w-2 h-2 rounded-full ${
+                          resource.scope === 'user' ? 'bg-blue-500' : 
+                          resource.scope === 'system' ? 'bg-green-500' : 'bg-orange-500'
+                        }`} />
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{resource.name}</h4>
+                          {resource.lastModified && (
+                            <p className="text-xs text-muted-foreground">
+                              Last updated {ResourceDataService.formatDate(resource.lastModified)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        Description for {selectedNavItem} item {i + 1}. This shows contextual information about the selected resource type.
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          Available
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Modified 2h ago
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground capitalize">
+                          {resource.scope}
                         </span>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center h-32">
+                  <p className="text-sm text-muted-foreground">
+                    No {selectedNavItem} found
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
   const renderContentColumn = () => {
-    if (selectedNavItem === 'projects') {
+    // Projects view with ClaudeMdEditor
+    if (selectedNavItem === 'projects' && selectedProject) {
       return (
         <ClaudeMdEditor 
           project={selectedProject}
@@ -222,18 +480,106 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
       );
     }
 
+    // Resource views with assignment panel and content viewer
+    if (selectedResource && selectedNavItem !== 'projects') {
+      const assignments = resourceAssignments.get(selectedResource.name) || [];
+      
+      return (
+        <div className="h-full flex flex-col bg-background">
+          {/* Assignment Panel - shown for agents, commands, hooks */}
+          {['agent', 'command', 'hook'].includes(selectedResource.type) && (
+            <ResourceAssignmentPanel 
+              resource={selectedResource}
+              assignments={assignments}
+              allProjects={projects}
+              onAssignmentChange={handleAssignmentChange}
+            />
+          )}
+          
+          {/* Resource Content */}
+          <div className="flex-1 overflow-auto p-4">
+            {selectedResource.type === 'agent' && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
+                  {(selectedResource as AgentResource).tools && (
+                    <div className="mb-4">
+                      <span className="text-sm font-medium">Tools: </span>
+                      <span className="text-sm text-muted-foreground">
+                        {(selectedResource as AgentResource).tools?.join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <MDEditor
+                  value={(selectedResource as AgentResource).content || ''}
+                  preview="preview"
+                  hideToolbar
+                  height={400}
+                  data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+                />
+              </div>
+            )}
+            
+            {selectedResource.type === 'command' && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
+                  <div className="rounded-lg bg-muted p-4">
+                    <p className="text-sm font-mono">{selectedResource.description}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {selectedResource.type === 'hook' && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
+                  <div className="rounded-lg bg-muted p-4">
+                    <pre className="text-sm overflow-x-auto">
+                      {JSON.stringify((selectedResource as any).configuration, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {selectedResource.type === 'claude-file' && (
+              <div className="h-full">
+                <ClaudeMdEditor 
+                  project={{ 
+                    path: selectedResource.filePath?.replace('/CLAUDE.md', '') || '', 
+                    name: selectedResource.name.replace('/CLAUDE.md', '') 
+                  } as ClaudeProject}
+                  onContentChange={(project, content) => {
+                    console.log('CLAUDE.md updated:', selectedResource.name);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Default placeholder
     return (
       <div className="h-full flex flex-col bg-background">
-        {/* Default placeholder */}
         <div className="flex-1 p-6">
           <div className="h-full border-2 border-dashed border-muted rounded-lg flex items-center justify-center">
             <div className="text-center">
               <FileText size={48} className="mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                Select a resource to edit
+                {selectedNavItem === 'projects' ? 'Select a project' : 'Select a resource'}
               </h3>
               <p className="text-sm text-muted-foreground max-w-md">
-                Choose an item from the list to view and edit its content. The editor will adapt based on the type of resource selected.
+                {selectedNavItem === 'projects' 
+                  ? 'Choose a project from the list to edit its CLAUDE.md file.'
+                  : 'Choose an item from the list to view and edit its content. The editor will adapt based on the type of resource selected.'}
               </p>
             </div>
           </div>

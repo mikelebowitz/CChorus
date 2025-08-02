@@ -17,13 +17,14 @@
 ## Features
 
 ### **🎯 Professional 3-Column Interface**
-- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, context-aware lists, and enhanced editors
+- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, real resource data integration, and enhanced editors
 - **Integrated CLAUDE.md Editor** - Full react-md-editor integration with live preview, edit/save workflows, and template generation
-- **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md)
-- **Context-Aware Middle Column** - Dynamic resource lists with filtering and search capabilities
-- **Enhanced Right Column Editor** - Full-width content editing with theme-aware markdown rendering
+- **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md) and dynamic counts
+- **Context-Aware Middle Column** - Dynamic resource lists with real data loading, filtering, and search capabilities
+- **Enhanced Right Column Editor** - Full-width content editing with resource assignment panels and theme-aware markdown rendering
 - **Information-Rich Header** - Contextual breadcrumbs, action buttons, and metadata display
 - **Layout Flexibility** - Toggle between modern 3-column and classic tabbed interfaces
+- **Resource Assignment System** - Cross-project resource deployment with visual assignment tracking
 
 ### **Agent Management**
 - **Modern Visual Editor** - Clean, accessible form interface with shadcn/ui components
@@ -51,11 +52,13 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 
 ### **Advanced Resource Management**
 
-- **Integrated Project Manager** - Full CLAUDE.md editing within 3-column layout with react-md-editor, live preview, and professional editing workflows
-- **Smart Content Organization** - Clean project display showing descriptions instead of file paths for better user experience
-- **Hook Configuration Support** - Handles both legacy (with matcher field) and modern (without matcher) hook formats
-- **Enhanced API Integration** - Improved endpoint reliability with home directory inclusion for complete resource discovery
-- **Duplicate Prevention** - Advanced deduplication prevents duplicate agents from overlapping scan paths
+- **Integrated Project Manager** - Full CLAUDE.md editing within 3-column layout with react-md-editor, live preview, and enhanced caching system
+- **Real Resource Data Integration** - ResourceDataService provides unified access to agents, commands, hooks, and CLAUDE.md files across user and project scopes
+- **Cross-Project Assignment System** - ResourceAssignmentPanel enables copy/activate/deactivate resources between projects with visual tracking
+- **Smart Content Organization** - Clean project display showing descriptions instead of file paths with improved list performance
+- **Hook Configuration Support** - Handles both legacy (with matcher field) and modern (without matcher) hook formats with real-time discovery
+- **Enhanced API Integration** - Concurrent API calls for optimal performance with complete resource discovery across system
+- **Duplicate Prevention** - Advanced deduplication with streaming cache management for consistent project state
 - **MCP Server Integration** - Automatic detection and management of MCP (Model Context Protocol) tools
 - **File Import System** - Import existing Markdown files as agents with YAML frontmatter parsing
 
@@ -174,21 +177,27 @@ cchorus/
 │   │   │   ├── input.tsx   # Form input components
 │   │   │   ├── toast.tsx   # Notification system
 │   │   │   └── ...         # Additional UI primitives
-│   │   ├── theme-provider.tsx    # Theme context and management
-│   │   ├── theme-toggle.tsx      # Theme switching component
-│   │   ├── ResourceLibrary.tsx   # ✅ Unified resource browser
-│   │   ├── AssignmentManager.tsx # ✅ Resource deployment system
-│   │   ├── ProjectManager.tsx    # ✅ Project discovery and CLAUDE.md editing
-│   │   ├── AgentCard.tsx         # Individual agent display
-│   │   ├── AgentEditor.tsx       # Agent creation/editing form
-│   │   └── FileBrowser.tsx       # File system browser
+│   │   ├── theme-provider.tsx      # Theme context and management
+│   │   ├── theme-toggle.tsx        # Theme switching component
+│   │   ├── ThreeColumnLayout.tsx   # ✅ Professional 3-column interface with real data
+│   │   ├── ClaudeMdEditor.tsx      # ✅ Integrated CLAUDE.md editor with react-md-editor
+│   │   ├── LayoutToggle.tsx        # ✅ Interface switching component
+│   │   ├── ResourceAssignmentPanel.tsx # ✅ Cross-project resource assignment
+│   │   ├── ResourceLibrary.tsx     # ✅ Unified resource browser
+│   │   ├── AssignmentManager.tsx   # ✅ Resource deployment system
+│   │   ├── ProjectManager.tsx      # ✅ Enhanced project discovery with caching
+│   │   ├── AgentCard.tsx           # Individual agent display
+│   │   ├── AgentEditor.tsx         # Agent creation/editing form
+│   │   └── FileBrowser.tsx         # File system browser
 │   ├── lib/
 │   │   └── utils.ts        # Utility functions (clsx, tailwind-merge)
 │   ├── hooks/
 │   │   └── use-toast.ts    # Toast notification hook
 │   ├── utils/              # Business logic utilities
-│   │   ├── agentUtils.ts   # Agent parsing and validation
-│   │   └── apiFileSystem.ts # API communication
+│   │   ├── agentUtils.ts         # Agent parsing and validation
+│   │   ├── apiFileSystem.ts      # API communication
+│   │   ├── resourceDataService.ts # ✅ Unified resource discovery service
+│   │   └── resourceLibraryService.ts # Resource assignment operations
 │   ├── types.ts            # TypeScript type definitions
 │   ├── App.tsx             # Main application with theme provider
 │   ├── main.tsx            # Application entry point
@@ -262,8 +271,10 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 
 ### Current Status (August 2025)
 - ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners
-- ✅ **Core Frontend** (70% complete) - Resource Library, Assignment Manager, Project Manager
-- 🚧 **Individual Resource Managers** (In Progress) - Hooks, Commands, Settings managers
+- ✅ **3-Column UI Architecture** (95% complete) - Professional interface with real resource data integration
+- ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel
+- ✅ **Core Resource Management** (90% complete) - Resource Library, Assignment Manager, Project Manager with enhanced caching
+- 🚧 **Individual Resource Editing** (80% complete) - Enhanced editing capabilities for each resource type
 
 ### What's Next
 - Complete remaining resource manager components

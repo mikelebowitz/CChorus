@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ThreeColumnLayout` component provides CChorus's modern professional interface, featuring a hierarchical navigation sidebar, context-aware middle column, and enhanced content editor. This component represents the primary user interface for CChorus as of August 2025.
+The `ThreeColumnLayout` component provides CChorus's modern professional interface with real resource data integration, featuring a hierarchical navigation sidebar, context-aware middle column with live resource data, and enhanced content editor with resource assignment capabilities. This component represents the primary user interface for CChorus as of August 2025.
 
 ## Component Architecture
 
@@ -40,18 +40,57 @@ interface ThreeColumnLayoutProps {
 
 ## Key Features
 
-### Navigation System
+### Real Resource Data Integration
+
+The component integrates with `ResourceDataService` to provide live resource data:
+
+```tsx
+// Dynamic resource loading based on navigation
+const loadResourcesForNavItem = async (navItem: NavItemType) => {
+  switch (navItem) {
+    case 'agents':
+      resourceData = await ResourceDataService.fetchResourcesByType('agents');
+      break;
+    case 'commands':
+      resourceData = await ResourceDataService.fetchResourcesByType('commands');
+      break;
+    case 'hooks':
+      resourceData = await ResourceDataService.fetchResourcesByType('hooks');
+      break;
+    case 'claude-files':
+      resourceData = await ResourceDataService.fetchResourcesByType('claude-files');
+      break;
+  }
+  setResources(resourceData);
+};
+```
+
+### Navigation System with Dynamic Counts
 ```tsx
 type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files';
 
+// Navigation items with real resource counts
 const navItems: NavItem[] = [
   { id: 'users', label: 'Users', icon: User, count: 1 },
   { id: 'projects', label: 'Projects', icon: FolderOpen, count: 5, expanded: true },
-  { id: 'agents', label: 'Agents', icon: Bot, count: 4 },
-  { id: 'commands', label: 'Commands', icon: Terminal, count: 2 },
-  { id: 'hooks', label: 'Hooks', icon: Webhook, count: 4 },
-  { id: 'claude-files', label: 'CLAUDE.md', icon: FileText, count: 3 },
+  { id: 'agents', label: 'Agents', icon: Bot, count: resourceCounts.agents },
+  { id: 'commands', label: 'Commands', icon: Terminal, count: resourceCounts.commands },
+  { id: 'hooks', label: 'Hooks', icon: Webhook, count: resourceCounts.hooks },
+  { id: 'claude-files', label: 'CLAUDE.md', icon: FileText, count: resourceCounts['claude-files'] },
 ];
+```
+
+### Resource Assignment System
+
+Integrated resource assignment capabilities:
+
+```tsx
+const handleAssignmentChange = async (resourceName: string) => {
+  // Reload all resources to update assignment map
+  await loadAllResourceCounts();
+  // Reload current view
+  await loadResourcesForNavItem(selectedNavItem);
+};
 ```
 
 ### State Management
@@ -59,8 +98,29 @@ const navItems: NavItem[] = [
 - `sidebarCollapsed`: Sidebar visibility state
 - `searchQuery`: Global search input
 - `selectedProject`: Current project for CLAUDE.md editing
+- `selectedResource`: Current resource for content editing
+- `resources`: Current resource list based on selected navigation item
+- `allResources`: Complete resource collection for assignment operations
+- `resourceAssignments`: Map of resource assignments across projects
+- `resourceCounts`: Dynamic counts for each navigation category
 
 ### Integration Points
+
+#### ResourceDataService Integration
+```tsx
+import { ResourceDataService, ResourceItem } from '../utils/resourceDataService';
+
+// Load all resource counts on component mount
+const loadAllResourceCounts = async () => {
+  const allResourcesData = await ResourceDataService.fetchAllResources();
+  setResourceCounts({
+    agents: allResourcesData.agents.length,
+    commands: allResourcesData.commands.length,
+    hooks: allResourcesData.hooks.length,
+    'claude-files': allResourcesData.claudeFiles.length
+  });
+};
+```
 
 #### ProjectManager Integration
 ```tsx
@@ -72,6 +132,18 @@ const navItems: NavItem[] = [
   showEditor={false}
   layoutMode="list-only"
 />
+```
+
+#### ResourceAssignmentPanel Integration
+```tsx
+{['agent', 'command', 'hook'].includes(selectedResource.type) && (
+  <ResourceAssignmentPanel 
+    resource={selectedResource}
+    assignments={assignments}
+    allProjects={projects}
+    onAssignmentChange={handleAssignmentChange}
+  />
+)}
 ```
 
 #### ClaudeMdEditor Integration
@@ -121,9 +193,55 @@ function App() {
 }
 ```
 
+## Resource Content Rendering
+
+The component provides specialized content rendering for each resource type:
+
+### Agent Resources
+```tsx
+{selectedResource.type === 'agent' && (
+  <div className="space-y-4">
+    <div>
+      <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
+      <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
+      {(selectedResource as AgentResource).tools && (
+        <div className="mb-4">
+          <span className="text-sm font-medium">Tools: </span>
+          <span className="text-sm text-muted-foreground">
+            {(selectedResource as AgentResource).tools?.join(', ')}
+          </span>
+        </div>
+      )}
+    </div>
+    <MDEditor
+      value={(selectedResource as AgentResource).content || ''}
+      preview="preview"
+      hideToolbar
+      height={400}
+    />
+  </div>
+)}
+```
+
+### Command Resources
+```tsx
+{selectedResource.type === 'command' && (
+  <div className="space-y-4">
+    <div>
+      <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
+      <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
+      <div className="rounded-lg bg-muted p-4">
+        <p className="text-sm font-mono">{selectedResource.description}</p>
+      </div>
+    </div>
+  </div>
+)}
+```
+
 ## Future Enhancements
 
 ### Planned Features
+- **Enhanced Resource Editing**: Visual editors for hooks and commands
 - **Resizable Columns**: User-adjustable column widths with persistence
 - **Drag & Drop**: Resource movement between columns
 - **Quick Switcher**: Cmd+K navigation overlay
@@ -133,12 +251,15 @@ function App() {
 - **Custom Navigation Items**: Plugin system for additional resource types
 - **Content Renderers**: Custom editors for different resource types
 - **Context Actions**: Extensible action system in header
+- **Assignment Templates**: Predefined assignment patterns for common workflows
 
 ## Related Components
 
 - [`ClaudeMdEditor`](./ClaudeMdEditor.md) - Integrated CLAUDE.md editor
 - [`LayoutToggle`](./LayoutToggle.md) - Interface switching component
 - [`ProjectManager`](./ProjectManager.md) - Enhanced project management
+- [`ResourceAssignmentPanel`](./ResourceAssignmentPanel.md) - Cross-project resource assignment
+- [`ResourceDataService`](../services/ResourceDataService.md) - Unified resource discovery service
 
 ## Testing Strategy
 

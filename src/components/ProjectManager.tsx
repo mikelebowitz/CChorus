@@ -73,9 +73,17 @@ export function ProjectManager({
   const [refreshing, setRefreshing] = useState(false);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const streamingProjectsRef = useRef<ClaudeProject[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Clear cache once on component mount to fix inconsistent state
+    const hasCleared = sessionStorage.getItem('cchorus_cache_cleared');
+    if (!hasCleared) {
+      console.log('Clearing inconsistent cache on first load...');
+      CacheService.remove('projects');
+      sessionStorage.setItem('cchorus_cache_cleared', 'true');
+    }
     loadProjects();
   }, []);
 
@@ -96,6 +104,13 @@ export function ProjectManager({
       }
     };
   }, []);
+
+  const clearCacheAndReload = async () => {
+    console.log('Clearing project cache and forcing fresh reload...');
+    CacheService.remove('projects');
+    setLoadedFromCache(false);
+    await loadProjects(true);
+  };
 
   const loadProjects = async (forceRefresh: boolean = false) => {
     const CACHE_KEY = 'projects';
@@ -137,6 +152,9 @@ export function ProjectManager({
       setFilteredProjects([]);
     }
     
+    // Reset streaming accumulator for fresh load
+    streamingProjectsRef.current = [];
+    
     loadProjectsStreaming(forceRefresh);
   };
 
@@ -163,6 +181,8 @@ export function ProjectManager({
             case 'scan_started':
               console.log('Scanning started from roots:', data.roots);
               setScanningMessage('Scanning for projects...');
+              // Reset streaming accumulator
+              streamingProjectsRef.current = [];
               toast({
                 title: "Scanning",
                 description: "Discovering projects across your system...",
@@ -171,15 +191,20 @@ export function ProjectManager({
               break;
               
             case 'project_found':
-              // Add new project to the list as it's found, including user preferences
+              // Add new project to both state and streaming accumulator
+              const projectWithPreferences = {
+                ...data.project,
+                ...ProjectPreferencesService.getProjectPreferences(data.project.path)
+              };
+              
+              // Update state for real-time display
               setProjects(prev => {
-                const projectWithPreferences = {
-                  ...data.project,
-                  ...ProjectPreferencesService.getProjectPreferences(data.project.path)
-                };
                 const updated = [...prev, projectWithPreferences];
                 return updated;
               });
+              
+              // Also accumulate in ref for reliable caching
+              streamingProjectsRef.current.push(projectWithPreferences);
               setScanningMessage(`Found ${data.count} project${data.count !== 1 ? 's' : ''}...`);
               break;
               
@@ -193,10 +218,11 @@ export function ProjectManager({
               setRefreshing(false);
               setScanningMessage('');
               
-              // Cache the results
-              const currentProjects = projects.length > 0 ? projects : [];
-              if (currentProjects.length > 0) {
-                CacheService.set('projects', currentProjects);
+              // Cache the complete results using the streaming accumulator
+              const completeProjects = streamingProjectsRef.current;
+              console.log(`Caching ${completeProjects.length} projects (server reported ${data.total})`);
+              if (completeProjects.length > 0) {
+                CacheService.set('projects', completeProjects);
               }
               
               // Show appropriate toast message
@@ -767,50 +793,46 @@ npm test
           </Tabs>
         </div>
 
-        <div className="text-sm text-muted-foreground">
-          {loading && scanningMessage ? (
+        {loading && scanningMessage && (
+          <div className="text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4 animate-spin" />
               {scanningMessage}
             </span>
-          ) : (
-            `Found ${filteredProjects.length} project${filteredProjects.length !== 1 ? 's' : ''}`
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="space-y-2">
-          {filteredProjects.map((project) => (
-            <Card 
+        <div className="space-y-0">
+          {filteredProjects.map((project, index) => (
+            <div 
               key={project.path}
-              className="cursor-pointer hover:shadow-md transition-shadow"
+              className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 ${
+                index % 2 === 0 ? 'bg-background' : 'bg-muted/30'
+              }`}
               onClick={() => handleProjectSelect(project)}
             >
-              <CardContent className="py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <FolderGit2 className="h-5 w-5 text-muted-foreground" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{project.name}</h4>
-                        {project.favorited && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
-                        {project.archived && <Archive className="h-4 w-4 text-orange-500" />}
-                        {project.hidden && <EyeOff className="h-4 w-4 text-gray-500" />}
-                      </div>
-                      {project.description && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          {project.description}
-                        </p>
-                      )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  <FolderGit2 className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">{project.name}</h4>
+                      {project.favorited && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
+                      {project.archived && <Archive className="h-4 w-4 text-orange-500" />}
+                      {project.hidden && <EyeOff className="h-4 w-4 text-gray-500" />}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {project.isGitRepo && <GitBranch className="h-4 w-4 text-muted-foreground" />}
-                    {project.hasAgents && <Bot className="h-4 w-4 text-muted-foreground" />}
-                    {project.hasCommands && <Terminal className="h-4 w-4 text-muted-foreground" />}
+                    <p className="text-xs text-muted-foreground">
+                      Last updated {formatDate(project.lastModified)}
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-center gap-2">
+                  {project.isGitRepo && <GitBranch className="h-4 w-4 text-muted-foreground" />}
+                  {project.hasAgents && <Bot className="h-4 w-4 text-muted-foreground" />}
+                  {project.hasCommands && <Terminal className="h-4 w-4 text-muted-foreground" />}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
