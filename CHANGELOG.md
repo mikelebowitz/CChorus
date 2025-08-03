@@ -5,7 +5,63 @@ All notable changes to CChorus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2025-08-02
+## [2.0.0] - 2025-08-03
+
+### 🚀 Major Development Infrastructure Overhaul - 2025-08-03
+
+**Breaking Changes: Development Workflow Migration**
+
+#### **VS Code-First Development Workflow**
+- **🔧 BREAKING: Replaced tmux with VS Code visible terminals** - Complete migration from tmux-based development
+- **⚡ Auto-start development servers** - Frontend and backend auto-start when opening project in VS Code
+- **📋 VS Code Tasks integration** - Servers run in grouped terminal tabs via `.vscode/tasks.json`
+- **🎯 Manual control via Command Palette** - Use `Cmd+Shift+P` → "Tasks: Run Task" for server management
+- **📝 Updated CLAUDE.md workflow** - Complete documentation update for new VS Code-based approach
+
+#### **Linear-Style 3-Column Layout Implementation**
+- **🎨 NEW: PropertiesPanel component** - Persistent right column for metadata and actions display
+- **📐 Enhanced ThreeColumnLayout architecture** - Proper column width management and navigation state
+- **🔄 Intelligent navigation patterns** - Context-aware middle column with breadcrumb support
+- **📊 Real-time resource counts** - Dynamic sidebar with live resource statistics
+- **🎯 Enhanced project integration** - Seamless ProjectManager embedding in middle column
+
+#### **GitHub Integration & Automation Enhancements**
+- **⏰ GitHub sync timeout protection** - 30-second timeout in SessionStart hooks prevents hanging
+- **🔄 Auto-start GitHub sync** - Automatic synchronization with duplicate detection
+- **📋 BACKLOG.md cleanup** - Removed invalid branch metadata and consolidated priority sections
+- **🌿 Auto-branch creator improvements** - Enhanced BACKLOG.md monitoring with intelligent branch detection
+
+#### **UI Component System Modernization**
+- **✅ Complete shadcn/ui compliance** - All components now follow shadcn/ui + Radix UI patterns
+- **🔧 Fixed Badge component implementation** - Proper minimal version with correct variant support
+- **🎨 Enhanced FileBrowser, FileSearch, ResourceLibrary** - Full shadcn/ui integration
+- **📱 Responsive design improvements** - Better mobile and desktop experience
+- **♿ Accessibility enhancements** - Proper ARIA labels and keyboard navigation
+
+### Technical Implementation Details
+
+#### **New Components Created**
+- **`PropertiesPanel.tsx`** - Context-aware metadata and actions panel for right column
+- **`.vscode/tasks.json`** - Auto-starting development server configuration
+- **Enhanced `ThreeColumnLayout.tsx`** - Complete rewrite with intelligent column management
+
+#### **Development Workflow Changes**
+- **Pre-compact hook updates** - Now reflects VS Code workflow in session documentation
+- **GitHub sync enhancements** - Timeout protection and coreutils dependency handling
+- **Branch strategy improvements** - Intelligent grouping with fix/ vs feature/ detection
+- **Auto-documentation triggers** - Real-time monitoring with immediate documentation updates
+
+#### **Architecture Improvements**
+- **Server management migration** - From tmux to VS Code visible terminal tabs
+- **Resource data service enhancements** - Better caching and loading performance
+- **Navigation state management** - Persistent right panel with dynamic middle column
+- **Component integration** - Seamless embedding of existing managers in new layout
+
+### Backward Compatibility
+- **BREAKING**: Development server commands changed from tmux to VS Code tasks
+- **Manual fallbacks available** - `npm run dev` and `npm run dev:server` still work
+- **All existing functionality preserved** - No feature removal, only workflow enhancement
+- **Documentation updated** - CLAUDE.md reflects new mandatory workflows
 
 ### Development Session - 2025-08-03 09:08
 - **Resource Library**: Enhanced functionality and user experience

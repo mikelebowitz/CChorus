@@ -2,9 +2,9 @@
 
 ## 🔔 REAL-TIME: Documentation Update Needed
 
-**Auto-detected by file watcher at 2025-08-03 11:09:38**
+**Auto-detected by file watcher at 2025-08-03 11:26:39**
 
-**Files Changed**: 3 files
+**Files Changed**: 27 files
 **Priority**: MEDIUM
 
 ```bash
@@ -15,16 +15,27 @@
 ```
 
 **Changed Files**:
-- ThreeColumnLayout.tsx
-- ThreeColumnLayout.tsx.tmp.91485.1754230255592
-- CLAUDE.md
-
+- ResourceLibrary.tsx
+- switch.tsx
+- cacheService.ts
+- FileBrowser.tsx
+- ClaudeMdEditor.tsx
+... and 22 more
 
 **Trigger Files**: 
 - `.claude/doc-update-needed.trigger`
 - `.claude/pending-agent-invocations.json`
 
 ---
+
+
+
+
+
+
+
+
+
 
 
 
@@ -127,3 +138,4 @@ A  docs/sessions/SESSION_2025-08-03_08-55_CCHORUS.md
 ---
 
 *This brief helps you resume CChorus development following all mandatory workflows.*
+andatory workflows.*

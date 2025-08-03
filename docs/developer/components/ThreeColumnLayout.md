@@ -26,10 +26,11 @@ interface ThreeColumnLayoutProps {
 - **Filter Controls**: Search and filter functionality for each resource type
 - **Selection Management**: Handles resource selection for right column
 
-### Right Column (Flexible width)
-- **Content Editor**: Dynamic editor based on selected resource type
-- **CLAUDE.md Integration**: Full ClaudeMdEditor for project files
-- **Placeholder States**: Professional empty states when no selection
+### Right Column (Fixed 320px width)
+- **PropertiesPanel Component**: Persistent properties and actions panel for selected items
+- **Context-Aware Content**: Dynamic metadata display based on selected resource/project type
+- **Action Integration**: Type-specific actions (edit, test, deploy, delete) for enhanced workflow
+- **Professional Empty States**: Guided empty states when no selection with clear instructions
 
 ## Information-Rich Header
 
@@ -146,7 +147,38 @@ const loadAllResourceCounts = async () => {
 )}
 ```
 
-#### ClaudeMdEditor Integration
+#### PropertiesPanel Integration
+```tsx
+const renderContentColumn = () => {
+  // Always show PropertiesPanel on the right
+  let selectedItem = null;
+  
+  // Convert selected items to properties format
+  if (selectedNavItem === 'projects' && selectedProject) {
+    selectedItem = {
+      type: 'project' as const,
+      name: selectedProject.name,
+      path: selectedProject.path,
+      lastModified: selectedProject.lastModified,
+      description: `Claude Code project configuration`
+    };
+  } else if (selectedResource && selectedNavItem !== 'projects') {
+    selectedItem = {
+      type: selectedResource.type,
+      name: selectedResource.name,
+      path: selectedResource.path,
+      lastModified: selectedResource.lastModified,
+      scope: selectedResource.scope,
+      description: selectedResource.description,
+      tools: (selectedResource as AgentResource).tools
+    };
+  }
+
+  return <PropertiesPanel selectedItem={selectedItem} />;
+};
+```
+
+#### ClaudeMdEditor Integration (Legacy)
 ```tsx
 <ClaudeMdEditor 
   project={selectedProject}

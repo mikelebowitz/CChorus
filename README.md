@@ -16,14 +16,14 @@
 
 ## Features
 
-### **🎯 Professional 3-Column Interface**
-- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, real resource data integration, and enhanced editors
+### **🎯 Linear-Style 3-Column Interface (NEW in v2.0.0)**
+- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, real resource data integration, and persistent properties panel
+- **PropertiesPanel Component** - Persistent right column with context-aware metadata display and type-specific actions
 - **Integrated CLAUDE.md Editor** - Full react-md-editor integration with live preview, edit/save workflows, and template generation
 - **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md) and dynamic counts
 - **Context-Aware Middle Column** - Dynamic resource lists with real data loading, filtering, and search capabilities
-- **Enhanced Right Column Editor** - Full-width content editing with resource assignment panels and theme-aware markdown rendering
 - **Information-Rich Header** - Contextual breadcrumbs, action buttons, and metadata display
-- **Layout Flexibility** - Toggle between modern 3-column and classic tabbed interfaces
+- **Enhanced Resource Management** - Seamless resource selection with persistent property display and actions
 - **Resource Assignment System** - Cross-project resource deployment with visual assignment tracking
 
 ### **Agent Management**
@@ -87,12 +87,13 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 
 - **Node.js** 18.0 or higher
 - **npm** 9.0 or higher  
+- **VS Code** (recommended, for auto-start development servers)
 - **Claude Desktop** (for MCP integration)
-- **tmux** (for development server management)
 - **Git** (for version control and automation)
 - **Python 3.7+** (for automation scripts)
 - **watchdog** Python package (for file watching: `pip3 install --user --break-system-packages watchdog`)
 - **GitHub Token** (optional, for GitHub integration)
+- **tmux** (deprecated in v2.0.0, no longer required)
 
 ### Installation
 
@@ -107,13 +108,23 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    npm install
    ```
 
-3. **Start the development servers (MANDATORY)**
+3. **Start the development servers (VS Code Auto-Start)**
    ```bash
-   # REQUIRED: Use tmux-dev for all server operations
-   /tmux-dev start both frontend and backend in separate sessions
+   # PREFERRED: Open in VS Code (auto-starts servers)
+   code .
+   # Servers automatically start in visible terminal tabs when project opens
+   # Frontend (port 5173) and Backend (port 3001) via VS Code tasks
    
-   # Alternative (if tmux-dev not available)
-   npm run dev:full
+   # MANUAL FALLBACK: If auto-start doesn't work
+   # Use VS Code Command Palette: Cmd+Shift+P → "Tasks: Run Task"
+   # Select "Start Frontend" or "Start Backend" as needed
+   
+   # DIRECT COMMANDS: Still available if needed
+   npm run dev       # Frontend only (port 5173)
+   npm run dev:server # Backend only (port 3001)
+   
+   # DEPRECATED: tmux-dev commands no longer used in v2.0.0
+   # /tmux-dev start both frontend and backend  ❌ (removed)
    ```
 
 4. **Optional: Setup GitHub Integration**

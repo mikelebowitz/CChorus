@@ -58,7 +58,8 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - TypeScript strict mode
 - ESLint for code quality with automatic fixing
 - Path aliases (@/* → src/*)
-- tmux-dev for mandatory server management (hot reload)
+- VS Code Tasks for automated server management (auto-start on folder open)
+- **BREAKING**: tmux-dev workflow replaced with VS Code visible terminal integration
 
 **Automation Infrastructure (NEW in v2.0.0):**
 - Auto-documentation system with file watchers
@@ -1038,7 +1039,7 @@ AssignmentResult {
 
 ### Setting Up Development Environment
 <!-- DEV_SETUP -->
-<!-- STEPS: npm install, environment variables, running dev servers -->
+<!-- STEPS: npm install, VS Code auto-start, manual fallbacks -->
 
 ```bash
 # Clone repository
@@ -1048,11 +1049,19 @@ cd CChorus
 # Install dependencies
 npm install
 
-# Start development servers
-npm run dev:full  # Both frontend and backend
-# OR individually:
+# PREFERRED: Open in VS Code (auto-starts servers)
+code .
+# Servers automatically start in visible terminal tabs when folder opens
+# Frontend (port 5173) and Backend (port 3001) via .vscode/tasks.json
+
+# MANUAL FALLBACK: If VS Code auto-start doesn't work
+# Use Cmd+Shift+P → "Tasks: Run Task" → "Start Frontend" or "Start Backend"
+# OR run directly:
 npm run dev       # Frontend only (port 5173)
 npm run dev:server # Backend only (port 3001)
+
+# DEPRECATED: tmux-dev commands no longer used
+# /tmux-dev start both frontend and backend  ❌ (removed)
 ```
 
 ### Environment Setup

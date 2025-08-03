@@ -21,13 +21,21 @@ git clone <repository-url>
 cd CChorus
 npm install
 
-# MANDATORY: Start servers using tmux-dev
-/tmux-dev start both frontend and backend in separate sessions
+# PREFERRED: Open in VS Code (auto-starts servers)
+code .
+# Servers automatically start in visible terminal tabs when project opens
+# Frontend (port 5173) and Backend (port 3001) start via VS Code tasks
 
-# PROHIBITED: Direct npm commands (use tmux-dev instead)
-# npm run dev:full    ❌
-# npm run dev         ❌ 
-# npm run dev:server  ❌
+# MANUAL FALLBACK: If auto-start doesn't work
+# Use VS Code Command Palette: Cmd+Shift+P → "Tasks: Run Task"
+# Select "Start Frontend" or "Start Backend" as needed
+
+# DIRECT COMMANDS: Still available if needed
+npm run dev       # Frontend only (port 5173)
+npm run dev:server # Backend only (port 3001)
+
+# DEPRECATED: tmux-dev commands no longer used
+# /tmux-dev start both frontend and backend  ❌ (removed in v2.0.0)
 ```
 
 ### First Time Access
