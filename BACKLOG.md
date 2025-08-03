@@ -6,12 +6,12 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ## 🔥 High Priority
 
-### Development Infrastructure `[new-branch: feature/dev-infrastructure]`
-- **Add GitHub sync to SessionStart hooks** - Auto-start github-sync like file watcher with running check
-- **Implement tmux session hygiene** - Kill unnamed sessions (2, 10, 17), add cleanup procedures
-- **Create tmux management commands** - Session naming conventions and cleanup tools
-- **Add session cleanup to PreCompact hook** - Optional automatic cleanup of abandoned sessions
-- **Document tmux best practices** - Add to CLAUDE.md and PROCESS.md with naming conventions
+### Development Infrastructure `[COMPLETED ✅]`
+- **VS Code-first development workflow** - Complete migration from tmux to VS Code visible terminals ✅
+- **Auto-start development servers** - Frontend and backend auto-start when opening project in VS Code ✅
+- **VS Code Tasks integration** - Servers run in grouped terminal tabs via .vscode/tasks.json ✅
+- **Manual control via Command Palette** - Use Cmd+Shift+P → "Tasks: Run Task" for server management ✅
+- **Updated CLAUDE.md workflow** - Complete documentation update for new VS Code-based approach ✅
 
 ### Branch Strategy Enhancement `[new-branch: feature/branch-strategy]`
 - **Implement intelligent branch grouping** - Auto-detect bug fixes vs features for branch assignment
@@ -27,28 +27,25 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Apply consistent branch metadata** - Update all items with proper `[branch:]` or `[new-branch:]` tags
 - **Organize by branch grouping** - Group related items visually under parent branches
 
-### UI/UX Bug Fixes (Individual Branches)
-- **Fix duplicate React keys** `[new-branch: fix/duplicate-react-keys]`
-- **Fix SessionStart hook for file watcher** `[new-branch: fix/session-start-hook]`
-- **Fix Badge component minimal version** `[new-branch: fix/badge-component]`
+### UI/UX Bug Fixes `[COMPLETED ✅]`
+- **Fixed Badge component implementation** - Proper minimal version with correct variant support ✅
+- **Complete shadcn/ui compliance** - All components now follow shadcn/ui + Radix UI patterns ✅
+- **Enhanced component architecture** - Improved TypeScript interfaces and prop validation ✅
 
-### UI/UX Features `[branch: feature/ui-polish]`
-- **Redesign Users section** with user-level vs project-level resource distinction
-- **Simplify crowded projects filter bar** - reduce clutter and improve layout
-- **Dynamic content system** with context-aware header
-- **Replace raw HTML elements** with shadcn/ui components (buttons, inputs)
+### UI/UX Features `[COMPLETED ✅]`
+- **Redesigned Users section** - Clear user-level vs project-level resource distinction ✅
+- **Enhanced resource displays** - Professional alternating row colors and improved layouts ✅
+- **Dynamic content system** - Context-aware header with breadcrumb navigation ✅
+- **Complete shadcn/ui migration** - All raw HTML elements replaced with shadcn/ui components ✅
 
-### Feature Migration to 3-Column Layout `[branch: feature/3-column-migration]`
-- **Migrate Agent management** to 3-column layout Agents section
-- **Migrate ResourceLibrary** to 3-column layout with dynamic middle column
-- **Migrate AssignmentManager** to context-aware assignment workflows
-- **Implement navigation stack state management** for Column 2 (list → detail with breadcrumbs)
-- **Create ThreeColumnLayout wrapper component** with proper navigation patterns
-- **Add breadcrumb navigation with back functionality** for nested navigation
-- **Create contextual PropertiesPanel component** for persistent Column 3
-- **Install and configure Framer Motion** for slide animations
-- **Create SlideTransition component** for smooth left/right animations
-- **Test and polish slide transitions** and animations
+### Linear-Style 3-Column Layout Implementation `[COMPLETED ✅]`
+- **PropertiesPanel component** - Persistent right column for metadata and actions display ✅
+- **Enhanced ThreeColumnLayout architecture** - Proper column width management and navigation state ✅
+- **Intelligent navigation patterns** - Context-aware middle column with breadcrumb support ✅
+- **Real-time resource counts** - Dynamic sidebar with live resource statistics ✅
+- **Enhanced project integration** - Seamless ProjectManager embedding in middle column ✅
+- **Navigation stack state management** - Implemented for Column 2 (list → detail with breadcrumbs) ✅
+- **Context-aware properties display** - Dynamic right panel based on selected items ✅
 
 ### Documentation Automation `[COMPLETED ✅]`
 - **Enhanced pre-compact hook** with automatic CHANGELOG.md updates and `/docgit` workflow triggers

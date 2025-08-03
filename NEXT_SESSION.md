@@ -2,10 +2,10 @@
 
 ## 🔔 REAL-TIME: Documentation Update Needed
 
-**Auto-detected by file watcher at 2025-08-03 11:26:39**
+**Auto-detected by file watcher at 2025-08-03 11:58:35**
 
-**Files Changed**: 27 files
-**Priority**: MEDIUM
+**Files Changed**: 1 files
+**Priority**: HIGH
 
 ```bash
 # IMMEDIATE ACTION REQUIRED:
@@ -15,12 +15,8 @@
 ```
 
 **Changed Files**:
-- ResourceLibrary.tsx
-- switch.tsx
-- cacheService.ts
-- FileBrowser.tsx
-- ClaudeMdEditor.tsx
-... and 22 more
+- CLAUDE.md
+
 
 **Trigger Files**: 
 - `.claude/doc-update-needed.trigger`
@@ -30,24 +26,12 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-**Generated**: 2025-08-03 09:08
+**Generated**: 2025-08-03 11:54
 **Project**: CChorus - Claude Code Resource Management Platform
 
 ## 🚀 Quick Resume
 
-**Branch**: feature/3-column-layout
+**Branch**: feature/dev-infrastructure
 **Last Activity**: August 03, 2025
 
 ## 🖥️ MANDATORY: Development Server Commands
@@ -56,25 +40,21 @@
 # Navigate to CChorus project
 cd /Users/mikelebowitz/Documents/Code/CChorus
 
-# REQUIRED: Start development servers using tmux-dev
-/tmux-dev start frontend server in session cchorus-frontend
-/tmux-dev start backend server in session cchorus-backend
+# Development servers auto-start in VS Code (no manual commands needed)
+# Frontend and backend start automatically when project opens in VS Code
+# Servers run in visible terminal tabs for easy monitoring
 
-# Monitor servers (non-blocking)
-/tmux-dev check logs from cchorus-frontend
-/tmux-dev show last 50 lines from cchorus-backend
-
-# List running sessions
-/tmux-dev list all running sessions
+# Manual control (if needed):
+# Cmd+Shift+P → "Tasks: Run Task" → "Start Frontend" or "Start Backend"
+# Or run directly: npm run dev (frontend), npm run dev:server (backend)
 ```
 
 ## 🚫 PROHIBITED Commands
 
 ```bash
-# These are FORBIDDEN - use /tmux-dev instead:
-# npm run dev                 ❌
-# npm run dev:server          ❌
-# npm run dev:full            ❌
+# These are not needed - VS Code handles automatically:
+# /tmux-dev commands are deprecated
+# Servers auto-start via VS Code tasks.json
 ```
 
 ## 📚 Agent Workflow Reminder
@@ -96,33 +76,12 @@ Check `docs/sessions/` for the latest session summary with detailed context.
 ## 📂 Git Status Summary
 
 ```
- M .claude/auto-branch-creator.py
  M .claude/doc-update-needed.trigger
- M .claude/file-watcher.py
- M .claude/github-sync.py
- M .claude/hooks/pre-compact.py
  M .claude/pending-agent-invocations.json
- M .claude/settings.json
- M .claude/sync-command.py
- M .claude/task-completion-validator.py
- M BACKLOG.md
- M CHANGELOG.md
-MM NEXT_SESSION.md
-A  docs/sessions/SESSION_2025-08-03_08-55.md
-A  docs/sessions/SESSION_2025-08-03_08-55_CCHORUS.md
- M package-lock.json
- M package.json
- M src/components/FileBrowser.tsx
- M src/components/FileSearch.tsx
- M src/components/ResourceLibrary.tsx
- M src/components/ThreeColumnLayout.tsx
- M src/components/ui/badge.tsx
- M src/components/ui/separator.tsx
-?? docs/sessions/SESSION_2025-08-03_09-08.md
-?? docs/sessions/SESSION_2025-08-03_09-08_CCHORUS.md
-?? src/components/PropertiesPanel.tsx
-?? src/components/ui/label.tsx
-?? src/components/ui/slide-transition.tsx
+ M CLAUDE.md
+ M NEXT_SESSION.md
+?? docs/sessions/SESSION_2025-08-03_11-54.md
+?? docs/sessions/SESSION_2025-08-03_11-54_CCHORUS.md
 
 ```
 
@@ -131,11 +90,10 @@ A  docs/sessions/SESSION_2025-08-03_08-55_CCHORUS.md
 - **Resource Library**: Unified browser for all Claude Code resources
 - **Assignment Manager**: Deploy and manage resource assignments  
 - **Agent Architecture**: Documentation manager handles docs, GitOps handles Git
-- **Server Management**: Always use `/tmux-dev` for development servers
+- **Server Management**: VS Code auto-starts servers in visible terminal tabs
 - **Component System**: shadcn/ui + Radix UI with accessibility features
 - **Automated Workflow**: Pre-compact hook now auto-invokes `/docgit` when changes detected
 
 ---
 
 *This brief helps you resume CChorus development following all mandatory workflows.*
-andatory workflows.*

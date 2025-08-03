@@ -28,9 +28,10 @@ npm install
 - **Data**: File system-based storage in `.claude/` directories
 
 ### Core Components
-- **ThreeColumnLayout**: Main interface with navigation, resource lists, and editors
-- **ResourceAssignmentPanel**: Cross-project resource deployment
-- **ResourceDataService**: Unified resource discovery service
+- **ThreeColumnLayout**: Main interface with navigation, resource lists, and persistent Properties panel (✅ Complete)
+- **PropertiesPanel**: Context-aware metadata and actions panel with intelligent type detection (✅ Complete)
+- **ResourceAssignmentPanel**: Cross-project resource deployment with visual tracking
+- **ResourceDataService**: Unified resource discovery service with enhanced performance
 
 ### Agent Format
 ```markdown
@@ -46,6 +47,11 @@ System prompt content...
 
 ### Server Management
 **Servers auto-start in VS Code Terminal tabs when project opens. Manual control via VS Code Tasks or direct npm commands.**
+
+**Auto-Start Configuration:**
+- `.vscode/tasks.json` configures auto-start on folder open
+- Frontend and backend tasks run with `"runOn": "folderOpen"`
+- SessionStart hooks launch file watcher, auto-branch creator, and GitHub sync with timeout protection
 
 ### UI Development (MANDATORY)
 **ALWAYS use shadcn/ui + Radix UI patterns:**
@@ -193,8 +199,8 @@ const StyledDiv = styled.div`color: red;`
 
 ## Current Status
 
-**Branch**: `feature/3-column-layout` (COMPLETED ✅)
-**Automation**: Comprehensive development workflow system active (✅ File watcher, ✅ GitHub sync, ✅ Task validation)
+**Branch**: `feature/dev-infrastructure` (ACTIVE 🔧)
+**Automation**: Comprehensive development workflow system active (✅ File watcher, ✅ GitHub sync with timeout, ✅ VS Code auto-start, ✅ Task validation)
 **Roadmap**: See [BACKLOG.md](./BACKLOG.md) for upcoming work
 **History**: See [CHANGELOG.md](./CHANGELOG.md) for completed work
 
