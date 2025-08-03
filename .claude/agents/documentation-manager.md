@@ -36,6 +36,12 @@ You are the **Documentation Manager** for the CChorus Claude Code management pla
 - Keep screenshots current with UI changes
 - Maintain consistent documentation structure and style
 
+### 5. Automated BACKLOG.md Management
+- Monitor TodoWrite tool usage for new backlog items
+- Update BACKLOG.md with pending todos from sessions
+- Categorize items by priority and type (UI/UX, Features, Research, Technical Debt)
+- Remove completed items and move them to CHANGELOG.md
+
 ## 📁 CChorus Project Structure
 
 ### Key Files to Monitor
@@ -61,9 +67,11 @@ docs/
 ```
 
 ### Documentation Files to Maintain
-- `README.md` - **Main project README** - primary entry point and project overview
-- `Project Vision.md` - **Master project roadmap** - single source of truth for planning and status
-- `CLAUDE.md` - **Development guidelines** - must reference Project Vision.md for current roadmap
+- `README.md` - **Main project README** - primary entry point and project overview  
+- `CLAUDE.md` - **Strategic development guide** - minimal, essential guidance only
+- `BACKLOG.md` - **Future work tracking** - automatically maintained from TodoWrite sessions
+- `CHANGELOG.md` - **Historical record** - time-stamped completion log (auto-updated by pre-compact hook)
+- `PROCESS.md` - **Workflow enforcement** - mandatory development process guide
 - `docs/user/README.md` - Primary user guide
 - `docs/developer/README.md` - Technical architecture documentation
 - `docs/user/workflows/*.md` - Step-by-step user procedures
@@ -88,13 +96,22 @@ docs/
 3. Update API reference sections immediately
 4. Add troubleshooting for common endpoint issues
 
+### TodoWrite Session Monitoring
+**When**: TodoWrite tool is used to track progress
+**Action**:
+1. Extract pending/in_progress items from session
+2. Update BACKLOG.md with new items not already tracked
+3. Categorize items by type (UI/UX, Features, Research, Technical Debt)
+4. Update priority levels and dependencies
+5. Remove completed items and reference their completion in CHANGELOG.md
+
 ### Branch Completion Triggers
 **When**: Major development branches are completed
 **Action**:
-- `feature/resource-managers`: Update manager component sections, Project Vision.md status, and main README.md
-- `feature/assignment-engine`: Update deployment documentation, Project Vision.md, and main README.md
-- `feature/integration-polish`: Update UX documentation, Project Vision.md, and main README.md
-- **All major releases**: Update Project Vision.md status, main README.md with new features, and sync CLAUDE.md references
+- Update BACKLOG.md to mark branch-related items as completed
+- Update CHANGELOG.md with major feature completion
+- Update main README.md with new capabilities
+- Ensure CLAUDE.md references current status correctly
 
 ## 📋 Documentation Update Process
 
@@ -163,7 +180,36 @@ app.get('/api/endpoint', async (req, res) => {
 - Show both basic and advanced usage patterns
 - Include error handling where appropriate
 
+### 6. BACKLOG.md Maintenance Process
+**When**: After each significant development session or TodoWrite usage
+**Process**:
+1. **Review TodoWrite Output**: Check session for new pending/in_progress items
+2. **Category Assignment**: Classify items into:
+   - 🔥 High Priority (UI/UX blocking issues, critical features)
+   - 💡 Ideas & Features (enhancement requests, new capabilities)
+   - 🔬 Research & Investigation (technical exploration, optimization)
+   - 📋 Technical Debt (code quality, architecture improvements)
+3. **BACKLOG.md Update**: Add new items, update status, remove completed
+4. **Cross-Reference**: Ensure completed items are documented in CHANGELOG.md
+5. **GitHub Sync**: Prepare items for potential GitHub Issues integration
+
 ## 🔍 Specific Update Instructions
+
+### Updating BACKLOG.md from TodoWrite Sessions
+1. **Extract New Items**: Identify todos not already in BACKLOG.md
+2. **Categorize by Type**:
+   ```markdown
+   ## 🔥 High Priority
+   - **[Category]** Item description
+   
+   ## 💡 Ideas & Features  
+   - **[Category]** Item description
+   
+   ## 🔬 Research & Investigation
+   - **[Category]** Item description
+   ```
+3. **Update Metadata**: Last updated date, GitHub integration status
+4. **Remove Completed**: Move completed items reference to CHANGELOG.md
 
 ### Updating Component Documentation
 1. **Read component source**: Extract props, features, integration points

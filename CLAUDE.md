@@ -1,143 +1,168 @@
 # CLAUDE.md
 
-This file provides essential guidance for Claude Code when working with CChorus.
+Essential guidance for Claude Code when working with CChorus.
 
-## Quick Start Commands
+## Quick Start
 
-### Installation
 ```bash
 npm install
-```
-
-### 🚨 MANDATORY: Server Management
-**ALL development server operations MUST use `/tmux-dev`. Direct npm commands are PROHIBITED.**
-
-```bash
-# Start servers
 /tmux-dev start both frontend and backend in separate sessions
-
-# Monitor servers  
-/tmux-dev check logs from cchorus-frontend
-/tmux-dev show last 50 lines from cchorus-backend
-
-# Server management
-/tmux-dev list all running sessions
-/tmux-dev stop cchorus-frontend session
 ```
 
-### Production & Building
-```bash
-npm run build
-npm run preview
-npm start
-```
+## Project Overview
 
-## Project Architecture
+**CChorus** is a React-based Claude Code resource management platform with professional 3-column interface.
 
-**CChorus** is a React-based Claude Code resource management platform with 3-column professional interface.
-
-### Tech Stack
-- **Frontend**: React 18 + TypeScript + Vite 7.0.4 + Tailwind CSS + shadcn/ui
-- **Backend**: Node.js Express API (port 3001) 
+### Architecture
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
+- **Backend**: Node.js Express API (port 3001)
 - **Data**: File system-based storage in `.claude/` directories
-- **Theme**: CSS custom properties with light/dark modes
 
-### Key Components
-- **ThreeColumnLayout**: Professional 3-column interface with real resource data integration, navigation sidebar, and enhanced content editor
-- **ClaudeMdEditor**: Integrated CLAUDE.md editor with react-md-editor, save/cancel workflows, and template generation
-- **LayoutToggle**: Toggle between 3-column and tabbed interfaces
-- **ResourceAssignmentPanel**: NEW - Cross-project resource assignment with visual tracking and copy/activate operations
-- **ResourceDataService**: NEW - Unified service for loading agents, commands, hooks, and CLAUDE.md files across scopes
-- **ProjectManager**: Enhanced with caching improvements and layoutMode prop for 3-column integration
-- **ResourceLibrary**: System-wide resource discovery and browsing
-- **AssignmentManager**: Resource deployment between user/project scopes
-- **Agent Management**: Full CRUD for Claude Code agents
+### Core Components
+- **ThreeColumnLayout**: Main interface with navigation, resource lists, and editors
+- **ResourceAssignmentPanel**: Cross-project resource deployment
+- **ResourceDataService**: Unified resource discovery service
 
-### Agent File Format
+### Agent Format
 ```markdown
 ---
 name: agent-name
-description: When should this agent be invoked
-tools: tool1, tool2, tool3  # Optional
-color: "#3B82F6"           # Optional
+description: When to invoke this agent
+tools: tool1, tool2, tool3
 ---
-
 System prompt content...
 ```
 
-## Development Essentials
+## MANDATORY Process
 
-### Theme System
+### Server Management
+**ALL server operations MUST use `/tmux-dev`. Direct npm commands PROHIBITED.**
+
+### UI Development (MANDATORY)
+**ALWAYS use shadcn/ui + Radix UI patterns:**
 ```tsx
-import { useTheme } from "@/components/theme-provider"
+// REQUIRED imports
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
-const { theme, setTheme } = useTheme()
-// Keyboard shortcut: Ctrl/Cmd + T
+// REQUIRED className pattern
+<Button className={cn("bg-muted text-muted-foreground", customClasses)}>
 ```
 
-### Component Development
-- Use **shadcn/ui + Radix UI** for consistent, accessible components
-- Follow **muted color scheme**: `bg-muted text-muted-foreground`
-- Import from `@/components/ui` for pre-built components
-- Test keyboard navigation and screen reader compatibility
+**NEVER use these prohibited patterns:**
+```tsx
+// ❌ PROHIBITED - Material-UI
+import { Button } from "@mui/material"
 
-### Agent Workflow Sequence
-**MANDATORY**: Code Changes → Documentation Agent (`@documentation-manager`) → GitOps Agent (`@gitops-workflow-manager`)
+// ❌ PROHIBITED - Inline styles  
+<div style={{ color: 'red' }}>
+
+// ❌ PROHIBITED - styled-components
+const StyledDiv = styled.div`color: red;`
+```
+
+### Agent Workflow (REQUIRED)
+```bash
+# MANDATORY sequence for all changes:
+# 1. Code Changes (UI must use shadcn/ui only)
+# 2. @documentation-manager update docs
+# 3. @gitops-workflow-manager commit and push
+```
+
+### Auto-Trigger Documentation System
+**Real-time documentation monitoring with multiple trigger methods:**
 
 ```bash
-# REQUIRED workflow for all changes
-@documentation-manager please update documentation for [changes]
-# Wait for completion, then:
-@gitops-workflow-manager please commit and push changes
+# Start real-time file watcher (optional but recommended)
+.claude/start-file-watcher.sh
+
+# Force complete documentation synchronization
+.claude/sync
+
+# Manual trigger if auto-system fails
+@documentation-manager update docs for pending changes
 ```
 
-## Critical Requirements
+**Auto-trigger mechanisms:**
+- **Pre-compact hook**: Detects changes during session end, auto-invokes `/docgit`
+- **File watcher**: Real-time monitoring with immediate documentation triggers
+- **Trigger files**: `.claude/doc-update-needed.trigger` and `.claude/pending-agent-invocations.json`
+- **Session notices**: Automatic updates to `NEXT_SESSION.md` with required actions
 
-### Task Completion Standards
-**NEVER mark tasks "completed" unless ALL requirements satisfied:**
+### Auto-Branch Creation System
+**Intelligent branch creation from BACKLOG.md metadata:**
 
-**Frontend Work**: 
-- ✅ Playwright testing with MCP tools
-- ✅ User demonstration via screenshots  
-- ✅ Explicit user approval
+```bash
+# Monitor BACKLOG.md for [new-branch] metadata and auto-create branches
+.claude/start-auto-branch-creator.sh --once        # Single scan
+.claude/start-auto-branch-creator.sh --watch       # Continuous monitoring
 
-**All Work**:
-- ✅ Documentation agent used for doc updates
-- ✅ GitOps agent used for Git operations  
-- ✅ Agent sequence followed: Code → Documentation → GitOps
+# BACKLOG.md syntax for auto-branch creation:
+# - **Feature name** `[new-branch: feature/branch-name]`
+```
+
+**Auto-branch mechanisms:**
+- **BACKLOG.md scanning**: Detects `[new-branch: branch-name]` metadata
+- **GitOps integration**: Auto-creates GitOps agent invocations for branch management
+- **GitHub integration**: Auto-creates GitHub Issues when branches are created
+- **Pre-compact analysis**: Recommends branch creation based on work scope analysis
+- **Branch intelligence**: Priority-based naming and creation timing
+
+### GitHub Integration System
+**Bi-directional synchronization between BACKLOG.md and GitHub Issues/Projects:**
+
+```bash
+# Set up GitHub integration (first time)
+.claude/start-github-sync.sh --setup
+
+# Test GitHub connection
+.claude/start-github-sync.sh --test
+
+# Full bi-directional synchronization
+.claude/start-github-sync.sh --sync
+
+# One-way sync options
+.claude/start-github-sync.sh --sync-to-github      # BACKLOG → GitHub
+.claude/start-github-sync.sh --sync-from-github    # GitHub → BACKLOG
+```
+
+**GitHub sync features:**
+- **Auto-creates GitHub Issues** from BACKLOG.md items with proper labels and priorities
+- **Updates Issue status** when BACKLOG items are completed or branches are created
+- **Imports GitHub Issues** back to BACKLOG.md with appropriate categorization
+- **Links branches to Issues** automatically via commit message patterns
+- **Rate limiting and error handling** for reliable synchronization
+
+### Task Completion Requirements
+**Automated validation system prevents premature task completion:**
+
+```bash
+# Validate specific task before marking complete
+.claude/start-task-validator.sh --validate-task "task description" [priority]
+
+# Validate all current todos
+.claude/start-task-validator.sh --validate-todos
+```
+
+**Category-specific requirements:**
+- **Frontend**: Playwright testing + user approval + shadcn/ui compliance + theme testing + accessibility validation
+- **Backend**: API testing + error handling validation + security review  
+- **Documentation**: Documentation-manager usage + accuracy validation + cross-reference checking
+- **Git Workflow**: GitOps workflow + commit message quality + branch naming compliance
+- **All work**: Testing completed + documentation updated + no breaking changes detected
 
 ### Prohibited Actions
-- ❌ Direct server commands (`npm run dev`, `npm run dev:server`)
-- ❌ Manual documentation updates (use `@documentation-manager`)
-- ❌ Direct Git operations (use `@gitops-workflow-manager`)
-- ❌ Marking tasks complete without testing/approval
+- ❌ Direct server commands
+- ❌ Manual documentation updates
+- ❌ Direct Git operations
+- ❌ Marking tasks complete without testing
 
-## Current Development
+## Current Status
 
-**Branch**: `feature/3-column-layout`
-**Status**: 3-Column UI with Resource Integration COMPLETED ✅ (August 2, 2025)
-**Vision**: See [Project Vision.md](./Project%20Vision.md) for complete roadmap
-
-### Completed Features
-- ✅ Professional 3-column layout with real resource data integration
-- ✅ CLAUDE.md editor integration with react-md-editor
-- ✅ ResourceAssignmentPanel for cross-project resource management
-- ✅ ResourceDataService for unified resource discovery across user/system/project scopes
-- ✅ Default layout experience (useNewLayout = true)
-- ✅ Enhanced project caching and streaming improvements
-- ✅ Clean project display showing descriptions vs file paths
-- ✅ Component architecture: ThreeColumnLayout, ClaudeMdEditor, LayoutToggle, ResourceAssignmentPanel
-
-### Next Priority
-- Enhanced resource editing capabilities for hooks, commands, and settings within 3-column layout
-- Improved visual editing interfaces for individual resource types
-
-### Testing Strategy
-- Manual testing with comprehensive user workflows
-- Playwright testing for all frontend changes
-- Theme testing (light/dark) across all components
-- Responsive design validation
+**Branch**: `feature/3-column-layout` (COMPLETED ✅)
+**Roadmap**: See [BACKLOG.md](./BACKLOG.md) for upcoming work
+**History**: See [CHANGELOG.md](./CHANGELOG.md) for completed work
 
 ---
-
-**Process Compliance**: Always follow agent workflow sequence, use tmux-dev for servers, get user approval before completion.
+**Documentation Strategy**: CLAUDE.md (strategic), BACKLOG.md (future), CHANGELOG.md (past), PROCESS.md (workflow)

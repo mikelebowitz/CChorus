@@ -1,7 +1,9 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED - ProjectManager COMPLETED], Assignment Engine [COMPLETED], Integration [PENDING] -->
+<!-- Components: Core [COMPLETED], Resource Managers [COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], 3-Column Layout [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete platform with advanced automation infrastructure -->
+<!-- TEMPLATE_STATUS: Updated to reflect v2.0.0 completion state -->
 
 ## 🏗️ Architecture Overview
 
@@ -22,11 +24,15 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 ```
 
 ### Data Flow
-1. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
-2. **API Layer**: RESTful endpoints provide unified access to all resource types
-3. **Frontend Services**: Service layer abstracts API calls and provides unified data models
-4. **Component Tree**: React components consume services and manage UI state
-5. **Assignment Engine**: Handles resource deployment operations between scopes
+1. **Client-side Caching**: Intelligent caching layer provides instant loading with background refresh capabilities
+2. **Real-time Project Discovery**: Backend streams project discovery via Server-Sent Events for immediate user feedback
+3. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
+4. **API Layer**: RESTful endpoints provide unified access to all resource types with streaming capabilities
+5. **Frontend Services**: Service layer abstracts API calls and provides unified data models with EventSource integration
+6. **Component Tree**: React components consume services and manage UI state with real-time updates
+7. **Assignment Engine**: Handles resource deployment operations between scopes
+8. **Automation Systems**: Pre-compact hooks, file watchers, and validation systems enforce quality
+9. **Workflow Enforcement**: Mandatory agent sequences ensure documentation and Git operations follow proper protocols
 
 ### Technology Stack
 <!-- TECH_STACK -->

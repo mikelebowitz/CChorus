@@ -1,8 +1,9 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [PARTIALLY COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED], Caching [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-08-01 - 3-Column Layout Integration COMPLETED: Professional interface with CLAUDE.md editor, component architecture, and comprehensive documentation -->
+<!-- Components: Core [COMPLETED], Resource Managers [COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED], Caching [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete platform with advanced automation infrastructure and workflow enforcement -->
+<!-- LAST_UPDATED: 2025-08-03 - All components completed, automation systems operational, mandatory workflow enforcement active -->
 
 ## 🏗️ Architecture Overview
 
@@ -55,9 +56,17 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 
 **Development Tools:**
 - TypeScript strict mode
-- ESLint for code quality
+- ESLint for code quality with automatic fixing
 - Path aliases (@/* → src/*)
-- Hot reload development servers
+- tmux-dev for mandatory server management (hot reload)
+
+**Automation Infrastructure (NEW in v2.0.0):**
+- Auto-documentation system with file watchers
+- Auto-branch creation from BACKLOG.md metadata
+- GitHub Issues/Projects bi-directional synchronization
+- Task completion validation with category-specific requirements
+- Pre-compact hooks for workflow enforcement
+- Agent workflow sequence validation
 
 ### Backend Services
 <!-- BACKEND_SERVICES -->

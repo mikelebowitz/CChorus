@@ -5,7 +5,36 @@ All notable changes to CChorus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-07-31
+## [2.0.0] - 2025-08-02
+
+### Added - 3-Column UI Architecture
+- **🎨 Professional 3-Column Layout** - Complete UI overhaul with hierarchical navigation
+- **📱 Real Resource Data Integration** - Live resource discovery and management
+- **🔄 ResourceAssignmentPanel** - Cross-project resource deployment with visual tracking
+- **🛠️ ResourceDataService** - Unified service for loading agents, commands, hooks, and CLAUDE.md files
+- **📝 ClaudeMdEditor Integration** - Professional react-md-editor with save/cancel workflows
+- **🎯 Enhanced Project Caching** - Intelligent caching with background refresh and streaming
+- **🎨 Theme-Aware Resource Lists** - Alternating row colors and professional styling
+
+### Changed - Interface Modernization
+- **New Default Experience** - 3-column layout is now the primary interface
+- **Simplified Project Display** - Clean presentation with descriptions vs file paths
+- **Enhanced Navigation** - Sidebar with Users, Projects, Agents, Commands, Hooks, CLAUDE.md sections
+- **Context-Aware Content** - Dynamic middle column based on navigation selection
+- **Improved Resource Assignment** - Visual assignment management with project checkboxes
+
+### Fixed - Major Bug Resolutions
+- **CLAUDE.md File Discovery** - Fixed filter bug preventing CLAUDE.md files from displaying
+- **Resource Assignment Tracking** - Built assignment map from existing file paths
+- **Component Integration** - Proper ThreeColumnLayout integration with existing components
+
+### Technical - Architecture Improvements
+- **Component Architecture** - ThreeColumnLayout, ClaudeMdEditor, LayoutToggle, ResourceAssignmentPanel
+- **Type Safety** - Full TypeScript integration with comprehensive interfaces
+- **Performance** - Optimized resource loading and state management
+- **Accessibility** - Keyboard navigation and screen reader support
+
+## [1.5.0] - 2025-07-31
 
 ### Added
 - **🚀 System-Wide Agent Discovery** - Comprehensive scanning across all projects on the system

@@ -37,9 +37,18 @@
 - **Performance Optimized** - Memory-efficient streaming scanner handles large directory structures
 - **Robust Error Handling** - Gracefully handles filesystem issues and permissions
 
-### **🚀 System-Wide Resource Discovery**
+### **🚀 System-Wide Resource Discovery & Advanced Automation**
 
-CChorus provides **comprehensive resource discovery** across your entire system with enhanced reliability and performance:
+CChorus provides **comprehensive resource discovery** across your entire system with enhanced reliability, performance, and advanced automation systems:
+
+#### **🤖 Intelligent Automation Systems**
+- **📚 Auto-Documentation** - Real-time documentation updates triggered by code changes with file watchers and pre-compact hooks
+- **🌿 Auto-Branch Creation** - Intelligent branch creation from BACKLOG.md metadata with GitOps integration
+- **🐙 GitHub Synchronization** - Bi-directional sync between BACKLOG.md and GitHub Issues/Projects with automatic labeling
+- **✅ Task Validation** - Automated validation system prevents premature task completion with category-specific requirements
+- **📋 Workflow Enforcement** - Mandatory agent sequences ensure documentation and Git operations follow proper workflows
+
+#### **🔍 Enhanced Resource Discovery**
 
 - **📡 Intelligent Scanning** - Recursively scans from your home directory to find all Claude Code resources
 - **🏗️ Project Context** - Automatically identifies and displays the project each resource belongs to
@@ -77,6 +86,8 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 - **Node.js** 18.0 or higher
 - **npm** 9.0 or higher
 - **Claude Desktop** (for MCP integration)
+- **tmux** (for development server management)
+- **Git** (for version control and automation)
 
 ### Installation
 
@@ -91,8 +102,12 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    npm install
    ```
 
-3. **Start the development servers**
+3. **Start the development servers (MANDATORY)**
    ```bash
+   # REQUIRED: Use tmux-dev for all server operations
+   /tmux-dev start both frontend and backend in separate sessions
+   
+   # Alternative (if tmux-dev not available)
    npm run dev:full
    ```
 
@@ -104,17 +119,19 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    
    **Note**: CChorus now opens with the modern 3-column interface by default. Use the layout toggle button to switch between 3-column and classic tabbed interfaces.
 
-### Alternative Start Methods
+### Development Server Management
 
 ```bash
-# Frontend only
-npm run dev
+# MANDATORY: Use tmux-dev for all server operations
+/tmux-dev start frontend server in session cchorus-frontend
+/tmux-dev start backend server in session cchorus-backend
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 50 lines from cchorus-backend
 
-# Backend only  
-npm run server
-
-# Both with concurrency
-npm run dev:full
+# PROHIBITED: Direct npm commands (use tmux-dev instead)
+# npm run dev          ❌
+# npm run dev:server   ❌ 
+# npm run dev:full     ❌
 ```
 
 ## 📖 Usage Guide
@@ -265,21 +282,23 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 2. **Permissions**: `~/.claude/settings.json`
 3. **Auto-detection**: Available tools are shown in the agent editor
 
-## 🗺️ Development Roadmap
+## 🗺️ Development Status
 
-> **📋 For complete project roadmap, current status, and detailed implementation plan, see [Project Vision.md](./Project%20Vision.md)**
+> **📋 For complete project roadmap, future work, and detailed planning, see [BACKLOG.md](./BACKLOG.md)**
+> **📈 For development workflow and process enforcement, see [PROCESS.md](./PROCESS.md)**
 
-### Current Status (August 2025)
+### Current Status (August 2025) - Version 2.0.0
 - ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners
-- ✅ **3-Column UI Architecture** (95% complete) - Professional interface with real resource data integration
+- ✅ **3-Column UI Architecture** (100% complete) - Professional interface with real resource data integration
 - ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel
-- ✅ **Core Resource Management** (90% complete) - Resource Library, Assignment Manager, Project Manager with enhanced caching
-- 🚧 **Individual Resource Editing** (80% complete) - Enhanced editing capabilities for each resource type
+- ✅ **Core Resource Management** (100% complete) - Resource Library, Assignment Manager, Project Manager with enhanced caching
+- ✅ **Advanced Automation Systems** (100% complete) - Auto-documentation, branch creation, GitHub sync, task validation
+- ✅ **Process Automation** (100% complete) - Workflow enforcement, agent sequences, documentation triggers
 
 ### What's Next
-- Complete remaining resource manager components
-- Final integration and polish
-- Documentation updates and release preparation
+- Enhanced resource editing capabilities within 3-column layout
+- Performance optimization and scalability improvements
+- Community features and resource sharing platform research
 
 ---
 
@@ -288,10 +307,16 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 ### Available Scripts
 
 ```bash
-# Development
-npm run dev          # Start frontend dev server
-npm run server       # Start backend server  
-npm run dev:full     # Start both concurrently
+# Server Management (MANDATORY - use tmux-dev)
+/tmux-dev start both frontend and backend in separate sessions
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 50 lines from cchorus-backend
+/tmux-dev list all running sessions
+
+# Development (Fallback only)
+npm run dev          # Start frontend dev server (use tmux-dev instead)
+npm run server       # Start backend server (use tmux-dev instead)
+npm run dev:full     # Start both concurrently (use tmux-dev instead)
 
 # Building
 npm run build        # Build for production
@@ -299,30 +324,48 @@ npm run preview      # Preview production build
 
 # Code Quality
 npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript compiler
+npm run lint:fix     # Fix ESLint issues automatically
+
+# Automation Commands
+.claude/sync                           # Force documentation synchronization
+.claude/start-file-watcher.sh         # Start real-time documentation monitoring
+.claude/start-auto-branch-creator.sh  # Monitor BACKLOG.md for branch creation
+.claude/start-github-sync.sh           # GitHub Issues/Projects synchronization
+.claude/start-task-validator.sh        # Validate task completion requirements
 ```
 
 ### Code Style & Architecture
 
-This project follows modern React and TypeScript best practices:
+This project follows modern React and TypeScript best practices with **mandatory workflow enforcement**:
 
-- **Component Architecture** - shadcn/ui + Radix UI for accessible, composable components
+- **Component Architecture** - shadcn/ui + Radix UI for accessible, composable components (MANDATORY)
 - **Theme System** - CSS custom properties with `useTheme` hook for dynamic theming
 - **TypeScript Strict Mode** - Full type safety with comprehensive type definitions
-- **ESLint Configuration** - Modern React and TypeScript linting rules
+- **ESLint Configuration** - Modern React and TypeScript linting rules with automatic fixing
 - **CSS Architecture** - Tailwind utilities with semantic CSS custom properties
 - **Conventional Commits** - Structured commit messages for clear history
+- **Agent Workflow Sequence** - MANDATORY: Code Changes → @documentation-manager → @gitops-workflow-manager
+- **Process Automation** - Pre-compact hooks, file watchers, and validation systems enforce quality
 
-### Adding New Features
+### Adding New Features (MANDATORY PROCESS)
 
-1. **Create a feature branch**: `git checkout -b feature/your-feature-name`
-2. **Add UI components**: Use `npx shadcn@latest add [component]` for new components
-3. **Implement with TypeScript**: Ensure full type safety and proper interfaces
-4. **Test themes**: Verify functionality in both light and dark themes (Ctrl/Cmd + T)
-5. **Test accessibility**: Ensure keyboard navigation and screen reader compatibility
-6. **Follow conventions**: Use conventional commits like `feat(ui): add new component`
-7. **Document changes**: Update README and add session documentation if significant
-8. **Submit pull request** with detailed description and testing notes
+**Follow the mandatory workflow sequence for ALL changes:**
+
+1. **Create a feature branch**: Use auto-branch creation from BACKLOG.md with `[new-branch: feature/name]` metadata
+2. **Server management**: ALWAYS use `/tmux-dev` for development servers (direct npm commands PROHIBITED)
+3. **UI development**: MANDATORY use of shadcn/ui + Radix UI patterns only (Material-UI, Ant Design PROHIBITED)
+4. **Code changes**: Implement with TypeScript strict mode and full type safety
+5. **Documentation**: Use `@documentation-manager update docs for [changes]` (manual docs updates PROHIBITED)
+6. **Git operations**: Use `@gitops-workflow-manager commit and push [description]` (direct Git operations PROHIBITED)
+7. **Testing**: Verify themes (Ctrl/Cmd + T), accessibility, and responsive design
+8. **Validation**: Use `.claude/start-task-validator.sh` to verify completion requirements
+9. **Quality gates**: Ensure agent workflow sequence completed and no prohibited patterns used
+
+**Automated systems will:**
+- Monitor file changes and trigger documentation updates
+- Validate task completion requirements before marking work done
+- Sync changes with GitHub Issues and Projects
+- Enforce workflow compliance through pre-commit hooks
 
 ## Contributing
 
@@ -338,15 +381,19 @@ I welcome ideas and contributions! Please follow these guidelines:
 6. **Push to the branch**: `git push origin feature/amazing-feature`
 7. **Open a Pull Request**
 
-### Code Guidelines
+### Code Guidelines (MANDATORY)
 
-- **Component Development**: Use shadcn/ui components and Radix UI primitives for consistency
+- **Component Development**: MANDATORY use of shadcn/ui components and Radix UI primitives only
 - **TypeScript**: Strict mode with comprehensive type definitions for all functions
 - **Theme System**: Use CSS custom properties and `useTheme` hook for theme-aware components
 - **Styling**: Tailwind utilities with semantic classes (`bg-muted`, `text-muted-foreground`)
 - **Accessibility**: Ensure keyboard navigation and ARIA compliance via Radix UI
 - **Testing**: Verify functionality across light/dark themes and responsive breakpoints
-- **Documentation**: Update README, CLAUDE.md, and session docs for significant changes
+- **Agent Workflow**: MANDATORY sequence: Code → @documentation-manager → @gitops-workflow-manager
+- **Server Operations**: MANDATORY use of `/tmux-dev` for all development server operations
+- **Documentation**: Use @documentation-manager agent only (manual updates PROHIBITED)
+- **Git Operations**: Use @gitops-workflow-manager agent only (direct Git commands PROHIBITED)
+- **Quality Validation**: Use task completion validator before marking work done
 
 ### Bug Reports
 
@@ -361,6 +408,8 @@ When reporting bugs, please include:
 ## 📋 Agent File Format
 
 CChorus uses Markdown files with YAML frontmatter:
+
+> **ℹ️ For complete development process and workflow requirements, see [PROCESS.md](./PROCESS.md)**
 
 ```markdown
 ---
@@ -394,6 +443,74 @@ You are an expert code reviewer with deep knowledge of software engineering best
 | `tools` | array/string | ❌ | Specific Claude Code tools (optional) |
 | `color` | string | ❌ | Hex color for visual identification |
 | `level` | string | ❌ | 'user' or 'project' (defaults to 'project') |
+
+## 🔄 Development Process & Automation
+
+### Workflow Enforcement
+
+CChorus implements **mandatory workflow sequences** to ensure code quality and documentation consistency:
+
+```bash
+# MANDATORY sequence for ALL changes:
+# 1. Code Changes (using shadcn/ui only)
+# 2. @documentation-manager update docs for [changes]
+# 3. @gitops-workflow-manager commit and push [description]
+```
+
+### Automation Systems
+
+**Auto-Documentation System:**
+```bash
+# Real-time file monitoring
+.claude/start-file-watcher.sh
+
+# Force complete documentation sync
+.claude/sync
+
+# Manual trigger (if auto-system fails)
+@documentation-manager update docs for pending changes
+```
+
+**Auto-Branch Creation:**
+```bash
+# Monitor BACKLOG.md for [new-branch] metadata
+.claude/start-auto-branch-creator.sh --watch
+
+# BACKLOG.md syntax:
+# - **Feature name** `[new-branch: feature/branch-name]`
+```
+
+**GitHub Integration:**
+```bash
+# Bi-directional sync with GitHub Issues/Projects
+.claude/start-github-sync.sh --sync
+
+# Setup GitHub integration
+.claude/start-github-sync.sh --setup
+```
+
+**Task Completion Validation:**
+```bash
+# Validate task before marking complete
+.claude/start-task-validator.sh --validate-task "task description"
+
+# Validate all current todos
+.claude/start-task-validator.sh --validate-todos
+```
+
+### Quality Gates
+
+**Frontend Tasks require:**
+- ✅ Playwright testing + user approval + shadcn/ui compliance + theme testing + accessibility validation
+
+**Backend Tasks require:**
+- ✅ API testing + error handling validation + security review
+
+**All Tasks require:**
+- ✅ Agent workflow sequence completion
+- ✅ Documentation updates via @documentation-manager
+- ✅ Git operations via @gitops-workflow-manager
+- ✅ No breaking changes detected
 
 ## 🛠️ Troubleshooting
 
@@ -430,6 +547,22 @@ You are an expert code reviewer with deep knowledge of software engineering best
 - Ensure you're starting from user home directory
 - Check folder permissions
 - Verify server is running with proper user context
+
+**Workflow violations (manual Git/docs operations)**
+- Solution: Always use agent workflow sequence
+- Prevention: Pre-commit hooks validate workflow compliance
+- Recovery: Use @documentation-manager then @gitops-workflow-manager
+
+**Server management issues**
+- Use `/tmux-dev` commands only (npm commands PROHIBITED)
+- Check tmux session status: `/tmux-dev list all running sessions`
+- Recovery: `/tmux-dev stop` then restart with proper commands
+
+**Automation system failures**
+- File watcher not triggering: Restart `.claude/start-file-watcher.sh`
+- Documentation out of sync: Run `.claude/sync` for force update
+- GitHub sync issues: Check `.claude/start-github-sync.sh --test`
+- Task validation errors: Use `.claude/start-task-validator.sh --validate-todos`
 
 ### Performance Optimization
 

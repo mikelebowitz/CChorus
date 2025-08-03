@@ -1,8 +1,9 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: 3-Column Interface [COMPLETED], Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING], Resource Assignment Panel [COMPLETED], Resource Data Service [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-08-02 - 3-Column interface with real resource integration, ResourceAssignmentPanel, enhanced caching -->
+<!-- Features: 3-Column Interface [COMPLETED], Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED WITH STREAMING + CACHING], Resource Assignment Panel [COMPLETED], Resource Data Service [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete CChorus platform with advanced automation infrastructure -->
+<!-- LAST_UPDATED: 2025-08-03 - All core features completed, automation systems operational, workflow enforcement active -->
 
 ## 🚀 Quick Start
 
@@ -20,12 +21,13 @@ git clone <repository-url>
 cd CChorus
 npm install
 
-# Start both frontend and backend (required)
-npm run dev:full
+# MANDATORY: Start servers using tmux-dev
+/tmux-dev start both frontend and backend in separate sessions
 
-# OR start individually:
-npm run dev       # Frontend only (port 5173)
-npm run dev:server # Backend only (port 3001)
+# PROHIBITED: Direct npm commands (use tmux-dev instead)
+# npm run dev:full    ❌
+# npm run dev         ❌ 
+# npm run dev:server  ❌
 ```
 
 ### First Time Access

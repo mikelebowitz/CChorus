@@ -1,7 +1,9 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED], 3-Column Interface [COMPLETED], Resource Assignment Panel [COMPLETED], Resource Data Service [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete CChorus platform with advanced automation infrastructure -->
+<!-- TEMPLATE_STATUS: Updated to reflect v2.0.0 completion state -->
 
 ## 🚀 Quick Start
 
@@ -15,8 +17,11 @@ CChorus is a comprehensive management platform for Claude Code resources. Get st
 # Install dependencies
 npm install
 
-# Start both frontend and backend
-npm run dev:full
+# MANDATORY: Start servers using tmux-dev
+/tmux-dev start both frontend and backend in separate sessions
+
+# PROHIBITED: Direct npm commands (use tmux-dev instead)
+# npm run dev:full    ❌
 ```
 
 Navigate to `http://localhost:5173` to access the CChorus interface.
