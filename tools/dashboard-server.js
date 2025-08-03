@@ -5,16 +5,21 @@
  * Real-time WebSocket server for development observability
  */
 
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+import express from 'express';
+import http from 'http';
+import { WebSocketServer } from 'ws';
+import fs from 'fs';
+import path from 'path';
+import { spawn, execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
 const PORT = process.env.DASHBOARD_PORT || 3002;
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -46,6 +51,11 @@ let dashboardState = {
 
 // Serve static dashboard
 app.use(express.static(path.join(__dirname)));
+
+// Root route - serve the dashboard HTML
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dev-dashboard.html'));
+});
 
 // API endpoints
 app.get('/api/status', (req, res) => {
@@ -94,7 +104,7 @@ function handleClientMessage(data, ws) {
 function broadcastUpdate(type, data) {
     const message = JSON.stringify({ type, data });
     wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client.readyState === 1) { // WebSocket.OPEN
             client.send(message);
         }
     });
@@ -143,7 +153,6 @@ function addActivity(agent, description, files = []) {
 function updateInfrastructureStatus() {
     // Check file watcher process
     try {
-        const { execSync } = require('child_process');
         const processes = execSync('ps aux | grep file-watcher', { encoding: 'utf8' });
         dashboardState.infrastructure.fileWatcher = processes.includes('python') ? 'running' : 'stopped';
     } catch (error) {
