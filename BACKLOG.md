@@ -19,9 +19,19 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ### Documentation Automation `[COMPLETED ✅]`
 - **Enhanced pre-compact hook** with automatic CHANGELOG.md updates and `/docgit` workflow triggers
-- **Real-time file watcher** with automatic documentation-manager invocation on code changes
+- **Real-time file watcher** with automatic documentation-manager invocation on code changes  
+- **SessionStart hook integration** with automatic file watcher startup on session launch
 - **Multiple trigger mechanisms** including fallback methods and session notices
 - **Documentation-manager agent** enhanced to maintain BACKLOG.md from todo items
+- **Environment controls** for optional session-end file watcher cleanup
+
+### GitHub Integration & Project Board `[COMPLETED ✅]`
+- **Bi-directional BACKLOG.md ↔ GitHub Issues synchronization** with automatic issue creation and status updates
+- **GitHub Actions workflow** for automated project board management with status-based column movement
+- **Status label management** with automatic `status: pending/in_progress/completed` labels on all Issues
+- **One-time project setup script** for bulk-adding existing Issues to project board with proper configuration
+- **Rate limiting and error handling** for reliable synchronization with comprehensive logging
+- **Environment template** and setup validation for GitHub integration configuration
 
 ## 💡 Ideas & Features
 
@@ -38,9 +48,9 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - Bulk resource operations UI
 
 ### Integration & Automation
-- GitHub Project integration for backlog tracking `[new-branch: feature/github-integration]`
-- Automated issue creation from backlog items
-- CI/CD pipeline for documentation validation
+- GitHub Project integration for backlog tracking `[COMPLETED ✅]`
+- Automated issue creation from backlog items `[COMPLETED ✅]`
+- CI/CD pipeline for documentation validation `[new-branch: feature/ci-cd-pipeline]`
 - Resource dependency tracking
 
 ## 🔬 Research & Investigation

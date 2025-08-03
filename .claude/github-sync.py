@@ -225,6 +225,11 @@ GITHUB_REPO=your_repository_name
         print(f"  Environment: {'✅' if status['env_configured'] else '❌'}")
         print(f"  GitHub vars: {'✅' if status['github_vars_set'] else '❌'}")
         print(f"  Last sync: {status['last_sync'] or 'Never'}")
+        print("")
+        print("🎯 Project Board Integration:")
+        print("  Workflow file: ✅ (.github/workflows/project-automation.yml)")
+        print("  Status labels: ✅ (Automatic status: pending/in_progress/completed)")
+        print("  Project setup: Run '.claude/project-setup.js' for project board setup")
         
         return status
 

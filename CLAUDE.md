@@ -7,6 +7,11 @@ Essential guidance for Claude Code when working with CChorus.
 ```bash
 npm install
 /tmux-dev start both frontend and backend in separate sessions
+
+# AUTOMATIC: File watcher starts automatically via SessionStart hook
+# Manual control (if needed):
+# .claude/start-file-watcher.sh  # Start manually
+# .claude/stop-file-watcher.sh   # Stop manually
 ```
 
 ## Project Overview
@@ -86,9 +91,16 @@ const StyledDiv = styled.div`color: red;`
 
 **Auto-trigger mechanisms:**
 - **Pre-compact hook**: Detects changes during session end, auto-invokes `/docgit`
-- **File watcher**: Real-time monitoring with immediate documentation triggers
+- **File watcher**: Real-time monitoring with immediate documentation triggers (start with `.claude/start-file-watcher.sh`)
 - **Trigger files**: `.claude/doc-update-needed.trigger` and `.claude/pending-agent-invocations.json`
 - **Session notices**: Automatic updates to `NEXT_SESSION.md` with required actions
+
+**Troubleshooting automation:**
+- File watcher not working? Install with: `pip3 install --user --break-system-packages watchdog`
+- Check if running: `ps aux | grep file-watcher`
+- Manual control: `.claude/start-file-watcher.sh` or `.claude/stop-file-watcher.sh`
+- Manual trigger: `.claude/sync` or `/docgit`
+- Stop on session end: Set `CCHORUS_STOP_WATCHER_ON_EXIT=true` environment variable
 
 ### Auto-Branch Creation System
 **Intelligent branch creation from BACKLOG.md metadata:**
@@ -134,6 +146,23 @@ const StyledDiv = styled.div`color: red;`
 - **Links branches to Issues** automatically via commit message patterns
 - **Rate limiting and error handling** for reliable synchronization
 
+### GitHub Project Board Integration
+**Automated kanban board management with visual progress tracking:**
+
+```bash
+# One-time setup: Add all issues to project board and enable automation
+.claude/project-setup.js
+
+# View project board status
+.claude/start-github-sync.sh --status
+```
+
+**Project automation features:**
+- **Auto-adds new Issues** to Project board via GitHub Actions workflow
+- **Status label management** with automatic `status: pending/in_progress/completed` labels
+- **Column automation** moves Issues based on status changes and completion
+- **Visual progress tracking** with kanban board view of all BACKLOG.md items
+
 ### Task Completion Requirements
 **Automated validation system prevents premature task completion:**
 
@@ -161,8 +190,15 @@ const StyledDiv = styled.div`color: red;`
 ## Current Status
 
 **Branch**: `feature/3-column-layout` (COMPLETED ✅)
+**Automation**: Comprehensive development workflow system active (✅ File watcher, ✅ GitHub sync, ✅ Task validation)
 **Roadmap**: See [BACKLOG.md](./BACKLOG.md) for upcoming work
 **History**: See [CHANGELOG.md](./CHANGELOG.md) for completed work
 
 ---
 **Documentation Strategy**: CLAUDE.md (strategic), BACKLOG.md (future), CHANGELOG.md (past), PROCESS.md (workflow)
+
+## File Watcher Status
+
+**Real-time monitoring**: ✅ Active (PID: Check with `ps aux | grep file-watcher`)
+**Auto-documentation**: ✅ Triggers documentation-manager on code changes
+**Session triggers**: ✅ Updates NEXT_SESSION.md with real-time notices

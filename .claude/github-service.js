@@ -286,6 +286,10 @@ class CChorusGitHubService {
             if (item.section.includes('High Priority')) labels.push('high-priority');
             if (item.branchName) labels.push('has-branch');
             
+            // Add status label
+            const statusLabel = `status: ${item.status || 'pending'}`;
+            labels.push(statusLabel);
+            
             // Create issue
             const issueData = {
                 owner: this.config.repository.owner,
@@ -458,6 +462,37 @@ class CChorusGitHubService {
             };
             
             await this.octokit.rest.issues.update(updateData);
+            
+            // Update status labels
+            const currentLabels = issue.labels.map(l => l.name);
+            const statusLabels = currentLabels.filter(l => l.startsWith('status: '));
+            const newStatusLabel = `status: ${item.status || 'pending'}`;
+            
+            // Remove old status labels
+            for (const oldLabel of statusLabels) {
+                if (oldLabel !== newStatusLabel) {
+                    try {
+                        await this.octokit.rest.issues.removeLabel({
+                            owner: this.config.repository.owner,
+                            repo: this.config.repository.repo,
+                            issue_number: issue.number,
+                            name: oldLabel
+                        });
+                    } catch (e) {
+                        // Label might not exist, ignore
+                    }
+                }
+            }
+            
+            // Add new status label if not present
+            if (!currentLabels.includes(newStatusLabel)) {
+                await this.octokit.rest.issues.addLabels({
+                    owner: this.config.repository.owner,
+                    repo: this.config.repository.repo,
+                    issue_number: issue.number,
+                    labels: [newStatusLabel]
+                });
+            }
             
             console.log(`✅ Updated GitHub Issue #${issue.number}: ${item.title}`);
             

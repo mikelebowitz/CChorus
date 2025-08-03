@@ -76,6 +76,9 @@ class CChorusPreCompactHook:
                 self._mark_session_ready_for_gitops()
                 self.log("Marked session ready for GitOps agent")
             
+            # Optional: Stop file watcher on session end
+            self._handle_file_watcher_shutdown()
+            
             return {
                 "success": True,
                 "session_documented": True,
@@ -1322,6 +1325,35 @@ Check `docs/sessions/` for the latest session summary with detailed context.
             details.append("- shadcn/ui patterns followed correctly")
         
         return '\n'.join(details)
+    
+    def _handle_file_watcher_shutdown(self) -> None:
+        """Optionally stop file watcher on session end based on environment variable."""
+        shutdown_watcher = os.environ.get('CCHORUS_STOP_WATCHER_ON_EXIT', 'false').lower() == 'true'
+        
+        if not shutdown_watcher:
+            self.log("File watcher shutdown disabled (set CCHORUS_STOP_WATCHER_ON_EXIT=true to enable)")
+            return
+        
+        self.log("Checking if file watcher should be stopped on session end")
+        
+        try:
+            stop_script = self.project_root / ".claude" / "stop-file-watcher.sh"
+            if stop_script.exists():
+                self.log("Stopping file watcher...")
+                result = subprocess.run([str(stop_script)], 
+                                      capture_output=True, 
+                                      text=True, 
+                                      timeout=10)
+                
+                if result.returncode == 0:
+                    self.log("File watcher stopped successfully")
+                else:
+                    self.log(f"File watcher stop script failed: {result.stderr}")
+            else:
+                self.log("File watcher stop script not found")
+                
+        except Exception as e:
+            self.log(f"Error stopping file watcher: {e}")
 
 def main():
     """Main entry point for CChorus pre-compact hook."""

@@ -43,10 +43,12 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 
 #### **🤖 Intelligent Automation Systems**
 - **📚 Auto-Documentation** - Real-time documentation updates triggered by code changes with file watchers and pre-compact hooks
-- **🌿 Auto-Branch Creation** - Intelligent branch creation from BACKLOG.md metadata with GitOps integration
+- **🌿 Auto-Branch Creation** - Intelligent branch creation from BACKLOG.md metadata with GitOps integration  
 - **🐙 GitHub Synchronization** - Bi-directional sync between BACKLOG.md and GitHub Issues/Projects with automatic labeling
 - **✅ Task Validation** - Automated validation system prevents premature task completion with category-specific requirements
 - **📋 Workflow Enforcement** - Mandatory agent sequences ensure documentation and Git operations follow proper workflows
+- **🔄 Session Management** - Automatic file watcher startup on session launch and comprehensive automation lifecycle
+- **📊 Project Board Integration** - GitHub Actions workflows and automated kanban board management
 
 #### **🔍 Enhanced Resource Discovery**
 
@@ -84,10 +86,13 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 ### Prerequisites
 
 - **Node.js** 18.0 or higher
-- **npm** 9.0 or higher
+- **npm** 9.0 or higher  
 - **Claude Desktop** (for MCP integration)
 - **tmux** (for development server management)
 - **Git** (for version control and automation)
+- **Python 3.7+** (for automation scripts)
+- **watchdog** Python package (for file watching: `pip3 install --user --break-system-packages watchdog`)
+- **GitHub Token** (optional, for GitHub integration)
 
 ### Installation
 
@@ -111,13 +116,27 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    npm run dev:full
    ```
 
-4. **Open your browser**
+4. **Optional: Setup GitHub Integration**
+   ```bash
+   # Copy environment template
+   cp .env.template .env
+   
+   # Edit .env with your GitHub credentials
+   # GITHUB_TOKEN=your_token_here
+   # GITHUB_OWNER=your_username
+   # GITHUB_REPO=your_repo_name
+   
+   # Test GitHub integration
+   .claude/start-github-sync.sh --test
+   ```
+
+5. **Open your browser**
    ```
    Frontend: http://localhost:5173
    Backend API: http://localhost:3001
    ```
    
-   **Note**: CChorus now opens with the modern 3-column interface by default. Use the layout toggle button to switch between 3-column and classic tabbed interfaces.
+   **Note**: CChorus now opens with the modern 3-column interface by default. Use the layout toggle button to switch between 3-column and classic tabbed interfaces. The file watcher starts automatically for real-time documentation updates.
 
 ### Development Server Management
 
@@ -175,11 +194,13 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 - **@uiw/react-md-editor** - Rich markdown editor with live preview for CLAUDE.md editing
 
 ### Backend Stack
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
+- **Node.js** - JavaScript runtime with ESM module support
+- **Express.js** - Web application framework with CORS middleware
+- **@octokit/rest** - GitHub API integration for Issues and Projects
+- **dotenv** - Environment variable management for GitHub credentials
 - **Enhanced Resource Scanners** - Improved discovery with deduplication and error handling
 - **readdirp v4** - Streaming filesystem traversal for efficient resource discovery
-- **CORS Support** - Cross-origin resource sharing for development
+- **Python Automation Scripts** - File watching, task validation, and GitHub synchronization
 
 ### Project Structure
 
@@ -219,12 +240,22 @@ cchorus/
 │   ├── App.tsx             # Main application with theme provider
 │   ├── main.tsx            # Application entry point
 │   └── index.css           # CSS custom properties and Tailwind
-├── docs/sessions/          # 19+ development session logs
+├── docs/sessions/          # 20+ development session logs with comprehensive automation records
+├── .claude/                # Automation infrastructure and configuration
+│   ├── agents/             # Agent definitions and management
+│   ├── hooks/              # Pre-compact and session hooks
+│   ├── commands/           # Custom slash commands
+│   ├── settings.json       # Claude Code configuration with SessionStart hooks
+│   ├── *.py               # Python automation scripts (file-watcher, sync, validation)
+│   ├── *.sh               # Shell script automation launchers
+│   └── *.js               # GitHub integration and project setup
+├── .github/workflows/      # GitHub Actions for project automation
 ├── public/                 # Static assets
-├── server.js              # Express.js backend server
+├── server.js              # Express.js backend server with GitHub integration
 ├── components.json         # shadcn/ui configuration
 ├── tailwind.config.js     # Tailwind + shadcn/ui configuration
-└── package.json           # Dependencies and scripts
+├── .env.template          # GitHub integration environment template
+└── package.json           # Dependencies and scripts with automation tools
 ```
 
 ## Configuration
@@ -288,12 +319,14 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 > **📈 For development workflow and process enforcement, see [PROCESS.md](./PROCESS.md)**
 
 ### Current Status (August 2025) - Version 2.0.0
-- ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners
+- ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners with enhanced GitHub integration
 - ✅ **3-Column UI Architecture** (100% complete) - Professional interface with real resource data integration
 - ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel
 - ✅ **Core Resource Management** (100% complete) - Resource Library, Assignment Manager, Project Manager with enhanced caching
 - ✅ **Advanced Automation Systems** (100% complete) - Auto-documentation, branch creation, GitHub sync, task validation
 - ✅ **Process Automation** (100% complete) - Workflow enforcement, agent sequences, documentation triggers
+- ✅ **GitHub Integration Platform** (100% complete) - Issues/Projects sync, automated labeling, project board workflows
+- ✅ **Developer Workflow System** (100% complete) - Session hooks, file watching, task validation, quality gates
 
 ### What's Next
 - Enhanced resource editing capabilities within 3-column layout
@@ -328,10 +361,12 @@ npm run lint:fix     # Fix ESLint issues automatically
 
 # Automation Commands
 .claude/sync                           # Force documentation synchronization
-.claude/start-file-watcher.sh         # Start real-time documentation monitoring
+.claude/start-file-watcher.sh         # Start real-time documentation monitoring (auto-starts on session launch)
+.claude/stop-file-watcher.sh          # Stop file watcher process
 .claude/start-auto-branch-creator.sh  # Monitor BACKLOG.md for branch creation
-.claude/start-github-sync.sh           # GitHub Issues/Projects synchronization
-.claude/start-task-validator.sh        # Validate task completion requirements
+.claude/start-github-sync.sh          # GitHub Issues/Projects synchronization  
+.claude/start-task-validator.sh       # Validate task completion requirements
+.claude/project-setup.js              # One-time GitHub project board setup
 ```
 
 ### Code Style & Architecture
@@ -559,10 +594,13 @@ CChorus implements **mandatory workflow sequences** to ensure code quality and d
 - Recovery: `/tmux-dev stop` then restart with proper commands
 
 **Automation system failures**
-- File watcher not triggering: Restart `.claude/start-file-watcher.sh`
-- Documentation out of sync: Run `.claude/sync` for force update
-- GitHub sync issues: Check `.claude/start-github-sync.sh --test`
+- File watcher not starting: Install watchdog with `pip3 install --user --break-system-packages watchdog`
+- File watcher not triggering: Check `ps aux | grep file-watcher` and restart `.claude/start-file-watcher.sh`
+- Documentation out of sync: Run `.claude/sync` for force update or check `.claude/pending-agent-invocations.json`
+- GitHub sync issues: Check `.claude/start-github-sync.sh --test` and verify `.env` file setup
 - Task validation errors: Use `.claude/start-task-validator.sh --validate-todos`
+- SessionStart hook issues: Check `.claude/settings.json` and verify hook configuration
+- Project board sync problems: Run `.claude/project-setup.js` for one-time setup
 
 ### Performance Optimization
 

@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matchers": ["startup", "resume"],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-file-watcher.sh --auto-start"
+          }
+        ]
+      }
+    ],
     "PreCompact": [
       {
         "hooks": [
