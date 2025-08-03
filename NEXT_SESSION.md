@@ -1,5 +1,35 @@
 # Next Session Brief
 
+## 🔔 REAL-TIME: Documentation Update Needed
+
+**Auto-detected by file watcher at 2025-08-03 11:22:19**
+
+**Files Changed**: 2 files
+**Priority**: HIGH
+
+```bash
+# IMMEDIATE ACTION REQUIRED:
+@documentation-manager please update documentation for recent file changes
+# After completion:
+@gitops-workflow-manager please commit and push changes
+```
+
+**Changed Files**:
+- documentation-manager.md
+- CLAUDE.md
+
+
+**Trigger Files**: 
+- `.claude/doc-update-needed.trigger`
+- `.claude/pending-agent-invocations.json`
+
+---
+
+
+
+
+
+
 **Generated**: 2025-07-31 15:34
 
 ## Quick Context
