@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "agent": "documentation-manager",
+    "timestamp": "2025-08-03T12:03:33.163194",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 1 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "2025-08-03T12:11:53.542205",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docgit.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+    ]
+  }
+]

@@ -89,8 +89,8 @@ const StyledDiv = styled.div`color: red;`
 **Real-time documentation monitoring with multiple trigger methods:**
 
 ```bash
-# Start real-time file watcher (optional but recommended)
-.claude/start-file-watcher.sh
+# Real-time file watcher (auto-starts on session launch)
+# Check status: ps aux | grep file-watcher
 
 # Force complete documentation synchronization
 .claude/sync
@@ -101,14 +101,14 @@ const StyledDiv = styled.div`color: red;`
 
 **Auto-trigger mechanisms:**
 - **Pre-compact hook**: Detects changes during session end, auto-invokes `/docgit`
-- **File watcher**: Real-time monitoring with immediate documentation triggers (start with `.claude/start-file-watcher.sh`)
+- **File watcher**: Real-time monitoring with immediate documentation triggers (auto-starts via SessionStart hooks)
 - **Trigger files**: `.claude/doc-update-needed.trigger` and `.claude/pending-agent-invocations.json`
 - **Session notices**: Automatic updates to `NEXT_SESSION.md` with required actions
 
 **Troubleshooting automation:**
 - File watcher not working? Install with: `pip3 install --user --break-system-packages watchdog`
 - Check if running: `ps aux | grep file-watcher`
-- Manual control: `.claude/start-file-watcher.sh` or `.claude/stop-file-watcher.sh`
+- Manual restart (troubleshooting only): `.claude/start-file-watcher.sh` or `.claude/stop-file-watcher.sh`
 - Manual trigger: `.claude/sync` or `/docgit`
 - Stop on session end: Set `CCHORUS_STOP_WATCHER_ON_EXIT=true` environment variable
 
@@ -207,8 +207,10 @@ const StyledDiv = styled.div`color: red;`
 ---
 **Documentation Strategy**: CLAUDE.md (strategic), BACKLOG.md (future), CHANGELOG.md (past), PROCESS.md (workflow)
 
-## File Watcher Status
+## Automation Infrastructure Status
 
-**Real-time monitoring**: ✅ Active (PID: Check with `ps aux | grep file-watcher`)
+**Real-time file watcher**: ✅ Auto-starts on session launch (check: `ps aux | grep file-watcher`)
 **Auto-documentation**: ✅ Triggers documentation-manager on code changes
 **Session triggers**: ✅ Updates NEXT_SESSION.md with real-time notices
+**GitHub sync**: ✅ Auto-starts with timeout protection
+**Auto-branch creator**: ✅ Monitors BACKLOG.md for branch metadata

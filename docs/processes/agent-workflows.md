@@ -9,6 +9,12 @@
 3. **Documentation Completion**: **MUST** verify documentation agent has completed all required updates, status markers, and cross-references
 4. **GitOps Operations**: **ONLY THEN** allow GitOps agent to handle commits, pushes, and Git workflow management
 
+**AUTOMATED WORKFLOW**: Use `/docgit` command for streamlined automation:
+- **Purpose**: Executes complete documentation and GitOps sequence automatically
+- **Usage**: Simply type `/docgit` when code work is complete
+- **Benefits**: Zero manual input, automatic change detection, enforces proper workflow sequence
+- **Integration**: Auto-triggered by pre-compact hooks when changes are detected
+
 ## Agent Separation of Concerns
 
 ### Documentation Agent (`@documentation-manager`)
@@ -57,10 +63,11 @@ Before marking ANY task "completed", verify:
 ## Developer Responsibilities
 
 ### Development Setup
-1. **MUST** use `/tmux-dev` for all development server operations
-2. **MUST** verify servers are running before beginning development work
-3. **MUST** use non-blocking server monitoring workflows
-4. **PROHIBITED** from using direct npm server commands
+1. **MUST** use VS Code automatic server startup (servers auto-start when folder opens via .vscode/tasks.json)
+2. **MUST** verify servers are running in VS Code terminal tabs before beginning development work
+3. **FALLBACK** use VS Code Tasks (`Cmd+Shift+P` → "Tasks: Run Task") if auto-start fails
+4. **DEPRECATED** `/tmux-dev` commands (replaced with VS Code integration in v2.0.0)
+5. **PROHIBITED** from using direct npm server commands without proper task configuration
 
 ### Agent Workflow Sequence
 1. **MUST** follow the mandatory agent sequence: Code → Documentation → GitOps
@@ -75,18 +82,18 @@ Before marking ANY task "completed", verify:
 5. **MUST** ensure GitOps operations happen only after documentation completion
 
 ### During Development
-1. **MUST** use `/tmux-dev` for all server status checks and debugging
+1. **MUST** monitor server status in VS Code terminal tabs (grouped as "cchorus")
 2. **SHOULD** invoke documentation agent for significant interim changes
 3. **MUST** coordinate with agent for API endpoint modifications
 4. **SHOULD** request documentation review for complex features
-5. **SHOULD** monitor server health using tmux-dev workflows
+5. **SHOULD** use VS Code Tasks for server management and health monitoring
 
 ### Quality Assurance
 1. **MUST** verify documentation agent has completed all required updates
 2. **MUST** confirm all code examples in documentation are functional
 3. **MUST** validate that user workflows match actual UI behavior
 4. **MUST** ensure cross-references between documents are accurate
-5. **MUST** verify proper server management using tmux-dev throughout development
+5. **MUST** verify proper server management using VS Code terminal integration throughout development
 
 ## GitOps Integration
 

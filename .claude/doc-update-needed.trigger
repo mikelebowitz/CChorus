@@ -1,18 +1,12 @@
 {
-  "timestamp": "2025-08-03T12:00:00",
-  "status": "completed",
-  "last_commit": "docs: complete Linear-style 3-column layout implementation with VS Code workflow",
-  "documentation_completed": true,
-  "gitops_completed": true,
-  "changes_committed": [
-    "BACKLOG.md",
-    "CHANGELOG.md", 
-    "CLAUDE.md",
-    "NEXT_SESSION.md",
-    "docs/sessions/SESSION_2025-08-03_11-54.md",
-    "docs/sessions/SESSION_2025-08-03_11-54_CCHORUS.md",
-    ".claude/doc-update-needed.trigger",
-    ".claude/pending-agent-invocations.json"
+  "timestamp": "2025-08-03T12:11:53.541109",
+  "reason": "Auto-triggered by file watcher",
+  "changes_detected": [
+    "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docgit.md",
+    "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
   ],
-  "next_action": "none - documentation sync complete"
+  "change_count": 2,
+  "workflow": "documentation-manager -> gitops-workflow-manager",
+  "instructions": "Run: @documentation-manager update docs then @gitops-workflow-manager commit",
+  "priority": "high"
 }
