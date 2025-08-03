@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-file-watcher.sh --auto-start"
+          },
+          {
+            "type": "command",
+            "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-auto-branch-creator.sh --watch"
           }
         ]
       }
