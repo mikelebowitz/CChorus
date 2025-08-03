@@ -15,7 +15,7 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ### Branch Strategy Enhancement `[new-branch: feature/branch-strategy]`
 - **Implement intelligent branch grouping** - Auto-detect bug fixes vs features for branch assignment
-- **Smart branch metadata system** - Support `[branch: existing]` vs `[new-branch: create]` tags
+- **Smart branch metadata system** - Support `[branch: existing]` vs `[new-branch: branch-name]` tags
 - **Auto-branch creator enhancement** - Detect patterns (Fix/Bug → individual branches, Features → grouped)
 - **Branch naming conventions** - Enforce fix/, feature/, hotfix/, docs/, refactor/, chore/, test/ prefixes
 - **Bug fixes get individual branches** - Automatic fix/ prefix detection and branch creation
@@ -157,7 +157,7 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ## 📋 Branch Creation Guide
 
-Items marked with `[new-branch: branch-name]` trigger **automatic Git branch creation**:
+Items marked with `[new-branch: specific-branch-name]` trigger **automatic Git branch creation**:
 
 **Branch Naming Convention:**
 - `feature/` - New features and major enhancements (groups multiple related tasks)
@@ -171,8 +171,8 @@ Items marked with `[new-branch: branch-name]` trigger **automatic Git branch cre
 **Intelligent Branch Assignment:**
 - Items starting with "Fix" or marked as bugs → Automatic `fix/` branches
 - Feature sections with multiple items → Grouped under single `feature/` branch
-- Use `[branch: name]` to assign to existing/planned branch
-- Use `[new-branch: name]` to create new branch when work begins
+- Use `[branch: existing-name]` to assign to existing/planned branch
+- Use `[new-branch: specific-name]` to create new branch when work begins
 
 **Auto-Branch Creation System `[COMPLETED ✅]`:**
 - **Real-time monitoring**: `.claude/start-auto-branch-creator.sh --watch`
