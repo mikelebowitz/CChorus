@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Checkbox } from './ui/checkbox';
 import { 
   Search, 
   Filter, 
@@ -160,14 +161,11 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
             </div>
             
             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isSelected}
-                onChange={(e) => {
-                  e.stopPropagation();
+                onCheckedChange={(checked) => {
                   toggleResourceSelection(resource.id);
                 }}
-                className="w-4 h-4"
               />
             </div>
           </div>

@@ -278,7 +278,7 @@ class CChorusPreCompactHook:
             # Method 1: Create a documentation trigger file
             trigger_file = self.project_root / ".claude" / "doc-update-needed.trigger"
             trigger_content = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
                 "reason": "Auto-triggered by pre-compact hook",
                 "changes_detected": True,
                 "workflow": "documentation-manager -> gitops-workflow-manager",
@@ -373,7 +373,7 @@ class CChorusPreCompactHook:
             # Add documentation manager invocation
             new_invocation = {
                 "agent": "documentation-manager",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
                 "trigger": "pre-compact-auto",
                 "prompt": "Auto-triggered: Please update documentation for code changes detected by pre-compact hook",
                 "priority": "high",

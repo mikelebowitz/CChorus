@@ -95,7 +95,7 @@ class CChorusTaskValidator:
             "task_content": task_content,
             "task_priority": task_priority,
             "can_complete": False,
-            "validation_timestamp": datetime.now().isoformat(),
+            "validation_timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
             "checks_performed": [],
             "failures": [],
             "recommendations": [],
@@ -541,7 +541,7 @@ class CChorusTaskValidator:
     def validate_current_todos(self) -> Dict:
         """Validate all current todos that are marked as completed."""
         results = {
-            "validation_timestamp": datetime.now().isoformat(),
+            "validation_timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
             "validated_tasks": [],
             "validation_summary": {
                 "total_completed_tasks": 0,

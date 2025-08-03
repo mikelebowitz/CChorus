@@ -86,7 +86,7 @@ class CChorusAutoBranchCreator:
                         'branch_name': branch_name,
                         'description': description,
                         'source': 'BACKLOG.md metadata',
-                        'timestamp': datetime.now().isoformat(),
+                        'timestamp': datetime.now().strftime('%I:%M:%S%p').lower(),
                         'priority': self._determine_priority(description)
                     })
             
@@ -274,7 +274,7 @@ class CChorusAutoBranchCreator:
         creation_log = {
             'branch_name': trigger['branch_name'],
             'description': trigger['description'],
-            'created_at': datetime.now().isoformat(),
+            'created_at': datetime.now().strftime('%I:%M:%S%p').lower(),
             'priority': trigger['priority'],
             'source': trigger['source']
         }
@@ -282,7 +282,7 @@ class CChorusAutoBranchCreator:
         self.branch_log['created_branches'].append(creation_log)
         self.branch_log['statistics']['total_branches_created'] += 1
         self.branch_log['statistics']['last_creation_date'] = creation_log['created_at']
-        self.branch_log['last_scan'] = datetime.now().isoformat()
+        self.branch_log['last_scan'] = datetime.now().strftime('%I:%M:%S%p').lower()
         
         self._save_branch_log()
         print(f"📝 Logged branch creation: {trigger['branch_name']}")
@@ -300,7 +300,7 @@ class CChorusAutoBranchCreator:
             
             new_invocation = {
                 "agent": "gitops-workflow-manager",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
                 "trigger": "auto-branch-creation",
                 "prompt": f"Auto-created branch '{trigger['branch_name']}' for: {trigger['description']}. Please manage branch workflow and coordinate with development.",
                 "priority": trigger['priority'],

@@ -21,6 +21,7 @@ import { Input } from './ui/input';
 import { ProjectManager } from './ProjectManager';
 import { ClaudeMdEditor } from './ClaudeMdEditor';
 import { ResourceAssignmentPanel } from './ResourceAssignmentPanel';
+import { PropertiesPanel } from './PropertiesPanel';
 import { ClaudeProject } from '../types';
 import { ResourceDataService, ResourceItem, AgentResource } from '../utils/resourceDataService';
 import MDEditor from '@uiw/react-md-editor';
@@ -468,124 +469,31 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
   };
 
   const renderContentColumn = () => {
-    // Projects view with ClaudeMdEditor
+    // Always show PropertiesPanel on the right
+    let selectedItem = null;
+    
+    // Convert selected items to properties format
     if (selectedNavItem === 'projects' && selectedProject) {
-      return (
-        <ClaudeMdEditor 
-          project={selectedProject}
-          onContentChange={(project, content) => {
-            console.log('CLAUDE.md updated for project:', project.name);
-          }}
-        />
-      );
+      selectedItem = {
+        type: 'project' as const,
+        name: selectedProject.name,
+        path: selectedProject.path,
+        lastModified: selectedProject.lastModified,
+        description: `Claude Code project configuration`
+      };
+    } else if (selectedResource && selectedNavItem !== 'projects') {
+      selectedItem = {
+        type: selectedResource.type,
+        name: selectedResource.name,
+        path: selectedResource.path,
+        lastModified: selectedResource.lastModified,
+        scope: selectedResource.scope,
+        description: selectedResource.description,
+        tools: (selectedResource as AgentResource).tools
+      };
     }
 
-    // Resource views with assignment panel and content viewer
-    if (selectedResource && selectedNavItem !== 'projects') {
-      const assignments = resourceAssignments.get(selectedResource.name) || [];
-      
-      return (
-        <div className="h-full flex flex-col bg-background">
-          {/* Assignment Panel - shown for agents, commands, hooks */}
-          {['agent', 'command', 'hook'].includes(selectedResource.type) && (
-            <ResourceAssignmentPanel 
-              resource={selectedResource}
-              assignments={assignments}
-              allProjects={projects}
-              onAssignmentChange={handleAssignmentChange}
-            />
-          )}
-          
-          {/* Resource Content */}
-          <div className="flex-1 overflow-auto p-4">
-            {selectedResource.type === 'agent' && (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
-                  {(selectedResource as AgentResource).tools && (
-                    <div className="mb-4">
-                      <span className="text-sm font-medium">Tools: </span>
-                      <span className="text-sm text-muted-foreground">
-                        {(selectedResource as AgentResource).tools?.join(', ')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <MDEditor
-                  value={(selectedResource as AgentResource).content || ''}
-                  preview="preview"
-                  hideToolbar
-                  height={400}
-                  data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
-                />
-              </div>
-            )}
-            
-            {selectedResource.type === 'command' && (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
-                  <div className="rounded-lg bg-muted p-4">
-                    <p className="text-sm font-mono">{selectedResource.description}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {selectedResource.type === 'hook' && (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-lg font-semibold mb-2">{selectedResource.name}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{selectedResource.description}</p>
-                  <div className="rounded-lg bg-muted p-4">
-                    <pre className="text-sm overflow-x-auto">
-                      {JSON.stringify((selectedResource as any).configuration, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {selectedResource.type === 'claude-file' && (
-              <div className="h-full">
-                <ClaudeMdEditor 
-                  project={{ 
-                    path: selectedResource.filePath?.replace('/CLAUDE.md', '') || '', 
-                    name: selectedResource.name.replace('/CLAUDE.md', '') 
-                  } as ClaudeProject}
-                  onContentChange={(project, content) => {
-                    console.log('CLAUDE.md updated:', selectedResource.name);
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    // Default placeholder
-    return (
-      <div className="h-full flex flex-col bg-background">
-        <div className="flex-1 p-6">
-          <div className="h-full border-2 border-dashed border-muted rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <FileText size={48} className="mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                {selectedNavItem === 'projects' ? 'Select a project' : 'Select a resource'}
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md">
-                {selectedNavItem === 'projects' 
-                  ? 'Choose a project from the list to edit its CLAUDE.md file.'
-                  : 'Choose an item from the list to view and edit its content. The editor will adapt based on the type of resource selected.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <PropertiesPanel selectedItem={selectedItem} />;
   };
 
   return (
@@ -634,13 +542,13 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
           {renderSidebar()}
         </div>
         
-        {/* Middle Column - Fixed width for now */}
-        <div className="w-80 flex-shrink-0">
+        {/* Middle Column - Widest column */}
+        <div className="flex-1 min-w-0">
           {renderMiddleColumn()}
         </div>
         
-        {/* Right Content Column - Takes remaining space */}
-        <div className="flex-1 min-w-0">
+        {/* Right Content Column - Fixed width for properties */}
+        <div className="w-80 flex-shrink-0">
           {renderContentColumn()}
         </div>
       </div>

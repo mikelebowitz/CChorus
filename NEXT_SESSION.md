@@ -1,50 +1,126 @@
 # CChorus Next Session Brief
 
-##  COMPLETED: Comprehensive Documentation Updates
+## 🔔 REAL-TIME: Documentation Update Needed
 
-**Updated**: 2025-08-03 07:03  
-**Documentation Manager**: Successfully processed all pending changes  
-**Status**: ALL AUTOMATION INFRASTRUCTURE DOCUMENTED
+**Auto-detected by file watcher at 2025-08-03 10:10:55**
 
-### =� Documentation Updates Completed
+**Files Changed**: 3 files
+**Priority**: MEDIUM
 
-**Files Updated**:
-- README.md: Enhanced automation infrastructure documentation
-- BACKLOG.md: Marked GitHub integration as completed, added session management features
-- CLAUDE.md: Updated current status with automation system indicators
+```bash
+# IMMEDIATE ACTION REQUIRED:
+@documentation-manager please update documentation for recent file changes
+# After completion:
+@gitops-workflow-manager please commit and push changes
+```
 
-**Key Additions**:
--  Comprehensive automation infrastructure documentation
--  GitHub integration setup instructions and troubleshooting
--  File watcher system documentation with session management hooks
--  Project board automation and one-time setup procedures
--  Enhanced prerequisite list with Python dependencies
--  Updated project structure to reflect .claude/ automation infrastructure
--  Backend stack updates including @octokit/rest and dotenv
--  Expanded troubleshooting section for automation systems
+**Changed Files**:
+- ThreeColumnLayout.tsx.tmp.91485.1754226485952
+- ThreeColumnLayout.tsx
+- ThreeColumnLayout.tsx.tmp.91485.1754230255592
 
-### <� Current CChorus Status (v2.0.0)
 
-**COMPLETED SYSTEMS**:
-- Backend Infrastructure (100% complete)
-- 3-Column UI Architecture (100% complete) 
-- Resource Assignment System (100% complete)
-- Core Resource Management (100% complete)
-- **Advanced Automation Systems (100% complete)**
-- **Process Automation (100% complete)**
-- **GitHub Integration Platform (100% complete)**
-- **Developer Workflow System (100% complete)**
-
-**ACTIVE AUTOMATION**:
-- Real-time file watcher monitoring (currently running)
-- SessionStart hooks for automatic startup
-- Pre-compact hooks for workflow enforcement
-- GitHub synchronization ready (setup with .env)
-- Task validation system active
-- Documentation triggers operational
+**Trigger Files**: 
+- `.claude/doc-update-needed.trigger`
+- `.claude/pending-agent-invocations.json`
 
 ---
 
-**Next Session Focus**: Ready for new development work - all automation infrastructure is documented and operational.
 
-**Note**: File watcher successfully detected and processed documentation changes in real-time during this session.
+
+**Generated**: 2025-08-03 09:08
+**Project**: CChorus - Claude Code Resource Management Platform
+
+## 🚀 Quick Resume
+
+**Branch**: feature/3-column-layout
+**Last Activity**: August 03, 2025
+
+## 🖥️ MANDATORY: Development Server Commands
+
+```bash
+# Navigate to CChorus project
+cd /Users/mikelebowitz/Documents/Code/CChorus
+
+# REQUIRED: Start development servers using tmux-dev
+/tmux-dev start frontend server in session cchorus-frontend
+/tmux-dev start backend server in session cchorus-backend
+
+# Monitor servers (non-blocking)
+/tmux-dev check logs from cchorus-frontend
+/tmux-dev show last 50 lines from cchorus-backend
+
+# List running sessions
+/tmux-dev list all running sessions
+```
+
+## 🚫 PROHIBITED Commands
+
+```bash
+# These are FORBIDDEN - use /tmux-dev instead:
+# npm run dev                 ❌
+# npm run dev:server          ❌
+# npm run dev:full            ❌
+```
+
+## 📚 Agent Workflow Reminder
+
+**MANDATORY SEQUENCE**: Code Changes → Documentation Agent → GitOps Agent
+
+```bash
+# When making changes, follow this workflow:
+# 1. Complete your code changes
+# 2. Invoke: @documentation-manager please update documentation for [changes]
+# 3. Verify documentation agent completion
+# 4. Let GitOps agent handle commits and pushes
+```
+
+## 🎯 Active Development Context
+
+Check `docs/sessions/` for the latest session summary with detailed context.
+
+## 📂 Git Status Summary
+
+```
+ M .claude/auto-branch-creator.py
+ M .claude/doc-update-needed.trigger
+ M .claude/file-watcher.py
+ M .claude/github-sync.py
+ M .claude/hooks/pre-compact.py
+ M .claude/pending-agent-invocations.json
+ M .claude/settings.json
+ M .claude/sync-command.py
+ M .claude/task-completion-validator.py
+ M BACKLOG.md
+ M CHANGELOG.md
+MM NEXT_SESSION.md
+A  docs/sessions/SESSION_2025-08-03_08-55.md
+A  docs/sessions/SESSION_2025-08-03_08-55_CCHORUS.md
+ M package-lock.json
+ M package.json
+ M src/components/FileBrowser.tsx
+ M src/components/FileSearch.tsx
+ M src/components/ResourceLibrary.tsx
+ M src/components/ThreeColumnLayout.tsx
+ M src/components/ui/badge.tsx
+ M src/components/ui/separator.tsx
+?? docs/sessions/SESSION_2025-08-03_09-08.md
+?? docs/sessions/SESSION_2025-08-03_09-08_CCHORUS.md
+?? src/components/PropertiesPanel.tsx
+?? src/components/ui/label.tsx
+?? src/components/ui/slide-transition.tsx
+
+```
+
+## 🔧 CChorus Development Reminders
+
+- **Resource Library**: Unified browser for all Claude Code resources
+- **Assignment Manager**: Deploy and manage resource assignments  
+- **Agent Architecture**: Documentation manager handles docs, GitOps handles Git
+- **Server Management**: Always use `/tmux-dev` for development servers
+- **Component System**: shadcn/ui + Radix UI with accessibility features
+- **Automated Workflow**: Pre-compact hook now auto-invokes `/docgit` when changes detected
+
+---
+
+*This brief helps you resume CChorus development following all mandatory workflows.*

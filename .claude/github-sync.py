@@ -28,7 +28,7 @@ class CChorusGitHubSync:
         result = {
             "command": command,
             "direction": direction,
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now().strftime('%I:%M:%S%p').lower(),
             "success": False,
             "output": "",
             "error": None
@@ -134,7 +134,7 @@ class CChorusGitHubSync:
             print(f"❌ GitHub sync error: {e}")
         
         finally:
-            result["completed_at"] = datetime.now().isoformat()
+            result["completed_at"] = datetime.now().strftime('%I:%M:%S%p').lower()
         
         return result
     

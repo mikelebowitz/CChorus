@@ -142,7 +142,7 @@ class CChorusDocumentationWatcher(FileSystemEventHandler):
         """Create trigger files for documentation updates."""
         # Create main trigger file
         trigger_content = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
             "reason": "Auto-triggered by file watcher",
             "changes_detected": list(self.pending_changes),
             "change_count": len(self.pending_changes),
@@ -171,7 +171,7 @@ class CChorusDocumentationWatcher(FileSystemEventHandler):
         
         new_invocation = {
             "agent": "documentation-manager",
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now().strftime('%I:%M:%S%p').lower(),
             "trigger": "file-watcher-auto",
             "prompt": f"Auto-triggered: Update documentation for {len(self.pending_changes)} file changes detected by real-time watcher",
             "priority": self.determine_priority(),
