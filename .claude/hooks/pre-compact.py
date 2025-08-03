@@ -556,7 +556,7 @@ class CChorusPreCompactHook:
 - **Working Directory**: `{self.project_root}`
 - **Active Feature**: {self._identify_active_feature(changes_analysis)}
 - **Key Files to Review**: {self._list_key_cchorus_files(changes_analysis)}
-- **Server Management**: Use `/tmux-dev` for all development servers
+- **Server Management**: VS Code auto-starts servers in visible terminal tabs
 - **Agent Workflow**: Remember Documentation → GitOps sequence
 
 ---
@@ -590,25 +590,21 @@ class CChorusPreCompactHook:
 # Navigate to CChorus project
 cd {self.project_root}
 
-# REQUIRED: Start development servers using tmux-dev
-/tmux-dev start frontend server in session cchorus-frontend
-/tmux-dev start backend server in session cchorus-backend
+# Development servers auto-start in VS Code (no manual commands needed)
+# Frontend and backend start automatically when project opens in VS Code
+# Servers run in visible terminal tabs for easy monitoring
 
-# Monitor servers (non-blocking)
-/tmux-dev check logs from cchorus-frontend
-/tmux-dev show last 50 lines from cchorus-backend
-
-# List running sessions
-/tmux-dev list all running sessions
+# Manual control (if needed):
+# Cmd+Shift+P → "Tasks: Run Task" → "Start Frontend" or "Start Backend"
+# Or run directly: npm run dev (frontend), npm run dev:server (backend)
 ```
 
 ## 🚫 PROHIBITED Commands
 
 ```bash
-# These are FORBIDDEN - use /tmux-dev instead:
-# npm run dev                 ❌
-# npm run dev:server          ❌
-# npm run dev:full            ❌
+# These are not needed - VS Code handles automatically:
+# /tmux-dev commands are deprecated
+# Servers auto-start via VS Code tasks.json
 ```
 
 ## 📚 Agent Workflow Reminder
@@ -638,7 +634,7 @@ Check `docs/sessions/` for the latest session summary with detailed context.
 - **Resource Library**: Unified browser for all Claude Code resources
 - **Assignment Manager**: Deploy and manage resource assignments  
 - **Agent Architecture**: Documentation manager handles docs, GitOps handles Git
-- **Server Management**: Always use `/tmux-dev` for development servers
+- **Server Management**: VS Code auto-starts servers in visible terminal tabs
 - **Component System**: shadcn/ui + Radix UI with accessibility features
 - **Automated Workflow**: Pre-compact hook now auto-invokes `/docgit` when changes detected
 
@@ -1158,7 +1154,7 @@ Check `docs/sessions/` for the latest session summary with detailed context.
         
         # Standard CChorus TODOs
         todos.extend([
-            "- [ ] Verify tmux-dev server management works correctly",
+            "- [ ] Verify VS Code auto-start development servers work correctly",
             "- [ ] Test complete Resource Library → Assignment workflow",
             "- [ ] Check all three navigation tabs (Library, Assignments, Agents)",
             "- [ ] Ensure agent workflow sequence is followed: Code → Documentation → GitOps"

@@ -74,6 +74,7 @@ temp/
 # Editor directories and files
 .vscode/
 !.vscode/extensions.json
+!.vscode/tasks.json
 .idea/
 first-pass.code-workspace
 *.swp
