@@ -27,6 +27,12 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Apply consistent branch metadata** - Update all items with proper `[branch:]` or `[new-branch:]` tags
 - **Organize by branch grouping** - Group related items visually under parent branches
 
+### Dashboard Observability Foundation `[new-branch: feature/sqlite-dashboard-persistence]`
+- **SQLite database integration for persistent dashboard storage** - Replace in-memory activity tracking with persistent SQLite database at `.claude/cchorus.db`
+- **Historical activity data loading on startup** - Load and display historical dashboard activity when dashboard starts
+- **Enhanced session tracking and correlation** - Track and correlate activities by session ID for better observability
+- **Database schema design for activities and sessions** - Design proper SQLite schema for activities, sessions, and metrics
+
 ### UI/UX Bug Fixes `[COMPLETED ✅]`
 - **Fixed Badge component implementation** - Proper minimal version with correct variant support ✅
 - **Complete shadcn/ui compliance** - All components now follow shadcn/ui + Radix UI patterns ✅
@@ -66,6 +72,13 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ## 💡 Ideas & Features
 
+### Comprehensive Dashboard Hook System `[new-branch: feature/comprehensive-hooks]`
+- **UserPromptSubmit hook tracking** - Track user prompts for intent monitoring and conversation flow analysis
+- **PreCompact hook integration** - Monitor context compaction events for session management
+- **Chat transcript storage for debugging** - Store complete conversation transcripts for debugging and analysis
+- **Tool usage analytics and patterns** - Analyze tool usage patterns and frequency for optimization insights
+- **Session-based activity filtering** - Add dashboard filtering by session, time range, and activity type
+
 ### Enhanced Resource Editing `[new-branch: feature/resource-editors]`
 - Visual hook editor within 3-column layout
 - Command editor with YAML validation
@@ -91,6 +104,12 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - Resource dependency tracking
 
 ## 🔬 Research & Investigation
+
+### Advanced Dashboard Analytics `[new-branch: feature/advanced-analytics]`
+- **Token usage and performance tracking** - Track token consumption and response times per session/tool
+- **Advanced error handling with retry strategies** - Implement retry logic and better error categorization for failed operations
+- **Response time analytics** - Monitor and analyze Claude response times and performance bottlenecks
+- **Session context preservation** - Maintain session context across dashboard restarts and tool invocations
 
 ### Performance Optimization `[new-branch: feature/performance]`
 - Incremental sync API endpoints for changes since timestamp
@@ -137,6 +156,12 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - Cross-browser compatibility testing
 
 ## 📋 Technical Debt
+
+### Enterprise Dashboard Features `[new-branch: feature/enterprise-observability]`
+- **Optional Prometheus integration** - Add optional Prometheus metrics export for enterprise monitoring
+- **Multi-project/team support** - Support multiple projects and team collaboration features
+- **Security audit features** - Add security monitoring and audit trails for sensitive operations
+- **Cost tracking and billing analytics** - Monitor and analyze API costs (note: low priority per user specification)
 
 ### Code Quality
 - Component prop validation improvements

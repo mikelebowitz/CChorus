@@ -26,27 +26,36 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 // Dashboard state
 let dashboardState = {
-    agents: {
-        'file-change-analyzer': { status: 'idle', lastActivity: null, color: '#06B6D4' },
-        'readme-updater': { status: 'idle', lastActivity: null, color: '#3B82F6' },
-        'api-documenter': { status: 'idle', lastActivity: null, color: '#10B981' },
-        'component-documenter': { status: 'idle', lastActivity: null, color: '#F59E0B' },
-        'backlog-manager': { status: 'idle', lastActivity: null, color: '#EF4444' },
-        'changelog-updater': { status: 'idle', lastActivity: null, color: '#8B5CF6' }
-    },
+    agents: {},
     metrics: {
         activeAgents: 6,
         filesWatched: 0,
         recentChanges: 0,
-        avgResponseTime: '0.0s'
+        avgResponseTime: '0.0s',
+        tokenUsage: {
+            current: 0,
+            baseline: 8000, // Estimated monolithic usage
+            reduction: '0%'
+        }
     },
     activity: [],
     infrastructure: {
         fileWatcher: 'unknown',
         githubSync: 'unknown',
         autoBranchCreator: 'unknown',
-        vsCodeTasks: 'unknown'
+        vsCodeTasks: 'unknown',
+        frontendServer: 'unknown',
+        backendServer: 'unknown'
     }
+};
+
+// Token tracking
+const TOKEN_TRACKING_FILE = path.join(PROJECT_ROOT, '.claude', 'token-usage.json');
+let tokenMetrics = {
+    sessions: [],
+    totalTokens: 0,
+    averagePerSession: 0,
+    reductionVsBaseline: 0
 };
 
 // Serve static dashboard
@@ -150,7 +159,39 @@ function addActivity(agent, description, files = []) {
     console.log(`📝 Activity: ${agent} - ${description}`);
 }
 
-function updateInfrastructureStatus() {
+async function checkServerStatus(port) {
+    try {
+        return new Promise((resolve, reject) => {
+            const req = http.request({
+                hostname: 'localhost',
+                port: port,
+                method: 'HEAD',
+                timeout: 2000
+            }, (res) => {
+                resolve(res.statusCode >= 200 && res.statusCode < 500); // Accept 404 as "running"
+            });
+            
+            req.on('error', (error) => {
+                console.log(`Server check error for port ${port}:`, error.message);
+                resolve(false);
+            });
+            
+            req.on('timeout', () => {
+                console.log(`Server check timeout for port ${port}`);
+                req.destroy();
+                resolve(false);
+            });
+            
+            req.setTimeout(2000);
+            req.end();
+        });
+    } catch (error) {
+        console.log(`Server check exception for port ${port}:`, error);
+        return false;
+    }
+}
+
+async function updateInfrastructureStatus() {
     // Check file watcher process
     try {
         const processes = execSync('ps aux | grep file-watcher', { encoding: 'utf8' });
@@ -188,11 +229,20 @@ function updateInfrastructureStatus() {
     } catch (error) {
         dashboardState.infrastructure.autoBranchCreator = 'error';
     }
+    
+    // Check development servers
+    const frontendRunning = await checkServerStatus(5173); // Vite default port
+    const backendRunning = await checkServerStatus(3001); // Express API port
+    
+    dashboardState.infrastructure.frontendServer = frontendRunning ? 'running' : 'stopped';
+    dashboardState.infrastructure.backendServer = backendRunning ? 'running' : 'stopped';
 }
 
 function watchFileChanges() {
     const triggerFile = path.join(PROJECT_ROOT, '.claude', 'doc-update-needed.trigger');
     const pendingFile = path.join(PROJECT_ROOT, '.claude', 'pending-agent-invocations.json');
+    const syncLogFile = path.join(PROJECT_ROOT, '.claude', 'sync-command-log.json');
+    const githubLogFile = path.join(PROJECT_ROOT, '.claude', 'github-sync-log.json');
     
     // Watch trigger file for changes
     if (fs.existsSync(triggerFile)) {
@@ -230,6 +280,204 @@ function watchFileChanges() {
             }
         });
     }
+    
+    // Watch sync command log for hook activities
+    if (fs.existsSync(syncLogFile)) {
+        fs.watchFile(syncLogFile, (curr, prev) => {
+            if (curr.mtime > prev.mtime) {
+                try {
+                    const logs = JSON.parse(fs.readFileSync(syncLogFile, 'utf8'));
+                    if (logs.length > 0) {
+                        const latest = logs[logs.length - 1];
+                        const agentsList = latest.agents_invoked ? latest.agents_invoked.join(', ') : 'none';
+                        addActivity('sync-command', 
+                            `Processed ${latest.changes_processed} changes, invoked: ${agentsList}`,
+                            []
+                        );
+                    }
+                } catch (error) {
+                    console.error('❌ Error reading sync log:', error);
+                }
+            }
+        });
+    }
+    
+    // Watch GitHub sync log for GitHub activities
+    if (fs.existsSync(githubLogFile)) {
+        fs.watchFile(githubLogFile, (curr, prev) => {
+            if (curr.mtime > prev.mtime) {
+                try {
+                    const logs = JSON.parse(fs.readFileSync(githubLogFile, 'utf8'));
+                    if (logs.length > 0) {
+                        const latest = logs[logs.length - 1];
+                        addActivity('github-sync', 
+                            `${latest.operation || 'Sync'}: ${latest.message || 'GitHub synchronization completed'}`,
+                            []
+                        );
+                    }
+                } catch (error) {
+                    console.error('❌ Error reading GitHub sync log:', error);
+                }
+            }
+        });
+    }
+}
+
+function loadTokenMetrics() {
+    try {
+        if (fs.existsSync(TOKEN_TRACKING_FILE)) {
+            const data = fs.readFileSync(TOKEN_TRACKING_FILE, 'utf8');
+            tokenMetrics = JSON.parse(data);
+        }
+    } catch (error) {
+        console.log('⚠️  Could not load token metrics:', error.message);
+    }
+}
+
+function saveTokenMetrics() {
+    try {
+        fs.writeFileSync(TOKEN_TRACKING_FILE, JSON.stringify(tokenMetrics, null, 2));
+    } catch (error) {
+        console.error('❌ Error saving token metrics:', error);
+    }
+}
+
+function trackAgentInvocation(agent, estimatedTokens) {
+    const session = {
+        timestamp: new Date().toISOString(),
+        agent,
+        tokens: estimatedTokens
+    };
+    
+    tokenMetrics.sessions.push(session);
+    
+    // Keep only last 50 sessions
+    if (tokenMetrics.sessions.length > 50) {
+        tokenMetrics.sessions = tokenMetrics.sessions.slice(-50);
+    }
+    
+    // Recalculate metrics
+    tokenMetrics.totalTokens = tokenMetrics.sessions.reduce((sum, s) => sum + s.tokens, 0);
+    tokenMetrics.averagePerSession = tokenMetrics.sessions.length > 0 
+        ? Math.round(tokenMetrics.totalTokens / tokenMetrics.sessions.length)
+        : 0;
+    
+    // Calculate reduction vs baseline (8000 tokens for monolithic)
+    const baseline = 8000;
+    if (tokenMetrics.averagePerSession > 0) {
+        const reduction = Math.round(((baseline - tokenMetrics.averagePerSession) / baseline) * 100);
+        tokenMetrics.reductionVsBaseline = Math.max(0, reduction);
+    }
+    
+    // Update dashboard state
+    dashboardState.metrics.tokenUsage = {
+        current: tokenMetrics.averagePerSession,
+        baseline: baseline,
+        reduction: tokenMetrics.reductionVsBaseline > 0 ? `↓ ${tokenMetrics.reductionVsBaseline}%` : '0%'
+    };
+    
+    saveTokenMetrics();
+    console.log(`📊 Token tracking: ${agent} used ~${estimatedTokens} tokens (avg: ${tokenMetrics.averagePerSession}, reduction: ${tokenMetrics.reductionVsBaseline}%)`);
+}
+
+function watchForAgentInvocations() {
+    // Watch for pending agent invocations to track token usage
+    const pendingFile = path.join(PROJECT_ROOT, '.claude', 'pending-agent-invocations.json');
+    
+    if (fs.existsSync(pendingFile)) {
+        fs.watchFile(pendingFile, (curr, prev) => {
+            if (curr.mtime > prev.mtime) {
+                try {
+                    const pending = JSON.parse(fs.readFileSync(pendingFile, 'utf8'));
+                    if (pending.length > 0) {
+                        const latest = pending[pending.length - 1];
+                        
+                        // Estimate tokens based on agent type
+                        const tokenEstimates = {
+                            'readme-updater': 1500,
+                            'api-documenter': 1800,
+                            'component-documenter': 1600,
+                            'backlog-manager': 1200,
+                            'changelog-updater': 1000,
+                            'file-change-analyzer': 800,
+                            'documentation-manager': 8000 // Legacy monolithic
+                        };
+                        
+                        const estimatedTokens = tokenEstimates[latest.agent] || 2000;
+                        trackAgentInvocation(latest.agent, estimatedTokens);
+                        
+                        // Broadcast updated metrics
+                        broadcastUpdate('metrics', dashboardState.metrics);
+                    }
+                } catch (error) {
+                    console.error('❌ Error processing agent invocations:', error);
+                }
+            }
+        });
+    }
+}
+
+function loadAgentDefinitions() {
+    const agentsDir = path.join(PROJECT_ROOT, '.claude', 'agents');
+    dashboardState.agents = {};
+    
+    try {
+        if (!fs.existsSync(agentsDir)) {
+            console.log('⚠️  Agents directory not found');
+            return;
+        }
+        
+        const agentFiles = fs.readdirSync(agentsDir).filter(file => file.endsWith('.md'));
+        
+        agentFiles.forEach(file => {
+            try {
+                const agentPath = path.join(agentsDir, file);
+                const content = fs.readFileSync(agentPath, 'utf8');
+                
+                // Parse frontmatter
+                const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+                if (!frontmatterMatch) {
+                    console.log(`⚠️  No frontmatter found in ${file}`);
+                    return;
+                }
+                
+                const frontmatter = {};
+                const frontmatterContent = frontmatterMatch[1];
+                const prompt = frontmatterMatch[2].trim();
+                
+                frontmatterContent.split('\n').forEach(line => {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex > 0) {
+                        const key = line.substring(0, colonIndex).trim();
+                        const value = line.substring(colonIndex + 1).trim();
+                        frontmatter[key] = value;
+                    }
+                });
+                
+                const agentName = frontmatter.name;
+                if (agentName) {
+                    dashboardState.agents[agentName] = {
+                        name: agentName,
+                        description: frontmatter.description || '',
+                        tools: frontmatter.tools || '',
+                        color: frontmatter.color || '#6B7280',
+                        model: frontmatter.model || 'claude-3-haiku',
+                        maxTokens: frontmatter.max_tokens || '2000',
+                        priority: frontmatter.priority || 'medium',
+                        prompt: prompt,
+                        status: 'idle',
+                        lastActivity: null
+                    };
+                }
+            } catch (error) {
+                console.error(`❌ Error loading agent ${file}:`, error);
+            }
+        });
+        
+        console.log(`📋 Loaded ${Object.keys(dashboardState.agents).length} agent definitions`);
+    } catch (error) {
+        console.error('❌ Error loading agent definitions:', error);
+    }
 }
 
 function calculateMetrics() {
@@ -263,21 +511,35 @@ function calculateMetrics() {
 }
 
 // Initialize server
-function startServer() {
-    server.listen(PORT, () => {
+async function startServer() {
+    server.listen(PORT, async () => {
         console.log(`🚀 CChorus Development Dashboard running on http://localhost:${PORT}`);
         console.log(`📊 WebSocket server ready for real-time updates`);
         
         // Initialize monitoring
-        updateInfrastructureStatus();
+        loadTokenMetrics();
+        loadAgentDefinitions();
+        
+        // Update dashboard state with loaded token metrics
+        if (tokenMetrics.sessions.length > 0) {
+            dashboardState.metrics.tokenUsage = {
+                current: tokenMetrics.averagePerSession,
+                baseline: 8000,
+                reduction: tokenMetrics.reductionVsBaseline > 0 ? `↓ ${tokenMetrics.reductionVsBaseline}%` : '0%'
+            };
+        }
+        
+        await updateInfrastructureStatus();
         watchFileChanges();
+        watchForAgentInvocations();
         calculateMetrics();
         
         // Periodic updates
-        setInterval(() => {
-            updateInfrastructureStatus();
+        setInterval(async () => {
+            await updateInfrastructureStatus();
             calculateMetrics();
             broadcastUpdate('metrics', dashboardState.metrics);
+            broadcastUpdate('infrastructure', dashboardState.infrastructure);
         }, 10000);
         
         // Add initial activity

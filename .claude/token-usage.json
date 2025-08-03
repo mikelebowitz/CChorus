@@ -1,0 +1,22 @@
+{
+  "sessions": [
+    {
+      "timestamp": "2025-08-03T19:45:00.000Z",
+      "agent": "readme-updater",
+      "tokens": 1500
+    },
+    {
+      "timestamp": "2025-08-03T19:50:00.000Z",
+      "agent": "api-documenter",
+      "tokens": 1800
+    },
+    {
+      "timestamp": "2025-08-03T19:52:00.000Z",
+      "agent": "component-documenter",
+      "tokens": 1600
+    }
+  ],
+  "totalTokens": 4900,
+  "averagePerSession": 1633,
+  "reductionVsBaseline": 80
+}

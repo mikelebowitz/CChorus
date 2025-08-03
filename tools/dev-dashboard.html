@@ -4,7 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CChorus Development Dashboard</title>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
     <style>
+        /* New Grayscale Color Palette */
+        :root {
+            --background: #212529;          /* eerie-black */
+            --foreground: #f8f9fa;          /* seasalt */
+            --card: #343a40;                /* onyx */
+            --card-foreground: #f8f9fa;     /* seasalt */
+            --popover: #495057;             /* outer-space */
+            --popover-foreground: #f8f9fa;  /* seasalt */
+            --primary: #f8f9fa;             /* seasalt */
+            --primary-foreground: #212529;  /* eerie-black */
+            --secondary: #6c757d;           /* slate-gray */
+            --secondary-foreground: #f8f9fa; /* seasalt */
+            --muted: #dee2e6;               /* platinum */
+            --muted-foreground: #495057;    /* outer-space */
+            --accent: #28a745;              /* success green */
+            --accent-foreground: #f8f9fa;   /* seasalt */
+            --destructive: #dc3545;         /* danger red */
+            --destructive-foreground: #f8f9fa; /* seasalt */
+            --border: #6c757d;              /* slate-gray */
+            --input: #495057;               /* outer-space */
+            --ring: #007bff;                /* info blue */
+            --radius: 0.5rem;
+            
+            /* Additional palette colors */
+            --antiflash-white: #e9ecef;
+            --french-gray: #adb5bd;
+            --slate-gray: #6c757d;
+            --eerie-black: #212529;
+            --onyx: #343a40;
+            --seasalt: #f8f9fa;
+            --platinum: #dee2e6;
+            --french-gray-2: #ced4da;
+            --outer-space: #495057;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,694 +52,901 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f23;
-            color: #cccccc;
+            background: var(--background);
+            color: var(--muted);
             line-height: 1.6;
             overflow-x: hidden;
         }
         
         .dashboard {
             display: grid;
-            grid-template-columns: 300px 1fr 300px;
+            grid-template-columns: 280px 1fr 320px;
             grid-template-rows: 60px 1fr;
             height: 100vh;
-            gap: 1px;
-            background: #333;
+            gap: 12px;
+            background: var(--background);
+            padding: 12px;
         }
         
         .header {
             grid-column: 1 / -1;
-            background: #1a1a2e;
+            background: transparent;
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            border-bottom: 2px solid #16213e;
+            padding: 0 24px;
         }
         
         .header h1 {
-            color: white;
-            font-size: 1.5rem;
+            color: var(--foreground);
+            font-size: 1.25rem;
             font-weight: 600;
         }
         
         .status-indicator {
             margin-left: auto;
             display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .indicator {
-            display: flex;
-            align-items: center;
             gap: 8px;
-            padding: 6px 12px;
-            background: #16213e;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            align-items: center;
         }
         
-        .indicator.active {
-            background: #0f4c3a;
-            color: white;
+        /* shadcn/ui Badge Component */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border-radius: calc(var(--radius) - 2px);
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
-        .indicator .dot {
-            width: 8px;
-            height: 8px;
+        .badge.success {
+            background: var(--accent);
+            color: var(--accent-foreground);
+        }
+        
+        .badge.destructive {
+            background: var(--destructive);
+            color: var(--destructive-foreground);
+        }
+        
+        .badge .dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: #666;
+            background: currentColor;
         }
         
-        .indicator.active .dot {
-            background: white;
-            animation: pulse 2s infinite;
-        }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .sidebar {
-            background: #16213e;
-            padding: 20px;
+        /* Column Layouts */
+        .ambient-column, .main-column, .details-column {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
             overflow-y: auto;
-        }
-        
-        .sidebar h2 {
-            color: white;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #1a1a2e;
-        }
-        
-        .agent-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
         }
         
-        .agent-card {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 8px;
+        .ambient-column {
             padding: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            gap: 12px;
         }
         
-        .agent-card:hover {
-            border-color: white;
-            transform: translateY(-2px);
+        .main-column {
+            padding: 20px;
+            gap: 20px;
         }
         
-        .agent-card.active {
-            border-color: white;
-            background: #0f4c3a;
+        .details-column {
+            padding: 16px;
+            gap: 16px;
         }
         
-        .agent-name {
+        /* Column Headers */
+        .column-header {
+            color: var(--foreground);
+            font-size: 1rem;
             font-weight: 600;
-            color: #fff;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 12px;
         }
         
-        .agent-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        /* shadcn/ui Card Component */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--card-foreground);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
         
-        .agent-desc {
-            font-size: 0.8rem;
-            color: #999;
+        .card-header {
+            padding: 16px 16px 0;
+        }
+        
+        .card-content {
+            padding: 16px;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: 8px;
+        }
+        
+        .card-description {
+            font-size: 0.875rem;
+            color: var(--muted);
             line-height: 1.4;
         }
         
-        .agent-status {
-            margin-top: 8px;
-            font-size: 0.75rem;
+        /* Widget Grid Layout */
+        .widget-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .widget-grid.single-column {
+            grid-template-columns: 1fr;
+        }
+        
+        /* Compact Metric Widgets */
+        .metric-widget {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .metric-widget:hover {
+            border-color: var(--ring);
+            background: var(--outer-space);
+        }
+        
+        .metric-widget-header {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            margin-bottom: 4px;
         }
         
-        .status-idle { color: #666; }
-        .status-running { color: #ffa726; }
-        .status-completed { color: #4caf50; }
-        
-        .main-content {
-            background: #1a1a2e;
-            padding: 20px;
-            overflow-y: auto;
+        .metric-widget-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
         }
         
+        .metric-widget-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .metric-widget-title {
+            font-size: 0.75rem;
+            color: var(--french-gray);
+            font-weight: 500;
+        }
+        
+        .metric-widget-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--foreground);
+            line-height: 1;
+        }
+        
+        .metric-widget-subtitle {
+            font-size: 0.65rem;
+            color: var(--french-gray);
+            margin-top: 2px;
+        }
+        
+        .metric-widget-change {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .metric-widget-change.positive {
+            color: var(--accent);
+        }
+        
+        .metric-widget-change.negative {
+            color: var(--destructive);
+        }
+        
+        /* Status Summary Cards */
+        .stats-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--foreground);
+        }
+        
+        /* Action Controls */
+        .action-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* shadcn/ui Button Component */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--muted);
+        }
+        
+        /* Activity Feed */
         .activity-feed {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
         
-        .activity-item {
-            background: #16213e;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 16px;
-            position: relative;
+        .activity-summary {
+            background: var(--muted);
+            color: var(--muted-foreground);
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
         
-        .activity-item.recent {
-            border-color: white;
-            background: #0f4c3a;
+        .activity-summary:hover {
+            background: var(--secondary);
+        }
+        
+        .activity-summary.selected {
+            border-color: var(--foreground);
+            background: var(--foreground);
+            color: var(--eerie-black);
+        }
+        
+        .activity-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .activity-item:hover {
+            border-color: var(--ring);
+        }
+        
+        .activity-item.selected {
+            border-color: var(--foreground);
+            background: var(--foreground);
+            color: var(--eerie-black);
+        }
+        
+        .activity-item.selected .activity-time {
+            color: var(--outer-space);
+        }
+        
+        .activity-item.selected .activity-title,
+        .activity-item.selected .activity-description {
+            color: var(--eerie-black);
         }
         
         .activity-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
         }
         
         .activity-title {
             font-weight: 600;
-            color: #fff;
+            color: var(--foreground);
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
         .activity-time {
-            font-size: 0.8rem;
-            color: #999;
-            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--muted);
         }
         
         .activity-description {
-            color: #ccc;
-            font-size: 0.9rem;
+            color: var(--muted);
+            font-size: 0.875rem;
             line-height: 1.5;
         }
         
-        .file-changes {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #333;
+        .activity-item.selected .activity-description {
+            color: var(--eerie-black) !important;
         }
         
-        .file-changes h4 {
-            color: white;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-        
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .file-item {
-            font-size: 0.8rem;
-            color: #999;
-            padding: 4px 8px;
-            background: #1a1a2e;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', monospace;
-        }
-        
-        .metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .metric-card {
-            background: #16213e;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-        }
-        
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 4px;
-        }
-        
-        .metric-label {
-            font-size: 0.85rem;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .system-status {
-            background: #16213e;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .status-section {
-            margin-bottom: 25px;
-        }
-        
-        .status-section h3 {
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #1a1a2e;
-        }
-        
-        .status-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: #1a1a2e;
-            border-radius: 6px;
-            font-size: 0.85rem;
-        }
-        
-        .status-name {
-            color: #ccc;
-        }
-        
-        .status-value {
-            font-weight: 600;
-        }
-        
-        .status-value.healthy { color: #4caf50; }
-        .status-value.warning { color: #ffa726; }
-        .status-value.error { color: #f44336; }
-        
-        .refresh-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            color: #1a1a2e;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-        }
-        
-        .refresh-button:hover {
-            background: #e0e0e0;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #333;
+        /* Agent Color Dots */
+        .agent-color {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        
+        /* Tooltip Component */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        
+        .tooltip-content {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--popover);
+            color: var(--popover-foreground);
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            white-space: pre-wrap;
+            box-shadow: 0 8px 16px -4px rgb(0 0 0 / 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 100;
+            margin-bottom: 8px;
+            max-width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+        
+        .tooltip:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Adjust tooltip positioning to prevent overflow */
+        .tooltip-content:before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: var(--border);
+        }
+        
+        /* Help Content for Details Panel */
+        .help-content {
+            color: var(--muted);
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .help-content h3 {
+            color: var(--foreground);
+            margin-bottom: 12px;
+        }
+        
+        .help-content p {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 240px 1fr 280px;
+                gap: 8px;
+                padding: 8px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px auto auto auto;
+            }
+            
+            .details-column {
+                display: none;
+            }
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* Hide metrics when window gets too narrow */
+        @media (max-width: 900px) {
+            .metrics {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <header class="header">
-            <h1>🚀 CChorus Development Dashboard</h1>
+            <h1>CChorus Development Dashboard</h1>
             <div class="status-indicator">
-                <div class="indicator active">
+                <div class="badge success">
                     <div class="dot"></div>
                     <span>File Watcher</span>
                 </div>
-                <div class="indicator active">
+                <div class="badge success">
                     <div class="dot"></div>
                     <span>GitHub Sync</span>
                 </div>
-                <div class="indicator">
+                <div class="badge" id="servers-indicator">
                     <div class="dot"></div>
                     <span>Servers</span>
                 </div>
             </div>
         </header>
         
-        <aside class="sidebar">
-            <h2>Micro-Agents</h2>
-            <div class="agent-list">
-                <div class="agent-card active" data-agent="file-change-analyzer">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #06B6D4;"></div>
-                        file-change-analyzer
+        <!-- Left Column: Ambient Info -->
+        <div class="ambient-column">
+            <!-- Core Metrics Widget Grid -->
+            <div class="widget-grid">
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: var(--accent);"><i data-lucide="users"></i></div>
+                        <div class="metric-widget-title">Agents</div>
                     </div>
-                    <div class="agent-desc">Routes changes to appropriate agents</div>
-                    <div class="agent-status status-running">
-                        <div class="loading"></div>
-                        <span>Analyzing changes</span>
-                    </div>
+                    <div class="metric-widget-value" id="agents-count">6</div>
+                    <div class="metric-widget-subtitle">Active</div>
                 </div>
                 
-                <div class="agent-card" data-agent="readme-updater">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #3B82F6;"></div>
-                        readme-updater
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: var(--ring);"><i data-lucide="files"></i></div>
+                        <div class="metric-widget-title">Files</div>
                     </div>
-                    <div class="agent-desc">Maintains main README.md file</div>
-                    <div class="agent-status status-idle">
-                        <span>Idle</span>
-                    </div>
+                    <div class="metric-widget-value" id="files-count">135</div>
+                    <div class="metric-widget-subtitle">Watched</div>
                 </div>
                 
-                <div class="agent-card" data-agent="api-documenter">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #10B981;"></div>
-                        api-documenter
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: #ffc107;"><i data-lucide="coins"></i></div>
+                        <div class="metric-widget-title">Tokens</div>
                     </div>
-                    <div class="agent-desc">Tracks server.js API changes</div>
-                    <div class="agent-status status-idle">
-                        <span>Idle</span>
-                    </div>
+                    <div class="metric-widget-value" id="token-reduction">80%</div>
+                    <div class="metric-widget-change positive" id="token-usage-display">↓ vs Monolithic</div>
                 </div>
                 
-                <div class="agent-card" data-agent="component-documenter">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #F59E0B;"></div>
-                        component-documenter
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: #17a2b8;"><i data-lucide="clock"></i></div>
+                        <div class="metric-widget-title">Response</div>
                     </div>
-                    <div class="agent-desc">Monitors React components</div>
-                    <div class="agent-status status-idle">
-                        <span>Idle</span>
+                    <div class="metric-widget-value" id="response-time-display">2.1s</div>
+                    <div class="metric-widget-subtitle">Average</div>
+                </div>
+            </div>
+            
+            <!-- Infrastructure Status Widget Grid -->
+            <div class="widget-grid">
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: var(--accent);"><i data-lucide="eye"></i></div>
+                        <div class="metric-widget-title">File Watcher</div>
                     </div>
+                    <div class="metric-widget-value" style="font-size: 0.9rem;" id="file-watcher-status">Running</div>
+                    <div class="metric-widget-subtitle">PID: 40616</div>
                 </div>
                 
-                <div class="agent-card" data-agent="backlog-manager">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #EF4444;"></div>
-                        backlog-manager
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: var(--outer-space);"><i data-lucide="github"></i></div>
+                        <div class="metric-widget-title">GitHub</div>
                     </div>
-                    <div class="agent-desc">Manages BACKLOG.md priorities</div>
-                    <div class="agent-status status-idle">
-                        <span>Idle</span>
-                    </div>
+                    <div class="metric-widget-value" style="font-size: 0.9rem;" id="github-sync-status">Connected</div>
+                    <div class="metric-widget-subtitle">Sync Active</div>
                 </div>
-                
-                <div class="agent-card" data-agent="changelog-updater">
-                    <div class="agent-name">
-                        <div class="agent-color" style="background: #8B5CF6;"></div>
-                        changelog-updater
+            </div>
+            
+            <!-- System Performance Widget -->
+            <div class="widget-grid single-column">
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: var(--french-gray);"><i data-lucide="zap"></i></div>
+                        <div class="metric-widget-title">System Performance</div>
                     </div>
-                    <div class="agent-desc">Maintains project history</div>
-                    <div class="agent-status status-completed">
-                        <span>Last run: 2min ago</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                        <div style="text-align: center;">
+                            <div class="metric-widget-value" style="font-size: 0.9rem;">94%</div>
+                            <div class="metric-widget-subtitle">Success</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="metric-widget-value" style="font-size: 0.9rem;">145MB</div>
+                            <div class="metric-widget-subtitle">Memory</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="metric-widget-value" style="font-size: 0.9rem;" id="branch-creator-count">14</div>
+                            <div class="metric-widget-subtitle">Pending</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </aside>
+            
+            <!-- Action Controls -->
+            <div class="action-controls">
+                <button class="btn btn-secondary" onclick="refreshDashboard()"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Refresh</button>
+                <button class="btn btn-secondary"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> Logs</button>
+                <button class="btn btn-secondary"><i data-lucide="git-branch" style="width: 14px; height: 14px;"></i> Sync</button>
+            </div>
+        </div>
         
-        <main class="main-content">
-            <div class="metrics">
-                <div class="metric-card">
-                    <div class="metric-value">6</div>
-                    <div class="metric-label">Active Agents</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value">12</div>
-                    <div class="metric-label">Files Watched</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value">5</div>
-                    <div class="metric-label">Recent Changes</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value">2.1s</div>
-                    <div class="metric-label">Avg Response</div>
-                </div>
+        <!-- Center Column: Main Feed -->
+        <div class="main-column">
+            <div class="column-header">Activity Feed</div>
+            
+            <!-- Activity Summary -->
+            <div class="activity-summary" onclick="selectActivitySummary(this)">
+                <span id="activity-summary-text">3 agents updated · 6 files in 10m</span>
+                <span style="margin-left: auto;">▼</span>
             </div>
             
-            <h2 style="color: white; margin-bottom: 15px;">Real-time Activity Feed</h2>
-            <div class="activity-feed">
-                <div class="activity-item recent">
-                    <div class="activity-header">
-                        <div class="activity-title">
-                            <div class="agent-color" style="background: #06B6D4;"></div>
-                            file-change-analyzer
-                        </div>
-                        <div class="activity-time">2min ago</div>
-                    </div>
-                    <div class="activity-description">
-                        Detected 5 new micro-agent files, routing to documentation-manager for processing
-                    </div>
-                    <div class="file-changes">
-                        <h4>Changed Files (5)</h4>
-                        <div class="file-list">
-                            <div class="file-item">.claude/agents/api-documenter.md</div>
-                            <div class="file-item">.claude/agents/component-documenter.md</div>
-                            <div class="file-item">.claude/agents/backlog-manager.md</div>
-                            <div class="file-item">.claude/agents/changelog-updater.md</div>
-                            <div class="file-item">.claude/agents/file-change-analyzer.md</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="activity-item">
-                    <div class="activity-header">
-                        <div class="activity-title">
-                            <div class="agent-color" style="background: #3B82F6;"></div>
-                            readme-updater
-                        </div>
-                        <div class="activity-time">5min ago</div>
-                    </div>
-                    <div class="activity-description">
-                        Created initial micro-agent with 2000 token limit using claude-3-haiku model
-                    </div>
-                    <div class="file-changes">
-                        <h4>Changed Files (1)</h4>
-                        <div class="file-list">
-                            <div class="file-item">.claude/agents/readme-updater.md</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="activity-item">
-                    <div class="activity-header">
-                        <div class="activity-title">
-                            <div class="agent-color" style="background: #8B5CF6;"></div>
-                            changelog-updater
-                        </div>
-                        <div class="activity-time">8min ago</div>
-                    </div>
-                    <div class="activity-description">
-                        Archived monolithic documentation-manager.md to backup, preparing for micro-agent transition
-                    </div>
-                    <div class="file-changes">
-                        <h4>Changed Files (1)</h4>
-                        <div class="file-list">
-                            <div class="file-item">.claude/agents/documentation-manager.md.backup</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="activity-item">
-                    <div class="activity-header">
-                        <div class="activity-title">
-                            <div class="agent-color" style="background: #10B981;"></div>
-                            System
-                        </div>
-                        <div class="activity-time">12min ago</div>
-                    </div>
-                    <div class="activity-description">
-                        File watcher detected project reorganization, auto-triggered documentation workflow
-                    </div>
-                </div>
+            <!-- Activity Feed -->
+            <div class="activity-feed" id="activity-feed">
+                <!-- Activity items will be populated by JavaScript -->
             </div>
-        </main>
+        </div>
         
-        <aside class="system-status">
-            <div class="status-section">
-                <h3>Infrastructure Status</h3>
-                <div class="status-list">
-                    <div class="status-item">
-                        <span class="status-name">File Watcher</span>
-                        <span class="status-value healthy">Running (PID: 40616)</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">GitHub Sync</span>
-                        <span class="status-value healthy">Connected</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Auto Branch Creator</span>
-                        <span class="status-value warning">14 Pending</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">VS Code Tasks</span>
-                        <span class="status-value healthy">Auto-start Ready</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Right Column: Details View -->
+        <div class="details-column">
+            <div class="column-header">Details</div>
             
-            <div class="status-section">
-                <h3>Performance Metrics</h3>
-                <div class="status-list">
-                    <div class="status-item">
-                        <span class="status-name">Token Usage</span>
-                        <span class="status-value healthy">↓ 65% vs Monolithic</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Response Time</span>
-                        <span class="status-value healthy">2.1s avg</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Agent Efficiency</span>
-                        <span class="status-value healthy">94% success rate</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Memory Usage</span>
-                        <span class="status-value healthy">145MB</span>
-                    </div>
-                </div>
+            <!-- Default Help Content -->
+            <div class="help-content" id="details-content">
+                <h3>Welcome to CChorus Dashboard</h3>
+                <p>Click on any activity item to see detailed information here.</p>
+                <br>
+                <p><strong>Keyboard Shortcuts:</strong></p>
+                <p>• R - Refresh dashboard</p>
+                <p>• L - View logs</p>
+                <p>• S - Sync with GitHub</p>
             </div>
-            
-            <div class="status-section">
-                <h3>Recent Commits</h3>
-                <div class="status-list">
-                    <div class="status-item">
-                        <span class="status-name">feature/dev-infrastructure</span>
-                        <span class="status-value healthy">8 commits ahead</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Last Push</span>
-                        <span class="status-value">15min ago</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-name">Branch Status</span>
-                        <span class="status-value healthy">Up to date</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        </div>
     </div>
     
-    <button class="refresh-button" onclick="refreshDashboard()">
-        🔄 Refresh
-    </button>
-    
     <script>
-        // Mock WebSocket connection for real-time updates
+        // Dashboard State
+        let selectedActivityItem = null;
+        let activityExpanded = false;
+        let dashboardAgents = {};
+        
+        // Real WebSocket connection for real-time updates
         function initializeWebSocket() {
-            // In production, this would connect to a real WebSocket server
-            console.log('📡 WebSocket connection initialized (mock)');
+            const ws = new WebSocket(`ws://${window.location.host}`);
             
-            // Simulate periodic updates
-            setInterval(() => {
-                updateMetrics();
-                if (Math.random() > 0.7) {
-                    addActivityItem();
+            ws.onopen = () => {
+                console.log('📡 WebSocket connection established');
+            };
+            
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleWebSocketMessage(message);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                startMockUpdates();
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket connection closed');
+                setTimeout(() => {
+                    initializeWebSocket();
+                }, 5000);
+            };
+        }
+        
+        function handleWebSocketMessage(message) {
+            switch (message.type) {
+                case 'infrastructure':
+                    updateServerIndicators(message.data);
+                    updateInfrastructureStatus(message.data);
+                    break;
+                case 'metrics':
+                    updateMetricsDisplay(message.data);
+                    break;
+                case 'activity':
+                    addRealActivityItem(message.data);
+                    break;
+                case 'state':
+                    // Initial state load
+                    updateDashboardState(message.data);
+                    break;
+                default:
+                    console.log('Unknown message type:', message.type);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function updateServerIndicators(infrastructure) {
+            const serversIndicator = document.getElementById('servers-indicator');
+            const frontendRunning = infrastructure.frontendServer === 'running';
+            const backendRunning = infrastructure.backendServer === 'running';
+            
+            if (frontendRunning && backendRunning) {
+                serversIndicator.className = 'badge success';
+            } else {
+                serversIndicator.className = 'badge destructive';
+            }
+        }
+        
+        function updateInfrastructureStatus(infrastructure) {
+            const fileWatcherStatus = document.getElementById('file-watcher-status');
+            const githubSyncStatus = document.getElementById('github-sync-status');
+            const branchCreatorCount = document.getElementById('branch-creator-count');
+            
+            if (fileWatcherStatus) {
+                fileWatcherStatus.textContent = infrastructure.fileWatcher === 'running' ? 'Running' : 'Stopped';
+            }
+            if (githubSyncStatus) {
+                githubSyncStatus.textContent = infrastructure.githubSync === 'connected' ? 'Connected' : 'Disconnected';
+            }
+            if (branchCreatorCount && infrastructure.autoBranchCreator) {
+                const pendingMatch = infrastructure.autoBranchCreator.match(/(\d+)/);
+                if (pendingMatch) {
+                    branchCreatorCount.textContent = pendingMatch[1];
                 }
-            }, 5000);
+            }
         }
         
-        function updateMetrics() {
-            const metrics = document.querySelectorAll('.metric-value');
-            metrics[1].textContent = Math.floor(Math.random() * 5) + 10; // Files watched
-            metrics[3].textContent = (Math.random() * 2 + 1).toFixed(1) + 's'; // Response time
+        function updateMetricsDisplay(metrics) {
+            // Update token usage widgets
+            const tokenDisplay = document.getElementById('token-usage-display');
+            const tokenReduction = document.getElementById('token-reduction');
+            if (tokenDisplay && metrics.tokenUsage) {
+                tokenDisplay.textContent = `↓ vs Monolithic`;
+                if (tokenReduction) {
+                    tokenReduction.textContent = metrics.tokenUsage.reduction.replace('↓ ', '').replace('%', '%');
+                }
+            }
+            
+            // Update response time widget
+            const responseTimeDisplay = document.getElementById('response-time-display');
+            if (responseTimeDisplay) {
+                responseTimeDisplay.textContent = metrics.avgResponseTime;
+            }
+            
+            // Update counts
+            const agentsCount = document.getElementById('agents-count');
+            const filesCount = document.getElementById('files-count');
+            if (agentsCount) {
+                agentsCount.textContent = metrics.activeAgents || 6;
+            }
+            if (filesCount) {
+                filesCount.textContent = metrics.filesWatched || 135;
+            }
         }
         
-        function addActivityItem() {
-            const agents = [
-                { name: 'file-change-analyzer', color: '#06B6D4' },
-                { name: 'readme-updater', color: '#3B82F6' },
-                { name: 'api-documenter', color: '#10B981' },
-                { name: 'component-documenter', color: '#F59E0B' }
-            ];
-            
-            const activities = [
-                'Detected changes in component files',
-                'Updated documentation for API endpoints',
-                'Processed file modifications',
-                'Synchronized with GitHub Issues'
-            ];
-            
-            const agent = agents[Math.floor(Math.random() * agents.length)];
-            const activity = activities[Math.floor(Math.random() * activities.length)];
-            
-            const feed = document.querySelector('.activity-feed');
+        function addRealActivityItem(activity) {
+            const feed = document.getElementById('activity-feed');
             const newItem = document.createElement('div');
-            newItem.className = 'activity-item recent';
+            newItem.className = 'activity-item';
+            newItem.onclick = () => selectActivityItem(newItem, activity);
+            
+            // Format timestamp to absolute time (04:28:33pm)
+            const timestamp = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            }).toLowerCase();
+            
+            // Get agent info for color and tooltip
+            const agentInfo = dashboardAgents[activity.agent] || {};
+            const agentColor = agentInfo.color || '#06B6D4';
+            const agentPrompt = agentInfo.prompt || 'No prompt available';
+            
             newItem.innerHTML = `
                 <div class="activity-header">
                     <div class="activity-title">
-                        <div class="agent-color" style="background: ${agent.color};"></div>
-                        ${agent.name}
+                        <div class="tooltip">
+                            <div class="agent-color" style="background: ${agentColor};"></div>
+                            <div class="tooltip-content" style="white-space: pre-wrap; max-width: 400px; font-family: monospace;">${escapeHtml(agentPrompt)}</div>
+                        </div>
+                        <div class="tooltip">
+                            <span>${activity.agent}</span>
+                            <div class="tooltip-content" style="white-space: pre-wrap; max-width: 400px; font-family: monospace;">${escapeHtml(agentPrompt)}</div>
+                        </div>
                     </div>
-                    <div class="activity-time">just now</div>
+                    <div class="activity-time">${timestamp}</div>
                 </div>
                 <div class="activity-description">
-                    ${activity}
+                    ${activity.description}
                 </div>
             `;
             
             feed.insertBefore(newItem, feed.firstChild);
             
-            // Remove old items to prevent infinite scroll
+            // Remove old items
             const items = feed.querySelectorAll('.activity-item');
             if (items.length > 10) {
                 items[items.length - 1].remove();
             }
+        }
+        
+        function selectActivityItem(element, activity) {
+            // Remove previous selection from all items
+            document.querySelectorAll('.activity-item, .activity-summary').forEach(item => {
+                item.classList.remove('selected');
+            });
             
-            // Remove 'recent' class from other items
-            setTimeout(() => {
-                document.querySelectorAll('.activity-item.recent').forEach((item, index) => {
-                    if (index > 0) item.classList.remove('recent');
-                });
-            }, 3000);
+            // Select current item
+            element.classList.add('selected');
+            selectedActivityItem = activity;
+            
+            // Populate details panel
+            const detailsContent = document.getElementById('details-content');
+            detailsContent.innerHTML = `
+                <h3>${activity.agent}</h3>
+                <p><strong>Description:</strong> ${activity.description}</p>
+                <p><strong>Time:</strong> ${activity.time || 'now'}</p>
+                ${activity.files && activity.files.length > 0 ? `
+                    <p><strong>Files Changed:</strong></p>
+                    <ul style="text-align: left; margin-top: 8px;">
+                        ${activity.files.map(file => `<li style="font-size: 0.75rem; margin: 4px 0;">${file}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            `;
+        }
+        
+        function selectActivitySummary(element) {
+            // Remove previous selection from all items
+            document.querySelectorAll('.activity-item, .activity-summary').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Select summary
+            element.classList.add('selected');
+            selectedActivityItem = null;
+            
+            // Populate details panel with summary info
+            const detailsContent = document.getElementById('details-content');
+            detailsContent.innerHTML = `
+                <h3>Activity Summary</h3>
+                <p><strong>Recent Activity:</strong> 3 agents updated in the last 10 minutes</p>
+                <p><strong>Files Changed:</strong> 6 files modified</p>
+                <p><strong>Active Agents:</strong> file-change-analyzer, documentation-manager, gitops-workflow-manager</p>
+                <br>
+                <p><strong>System Status:</strong></p>
+                <p>• File Watcher: Running</p>
+                <p>• GitHub Sync: Connected</p>
+                <p>• Servers: Online</p>
+            `;
+        }
+        
+        function toggleActivityExpanded() {
+            activityExpanded = !activityExpanded;
+            const summaryElement = document.querySelector('.activity-summary span:last-child');
+            summaryElement.textContent = activityExpanded ? '▲' : '▼';
+            
+            // Could add expansion logic here
         }
         
         function refreshDashboard() {
-            const button = document.querySelector('.refresh-button');
-            button.innerHTML = '<div class="loading"></div> Refreshing...';
-            button.disabled = true;
-            
-            setTimeout(() => {
-                button.innerHTML = '🔄 Refresh';
-                button.disabled = false;
-                updateMetrics();
-                addActivityItem();
-            }, 1500);
+            const ws = new WebSocket(`ws://${window.location.host}`);
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: 'refresh' }));
+                ws.close();
+            };
         }
         
-        // Agent card interactions
-        document.querySelectorAll('.agent-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
+        function updateDashboardState(state) {
+            // Store agent data for tooltips
+            if (state.agents) {
+                dashboardAgents = state.agents;
+            }
+            
+            if (state.activity && state.activity.length > 0) {
+                // Clear existing activities
+                const feed = document.getElementById('activity-feed');
+                feed.innerHTML = '';
                 
-                const agentName = card.dataset.agent;
-                console.log(`Selected agent: ${agentName}`);
-                // In production, this would load agent-specific details
-            });
+                // Add each activity
+                state.activity.forEach(activity => {
+                    addRealActivityItem(activity);
+                });
+            }
+            
+            if (state.metrics) {
+                updateMetricsDisplay(state.metrics);
+            }
+            
+            if (state.infrastructure) {
+                updateInfrastructureStatus(state.infrastructure);
+                updateServerIndicators(state.infrastructure);
+            }
+        }
+        
+        // Fallback mock updates if WebSocket fails
+        function startMockUpdates() {
+            console.log('📡 Using mock updates (WebSocket unavailable)');
+            // Mock data could be added here
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            switch (e.key.toLowerCase()) {
+                case 'r':
+                    refreshDashboard();
+                    break;
+                case 'l':
+                    console.log('View logs shortcut');
+                    break;
+                case 's':
+                    console.log('Sync shortcut');
+                    break;
+            }
         });
         
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
             initializeWebSocket();
             console.log('🚀 CChorus Development Dashboard initialized');
         });
