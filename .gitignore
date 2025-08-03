@@ -134,3 +134,11 @@ playwright-report/
 # Backup files
 *.bak
 *.backup
+
+# CChorus specific cleanup
+.claude/*.log
+.claude/*.pid
+.claude/sync-command-log.json
+.claude/pending-agent-invocations.json
+.claude/doc-update-needed.trigger
+.claude/github-config.json

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CChorus Development Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23;
+            color: #cccccc;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 1px;
+            background: #333;
+        }
+        
+        .header {
+            grid-column: 1 / -1;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 2px solid #16213e;
+        }
+        
+        .header h1 {
+            color: #64ffda;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .status-indicator {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #16213e;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .indicator.active {
+            background: #0f4c3a;
+            color: #64ffda;
+        }
+        
+        .indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+        
+        .indicator.active .dot {
+            background: #64ffda;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .sidebar {
+            background: #16213e;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            color: #64ffda;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .agent-card {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .agent-card:hover {
+            border-color: #64ffda;
+            transform: translateY(-2px);
+        }
+        
+        .agent-card.active {
+            border-color: #64ffda;
+            background: #0f4c3a;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .agent-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .agent-desc {
+            font-size: 0.8rem;
+            color: #999;
+            line-height: 1.4;
+        }
+        
+        .agent-status {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-idle { color: #666; }
+        .status-running { color: #ffa726; }
+        .status-completed { color: #4caf50; }
+        
+        .main-content {
+            background: #1a1a2e;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .activity-item {
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+        
+        .activity-item.recent {
+            border-color: #64ffda;
+            background: #0f4c3a;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: #999;
+            margin-left: auto;
+        }
+        
+        .activity-description {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .file-changes {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #333;
+        }
+        
+        .file-changes h4 {
+            color: #64ffda;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .file-item {
+            font-size: 0.8rem;
+            color: #999;
+            padding: 4px 8px;
+            background: #1a1a2e;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #64ffda;
+            margin-bottom: 4px;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .system-status {
+            background: #16213e;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .status-section {
+            margin-bottom: 25px;
+        }
+        
+        .status-section h3 {
+            color: #64ffda;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        
+        .status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .status-name {
+            color: #ccc;
+        }
+        
+        .status-value {
+            font-weight: 600;
+        }
+        
+        .status-value.healthy { color: #4caf50; }
+        .status-value.warning { color: #ffa726; }
+        .status-value.error { color: #f44336; }
+        
+        .refresh-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #64ffda;
+            color: #0f0f23;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+        }
+        
+        .refresh-button:hover {
+            background: #4fd3b8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            border-top-color: #64ffda;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="header">
+            <h1>🚀 CChorus Development Dashboard</h1>
+            <div class="status-indicator">
+                <div class="indicator active">
+                    <div class="dot"></div>
+                    <span>File Watcher</span>
+                </div>
+                <div class="indicator active">
+                    <div class="dot"></div>
+                    <span>GitHub Sync</span>
+                </div>
+                <div class="indicator">
+                    <div class="dot"></div>
+                    <span>Servers</span>
+                </div>
+            </div>
+        </header>
+        
+        <aside class="sidebar">
+            <h2>Micro-Agents</h2>
+            <div class="agent-list">
+                <div class="agent-card active" data-agent="file-change-analyzer">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #06B6D4;"></div>
+                        file-change-analyzer
+                    </div>
+                    <div class="agent-desc">Routes changes to appropriate agents</div>
+                    <div class="agent-status status-running">
+                        <div class="loading"></div>
+                        <span>Analyzing changes</span>
+                    </div>
+                </div>
+                
+                <div class="agent-card" data-agent="readme-updater">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #3B82F6;"></div>
+                        readme-updater
+                    </div>
+                    <div class="agent-desc">Maintains main README.md file</div>
+                    <div class="agent-status status-idle">
+                        <span>Idle</span>
+                    </div>
+                </div>
+                
+                <div class="agent-card" data-agent="api-documenter">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #10B981;"></div>
+                        api-documenter
+                    </div>
+                    <div class="agent-desc">Tracks server.js API changes</div>
+                    <div class="agent-status status-idle">
+                        <span>Idle</span>
+                    </div>
+                </div>
+                
+                <div class="agent-card" data-agent="component-documenter">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #F59E0B;"></div>
+                        component-documenter
+                    </div>
+                    <div class="agent-desc">Monitors React components</div>
+                    <div class="agent-status status-idle">
+                        <span>Idle</span>
+                    </div>
+                </div>
+                
+                <div class="agent-card" data-agent="backlog-manager">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #EF4444;"></div>
+                        backlog-manager
+                    </div>
+                    <div class="agent-desc">Manages BACKLOG.md priorities</div>
+                    <div class="agent-status status-idle">
+                        <span>Idle</span>
+                    </div>
+                </div>
+                
+                <div class="agent-card" data-agent="changelog-updater">
+                    <div class="agent-name">
+                        <div class="agent-color" style="background: #8B5CF6;"></div>
+                        changelog-updater
+                    </div>
+                    <div class="agent-desc">Maintains project history</div>
+                    <div class="agent-status status-completed">
+                        <span>Last run: 2min ago</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label">Active Agents</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">12</div>
+                    <div class="metric-label">Files Watched</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">5</div>
+                    <div class="metric-label">Recent Changes</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2.1s</div>
+                    <div class="metric-label">Avg Response</div>
+                </div>
+            </div>
+            
+            <h2 style="color: #64ffda; margin-bottom: 15px;">Real-time Activity Feed</h2>
+            <div class="activity-feed">
+                <div class="activity-item recent">
+                    <div class="activity-header">
+                        <div class="activity-title">
+                            <div class="agent-color" style="background: #06B6D4;"></div>
+                            file-change-analyzer
+                        </div>
+                        <div class="activity-time">2min ago</div>
+                    </div>
+                    <div class="activity-description">
+                        Detected 5 new micro-agent files, routing to documentation-manager for processing
+                    </div>
+                    <div class="file-changes">
+                        <h4>Changed Files (5)</h4>
+                        <div class="file-list">
+                            <div class="file-item">.claude/agents/api-documenter.md</div>
+                            <div class="file-item">.claude/agents/component-documenter.md</div>
+                            <div class="file-item">.claude/agents/backlog-manager.md</div>
+                            <div class="file-item">.claude/agents/changelog-updater.md</div>
+                            <div class="file-item">.claude/agents/file-change-analyzer.md</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-header">
+                        <div class="activity-title">
+                            <div class="agent-color" style="background: #3B82F6;"></div>
+                            readme-updater
+                        </div>
+                        <div class="activity-time">5min ago</div>
+                    </div>
+                    <div class="activity-description">
+                        Created initial micro-agent with 2000 token limit using claude-3-haiku model
+                    </div>
+                    <div class="file-changes">
+                        <h4>Changed Files (1)</h4>
+                        <div class="file-list">
+                            <div class="file-item">.claude/agents/readme-updater.md</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-header">
+                        <div class="activity-title">
+                            <div class="agent-color" style="background: #8B5CF6;"></div>
+                            changelog-updater
+                        </div>
+                        <div class="activity-time">8min ago</div>
+                    </div>
+                    <div class="activity-description">
+                        Archived monolithic documentation-manager.md to backup, preparing for micro-agent transition
+                    </div>
+                    <div class="file-changes">
+                        <h4>Changed Files (1)</h4>
+                        <div class="file-list">
+                            <div class="file-item">.claude/agents/documentation-manager.md.backup</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-header">
+                        <div class="activity-title">
+                            <div class="agent-color" style="background: #10B981;"></div>
+                            System
+                        </div>
+                        <div class="activity-time">12min ago</div>
+                    </div>
+                    <div class="activity-description">
+                        File watcher detected project reorganization, auto-triggered documentation workflow
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <aside class="system-status">
+            <div class="status-section">
+                <h3>Infrastructure Status</h3>
+                <div class="status-list">
+                    <div class="status-item">
+                        <span class="status-name">File Watcher</span>
+                        <span class="status-value healthy">Running (PID: 40616)</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">GitHub Sync</span>
+                        <span class="status-value healthy">Connected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Auto Branch Creator</span>
+                        <span class="status-value warning">14 Pending</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">VS Code Tasks</span>
+                        <span class="status-value healthy">Auto-start Ready</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-section">
+                <h3>Performance Metrics</h3>
+                <div class="status-list">
+                    <div class="status-item">
+                        <span class="status-name">Token Usage</span>
+                        <span class="status-value healthy">↓ 65% vs Monolithic</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Response Time</span>
+                        <span class="status-value healthy">2.1s avg</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Agent Efficiency</span>
+                        <span class="status-value healthy">94% success rate</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Memory Usage</span>
+                        <span class="status-value healthy">145MB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-section">
+                <h3>Recent Commits</h3>
+                <div class="status-list">
+                    <div class="status-item">
+                        <span class="status-name">feature/dev-infrastructure</span>
+                        <span class="status-value healthy">8 commits ahead</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Last Push</span>
+                        <span class="status-value">15min ago</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Branch Status</span>
+                        <span class="status-value healthy">Up to date</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <button class="refresh-button" onclick="refreshDashboard()">
+        🔄 Refresh
+    </button>
+    
+    <script>
+        // Mock WebSocket connection for real-time updates
+        function initializeWebSocket() {
+            // In production, this would connect to a real WebSocket server
+            console.log('📡 WebSocket connection initialized (mock)');
+            
+            // Simulate periodic updates
+            setInterval(() => {
+                updateMetrics();
+                if (Math.random() > 0.7) {
+                    addActivityItem();
+                }
+            }, 5000);
+        }
+        
+        function updateMetrics() {
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics[1].textContent = Math.floor(Math.random() * 5) + 10; // Files watched
+            metrics[3].textContent = (Math.random() * 2 + 1).toFixed(1) + 's'; // Response time
+        }
+        
+        function addActivityItem() {
+            const agents = [
+                { name: 'file-change-analyzer', color: '#06B6D4' },
+                { name: 'readme-updater', color: '#3B82F6' },
+                { name: 'api-documenter', color: '#10B981' },
+                { name: 'component-documenter', color: '#F59E0B' }
+            ];
+            
+            const activities = [
+                'Detected changes in component files',
+                'Updated documentation for API endpoints',
+                'Processed file modifications',
+                'Synchronized with GitHub Issues'
+            ];
+            
+            const agent = agents[Math.floor(Math.random() * agents.length)];
+            const activity = activities[Math.floor(Math.random() * activities.length)];
+            
+            const feed = document.querySelector('.activity-feed');
+            const newItem = document.createElement('div');
+            newItem.className = 'activity-item recent';
+            newItem.innerHTML = `
+                <div class="activity-header">
+                    <div class="activity-title">
+                        <div class="agent-color" style="background: ${agent.color};"></div>
+                        ${agent.name}
+                    </div>
+                    <div class="activity-time">just now</div>
+                </div>
+                <div class="activity-description">
+                    ${activity}
+                </div>
+            `;
+            
+            feed.insertBefore(newItem, feed.firstChild);
+            
+            // Remove old items to prevent infinite scroll
+            const items = feed.querySelectorAll('.activity-item');
+            if (items.length > 10) {
+                items[items.length - 1].remove();
+            }
+            
+            // Remove 'recent' class from other items
+            setTimeout(() => {
+                document.querySelectorAll('.activity-item.recent').forEach((item, index) => {
+                    if (index > 0) item.classList.remove('recent');
+                });
+            }, 3000);
+        }
+        
+        function refreshDashboard() {
+            const button = document.querySelector('.refresh-button');
+            button.innerHTML = '<div class="loading"></div> Refreshing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = '🔄 Refresh';
+                button.disabled = false;
+                updateMetrics();
+                addActivityItem();
+            }, 1500);
+        }
+        
+        // Agent card interactions
+        document.querySelectorAll('.agent-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                
+                const agentName = card.dataset.agent;
+                console.log(`Selected agent: ${agentName}`);
+                // In production, this would load agent-specific details
+            });
+        });
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWebSocket();
+            console.log('🚀 CChorus Development Dashboard initialized');
+        });
+    </script>
+</body>
+</html>

@@ -15,6 +15,10 @@
           {
             "type": "command",
             "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-github-sync.sh --auto-start"
+          },
+          {
+            "type": "command",
+            "command": "/Users/mikelebowitz/Documents/Code/CChorus/tools/start-dashboard.sh --background"
           }
         ]
       }

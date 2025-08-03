@@ -1,24 +1,77 @@
 [
   {
     "agent": "documentation-manager",
-    "timestamp": "2025-08-03T12:03:33.163194",
+    "timestamp": "2025-08-03T14:29:54.049924",
     "trigger": "file-watcher-auto",
-    "prompt": "Auto-triggered: Update documentation for 1 file changes detected by real-time watcher",
-    "priority": "high",
+    "prompt": "Auto-triggered: Update documentation for 6 file changes detected by real-time watcher",
+    "priority": "low",
     "auto_triggered": true,
     "files_changed": [
-      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/api-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/file-change-analyzer.md"
     ]
   },
   {
     "agent": "documentation-manager",
-    "timestamp": "2025-08-03T12:11:53.542205",
+    "timestamp": "02:30:59pm",
     "trigger": "file-watcher-auto",
-    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
+    "prompt": "Auto-triggered: Update documentation for 10 file changes detected by real-time watcher",
     "priority": "high",
     "auto_triggered": true,
     "files_changed": [
-      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docgit.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docstatus.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/agentstat.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/index.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/microagent.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docsync.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "2025-08-03T14:30:59.029163",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 10 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/agentstat.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docstatus.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/index.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docsync.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/microagent.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "2025-08-03T14:30:59.032870",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 10 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/index.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/microagent.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/agentstat.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docstatus.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docsync.md",
       "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
     ]
   }
