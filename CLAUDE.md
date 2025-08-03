@@ -6,13 +6,17 @@ Essential guidance for Claude Code when working with CChorus.
 
 ```bash
 npm install
-/tmux-dev start both frontend and backend in separate sessions
-
-# AUTOMATIC: File watcher starts automatically via SessionStart hook
-# Manual control (if needed):
-# .claude/start-file-watcher.sh  # Start manually
-# .claude/stop-file-watcher.sh   # Stop manually
+# Open project in VS Code - development servers start automatically
 ```
+
+**Automatic Development Server Startup:**
+- Frontend and backend servers auto-start when opening the project in VS Code
+- Servers run in visible VS Code Terminal tabs (grouped as "cchorus")
+- File watcher starts automatically via SessionStart hook
+
+**Manual Control (if needed):**
+- Use `Cmd+Shift+P` → "Tasks: Run Task" to start/stop servers manually
+- Or run directly: `npm run dev` (frontend) and `npm run dev:server` (backend)
 
 ## Project Overview
 
@@ -41,7 +45,7 @@ System prompt content...
 ## MANDATORY Process
 
 ### Server Management
-**ALL server operations MUST use `/tmux-dev`. Direct npm commands PROHIBITED.**
+**Servers auto-start in VS Code Terminal tabs when project opens. Manual control via VS Code Tasks or direct npm commands.**
 
 ### UI Development (MANDATORY)
 **ALWAYS use shadcn/ui + Radix UI patterns:**

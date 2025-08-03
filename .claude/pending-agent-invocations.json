@@ -234,5 +234,18 @@
       "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
       "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.91485.1754230255592"
     ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "2025-08-03T11:09:38.602205",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 3 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.91485.1754230255592",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+    ]
   }
 ]
