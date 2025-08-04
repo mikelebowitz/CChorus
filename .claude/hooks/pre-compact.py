@@ -19,6 +19,8 @@ class CChorusPreCompactHook:
         self.config_path = self.project_root / "config" / "gitops-config.json"
         self.session_docs_dir = self.project_root / "docs" / "sessions"
         self.session_file = Path("/tmp/claude-gitops-session.json")
+        self.compact_tracking_path = self.project_root / ".claude" / "compact-tracking.json"
+        self.token_usage_path = self.project_root / ".claude" / "token-usage.json"
         self.debug = os.environ.get('CLAUDE_HOOKS_DEBUG', '').lower() == 'true'
         
         # Load GitOps configuration
@@ -41,6 +43,81 @@ class CChorusPreCompactHook:
         if self.debug:
             print(f"[CCHORUS-PRECOMPACT] {message}", file=sys.stderr)
     
+    def _track_compact_event(self, session_id: str, trigger: str):
+        """Track compact event for token usage monitoring."""
+        try:
+            # Load current compact tracking data
+            compact_data = {
+                "lastEvent": {
+                    "type": None,
+                    "timestamp": None,
+                    "sessionId": None,
+                    "totalTokensAtEvent": 0,
+                    "trigger": None,
+                    "formattedTime": None
+                },
+                "eventHistory": [],
+                "currentSession": {
+                    "sessionId": None,
+                    "compactsThisSession": 0,
+                    "sessionStartTime": None,
+                    "tokensSinceLastEvent": 0
+                }
+            }
+            
+            if self.compact_tracking_path.exists():
+                with open(self.compact_tracking_path, 'r') as f:
+                    compact_data = json.load(f)
+            
+            # Load current token usage to get total tokens
+            total_tokens = 0
+            if self.token_usage_path.exists():
+                with open(self.token_usage_path, 'r') as f:
+                    token_data = json.load(f)
+                    total_tokens = token_data.get('totalTokens', 0)
+            
+            # Create compact event record
+            compact_event = {
+                "type": "compact",
+                "timestamp": datetime.now().isoformat(),
+                "sessionId": session_id,
+                "totalTokensAtEvent": total_tokens,
+                "trigger": trigger,
+                "formattedTime": datetime.now().strftime('%I:%M:%S%p').lower()
+            }
+            
+            # Update tracking data
+            if compact_data["lastEvent"]["timestamp"]:
+                # Add previous event to history
+                compact_data["eventHistory"].append(compact_data["lastEvent"])
+                # Keep only last 20 events in history
+                compact_data["eventHistory"] = compact_data["eventHistory"][-20:]
+            
+            # Update last event
+            compact_data["lastEvent"] = compact_event
+            
+            # Update session tracking - increment compact count if same session
+            if compact_data["currentSession"]["sessionId"] == session_id:
+                compact_data["currentSession"]["compactsThisSession"] += 1
+                compact_data["currentSession"]["tokensSinceLastEvent"] = 0
+            else:
+                # New session
+                compact_data["currentSession"] = {
+                    "sessionId": session_id,
+                    "compactsThisSession": 1,
+                    "sessionStartTime": datetime.now().isoformat(),
+                    "tokensSinceLastEvent": 0
+                }
+            
+            # Save updated tracking data
+            with open(self.compact_tracking_path, 'w') as f:
+                json.dump(compact_data, f, indent=2)
+            
+            self.log(f"Tracked compact event: {trigger} at {compact_event['formattedTime']} with {total_tokens} total tokens (session compacts: {compact_data['currentSession']['compactsThisSession']})")
+            
+        except Exception as e:
+            self.log(f"Error tracking compact event: {e}")
+    
     def process(self, input_data: Dict) -> Dict:
         """Process pre-compact event with CChorus-specific workflow."""
         try:
@@ -50,11 +127,17 @@ class CChorusPreCompactHook:
             
             self.log(f"Processing CChorus {trigger} compaction for session {session_id}")
             
+            # Track the compact event for token monitoring
+            self._track_compact_event(session_id, trigger)
+            
             # Step 1: Coordinate with documentation manager agent
             doc_agent_status = self._coordinate_with_doc_agent()
             
             # Step 2: Report UI compliance status for historical tracking
             ui_compliance_status = self._report_ui_compliance()
+            
+            # Load session operations for analysis
+            session_operations = self._load_session_operations()
             
             # Step 3: Generate CChorus-specific session documentation
             session_doc_path = self._generate_cchorus_session_doc(
@@ -63,6 +146,9 @@ class CChorusPreCompactHook:
             
             # Step 4: Create CChorus-specific next session brief
             self._create_cchorus_next_session_brief()
+            
+            # Get changes analysis for branch creation
+            changes_analysis = self._analyze_cchorus_changes()
             
             # Step 5: Analyze work scope for branch creation triggers
             branch_analysis = self._analyze_branch_creation_needs(session_operations, changes_analysis)
@@ -556,7 +642,7 @@ class CChorusPreCompactHook:
 - **Working Directory**: `{self.project_root}`
 - **Active Feature**: {self._identify_active_feature(changes_analysis)}
 - **Key Files to Review**: {self._list_key_cchorus_files(changes_analysis)}
-- **Server Management**: Use `/tmux-dev` for all development servers
+- **Server Management**: VS Code auto-starts servers in visible terminal tabs
 - **Agent Workflow**: Remember Documentation → GitOps sequence
 
 ---
@@ -590,25 +676,21 @@ class CChorusPreCompactHook:
 # Navigate to CChorus project
 cd {self.project_root}
 
-# REQUIRED: Start development servers using tmux-dev
-/tmux-dev start frontend server in session cchorus-frontend
-/tmux-dev start backend server in session cchorus-backend
+# Development servers auto-start in VS Code (no manual commands needed)
+# Frontend and backend start automatically when project opens in VS Code
+# Servers run in visible terminal tabs for easy monitoring
 
-# Monitor servers (non-blocking)
-/tmux-dev check logs from cchorus-frontend
-/tmux-dev show last 50 lines from cchorus-backend
-
-# List running sessions
-/tmux-dev list all running sessions
+# Manual control (if needed):
+# Cmd+Shift+P → "Tasks: Run Task" → "Start Frontend" or "Start Backend"
+# Or run directly: npm run dev (frontend), npm run dev:server (backend)
 ```
 
 ## 🚫 PROHIBITED Commands
 
 ```bash
-# These are FORBIDDEN - use /tmux-dev instead:
-# npm run dev                 ❌
-# npm run dev:server          ❌
-# npm run dev:full            ❌
+# These are not needed - VS Code handles automatically:
+# /tmux-dev commands are deprecated
+# Servers auto-start via VS Code tasks.json
 ```
 
 ## 📚 Agent Workflow Reminder
@@ -638,7 +720,7 @@ Check `docs/sessions/` for the latest session summary with detailed context.
 - **Resource Library**: Unified browser for all Claude Code resources
 - **Assignment Manager**: Deploy and manage resource assignments  
 - **Agent Architecture**: Documentation manager handles docs, GitOps handles Git
-- **Server Management**: Always use `/tmux-dev` for development servers
+- **Server Management**: VS Code auto-starts servers in visible terminal tabs
 - **Component System**: shadcn/ui + Radix UI with accessibility features
 - **Automated Workflow**: Pre-compact hook now auto-invokes `/docgit` when changes detected
 
@@ -1158,7 +1240,7 @@ Check `docs/sessions/` for the latest session summary with detailed context.
         
         # Standard CChorus TODOs
         todos.extend([
-            "- [ ] Verify tmux-dev server management works correctly",
+            "- [ ] Verify VS Code auto-start development servers work correctly",
             "- [ ] Test complete Resource Library → Assignment workflow",
             "- [ ] Check all three navigation tabs (Library, Assignments, Agents)",
             "- [ ] Ensure agent workflow sequence is followed: Code → Documentation → GitOps"

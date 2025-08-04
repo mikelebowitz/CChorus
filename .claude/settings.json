@@ -11,6 +11,14 @@
           {
             "type": "command",
             "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-auto-branch-creator.sh --once"
+          },
+          {
+            "type": "command",
+            "command": "/Users/mikelebowitz/Documents/Code/CChorus/.claude/start-github-sync.sh --auto-start"
+          },
+          {
+            "type": "command",
+            "command": "/Users/mikelebowitz/Documents/Code/CChorus/tools/start-dashboard.sh --background"
           }
         ]
       }

@@ -1,0 +1,42 @@
+{
+  "sessions": [
+    {
+      "timestamp": "2025-08-03T19:45:00.000Z",
+      "agent": "readme-updater",
+      "tokens": 1500
+    },
+    {
+      "timestamp": "2025-08-03T19:50:00.000Z",
+      "agent": "api-documenter",
+      "tokens": 1800
+    },
+    {
+      "timestamp": "2025-08-03T19:52:00.000Z",
+      "agent": "component-documenter",
+      "tokens": 1600
+    },
+    {
+      "timestamp": "2025-08-03T23:51:02.578Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-04T00:09:03.969Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-04T00:40:34.193Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-04T02:34:27.296Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    }
+  ],
+  "totalTokens": 36900,
+  "averagePerSession": 5271,
+  "reductionVsBaseline": 34
+}

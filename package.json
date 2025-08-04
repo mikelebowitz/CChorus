@@ -41,7 +41,10 @@
     "react-dom": "^18.2.0",
     "react-resizable-panels": "^3.0.4",
     "readdirp": "^4.1.2",
-    "tailwind-merge": "^3.3.1"
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "tailwind-merge": "^3.3.1",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.5",

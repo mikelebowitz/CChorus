@@ -58,7 +58,7 @@ class CChorusAutoBranchCreator:
             print(f"❌ Error saving branch log: {e}")
     
     def scan_for_branch_metadata(self) -> List[Dict]:
-        """Scan BACKLOG.md for [new-branch] metadata that hasn't been processed."""
+        """Scan BACKLOG.md for [ready-for-branch] metadata that hasn't been processed."""
         try:
             if not self.backlog_path.exists():
                 print(f"⚠️  BACKLOG.md not found at {self.backlog_path}")
@@ -66,9 +66,24 @@ class CChorusAutoBranchCreator:
             
             content = self.backlog_path.read_text()
             
-            # Find all [new-branch: branch-name] patterns
-            pattern = r'(.+?)\s*`\[new-branch:\s*([^\]]+)\]`'
-            matches = re.findall(pattern, content, re.MULTILINE)
+            # Find all [ready-for-branch: branch-name] patterns
+            # Only create branches that are explicitly marked as ready
+            # Exclude lines that are part of documentation (starting with -)
+            lines = content.split('\n')
+            matches = []
+            
+            for i, line in enumerate(lines):
+                # Skip documentation/example lines
+                if (line.strip().startswith('- `[') or 
+                    line.strip().startswith('• `[') or
+                    line.strip().startswith('- ') and '`[' in line or
+                    line.strip().startswith('**') or
+                    '→' in line):  # Skip lines that are clearly documentation
+                    continue
+                
+                match = re.search(r'(.+?)\s*`\[ready-for-branch:\s*([^\]]+)\]`', line)
+                if match:
+                    matches.append((match.group(1), match.group(2)))
             
             new_triggers = []
             for description, branch_name in matches:
@@ -91,9 +106,16 @@ class CChorusAutoBranchCreator:
                     })
             
             if new_triggers:
-                print(f"🎯 Found {len(new_triggers)} new branch creation triggers")
+                print(f"🎯 Found {len(new_triggers)} branches ready for creation")
                 for trigger in new_triggers:
                     print(f"  📝 {trigger['branch_name']}: {trigger['description'][:60]}...")
+            else:
+                # Check for planned branches and inform user
+                planned_pattern = r'`\[(?:new-branch|planned-branch):\s*([^\]]+)\]`'
+                planned_matches = re.findall(planned_pattern, content)
+                if planned_matches:
+                    print(f"📋 Found {len(planned_matches)} planned branches (not ready for creation)")
+                    print(f"   Update metadata to [ready-for-branch: branch-name] when ready to create")
             
             return new_triggers
             
@@ -331,8 +353,8 @@ class CChorusAutoBranchCreator:
             content = self.backlog_path.read_text()
             branch_name = trigger['branch_name']
             
-            # Replace [new-branch: branch-name] with [BRANCH-CREATED ✅: branch-name]
-            pattern = rf'`\[new-branch:\s*{re.escape(branch_name)}\]`'
+            # Replace [ready-for-branch: branch-name] with [BRANCH-CREATED ✅: branch-name]
+            pattern = rf'`\[ready-for-branch:\s*{re.escape(branch_name)}\]`'
             replacement = f'`[BRANCH-CREATED ✅: {branch_name}]`'
             
             updated_content = re.sub(pattern, replacement, content)

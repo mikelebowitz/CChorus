@@ -9,6 +9,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SYNC_SCRIPT="$SCRIPT_DIR/github-sync.py"
+PID_FILE="$SCRIPT_DIR/github-sync.pid"
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,6 +17,70 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Function to check if GitHub sync is already running
+check_existing_sync() {
+    # Check for running python processes with github-sync
+    if pgrep -f "python.*github-sync.py.*--sync" > /dev/null 2>&1; then
+        return 0  # Running
+    fi
+    return 1  # Not running
+}
+
+# Handle auto-start mode
+if [ "$1" = "--auto-start" ]; then
+    echo -e "${BLUE}🔄 Auto-starting CChorus GitHub Sync...${NC}"
+    
+    # Check if already running
+    if check_existing_sync; then
+        existing_pid=$(pgrep -f "python.*github-sync.py.*--sync" | head -1)
+        echo -e "${GREEN}✅ GitHub sync already running (PID: $existing_pid)${NC}"
+        echo -e "${BLUE}📋 Skipping duplicate sync operation${NC}"
+        exit 0
+    fi
+    
+    # Check for .env file
+    if [ ! -f "$PROJECT_ROOT/.env" ]; then
+        echo -e "${YELLOW}⚠️  GitHub sync not configured (.env file missing)${NC}"
+        echo -e "${BLUE}📋 Run '.claude/start-github-sync.sh --setup' to configure${NC}"
+        exit 0
+    fi
+    
+    # Run a sync operation with timeout
+    cd "$PROJECT_ROOT"
+    echo -e "${BLUE}📋 Running GitHub synchronization (30s timeout)...${NC}"
+    
+    # Use timeout command (gtimeout on macOS if available, otherwise timeout)
+    if command -v gtimeout >/dev/null 2>&1; then
+        TIMEOUT_CMD="gtimeout"
+    elif command -v timeout >/dev/null 2>&1; then
+        TIMEOUT_CMD="timeout"
+    else
+        # No timeout available, run without timeout but warn
+        echo -e "${YELLOW}⚠️  No timeout command available, running without timeout${NC}"
+        python3 "$SYNC_SCRIPT" --sync > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✅ GitHub sync completed successfully${NC}"
+        else
+            echo -e "${YELLOW}⚠️  GitHub sync completed with warnings${NC}"
+        fi
+        exit 0
+    fi
+    
+    # Run with timeout
+    $TIMEOUT_CMD 30s python3 "$SYNC_SCRIPT" --sync > /dev/null 2>&1
+    exit_code=$?
+    
+    if [ $exit_code -eq 0 ]; then
+        echo -e "${GREEN}✅ GitHub sync completed successfully${NC}"
+    elif [ $exit_code -eq 124 ]; then
+        echo -e "${YELLOW}⚠️  GitHub sync timed out after 30 seconds${NC}"
+        echo -e "${BLUE}📋 Run '.claude/start-github-sync.sh --sync' manually to debug${NC}"
+    else
+        echo -e "${YELLOW}⚠️  GitHub sync completed with warnings (exit code: $exit_code)${NC}"
+    fi
+    exit 0
+fi
 
 echo -e "${BLUE}🐙 CChorus GitHub Integration${NC}"
 

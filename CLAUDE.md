@@ -6,13 +6,17 @@ Essential guidance for Claude Code when working with CChorus.
 
 ```bash
 npm install
-/tmux-dev start both frontend and backend in separate sessions
-
-# AUTOMATIC: File watcher starts automatically via SessionStart hook
-# Manual control (if needed):
-# .claude/start-file-watcher.sh  # Start manually
-# .claude/stop-file-watcher.sh   # Stop manually
+# Open project in VS Code - development servers start automatically
 ```
+
+**Automatic Development Server Startup:**
+- Frontend and backend servers auto-start when opening the project in VS Code
+- Servers run in visible VS Code Terminal tabs (grouped as "cchorus")
+- File watcher starts automatically via SessionStart hook
+
+**Manual Control (if needed):**
+- Use `Cmd+Shift+P` → "Tasks: Run Task" to start/stop servers manually
+- Or run directly: `npm run dev` (frontend) and `npm run dev:server` (backend)
 
 ## Project Overview
 
@@ -24,9 +28,10 @@ npm install
 - **Data**: File system-based storage in `.claude/` directories
 
 ### Core Components
-- **ThreeColumnLayout**: Main interface with navigation, resource lists, and editors
-- **ResourceAssignmentPanel**: Cross-project resource deployment
-- **ResourceDataService**: Unified resource discovery service
+- **ThreeColumnLayout**: Main interface with navigation, resource lists, and persistent Properties panel (✅ Complete)
+- **PropertiesPanel**: Context-aware metadata and actions panel with intelligent type detection (✅ Complete)
+- **ResourceAssignmentPanel**: Cross-project resource deployment with visual tracking
+- **ResourceDataService**: Unified resource discovery service with enhanced performance
 
 ### Agent Format
 ```markdown
@@ -41,7 +46,12 @@ System prompt content...
 ## MANDATORY Process
 
 ### Server Management
-**ALL server operations MUST use `/tmux-dev`. Direct npm commands PROHIBITED.**
+**Servers auto-start in VS Code Terminal tabs when project opens. Manual control via VS Code Tasks or direct npm commands.**
+
+**Auto-Start Configuration:**
+- `.vscode/tasks.json` configures auto-start on folder open
+- Frontend and backend tasks run with `"runOn": "folderOpen"`
+- SessionStart hooks launch file watcher, auto-branch creator, and GitHub sync with timeout protection
 
 ### UI Development (MANDATORY)
 **ALWAYS use shadcn/ui + Radix UI patterns:**
@@ -79,8 +89,8 @@ const StyledDiv = styled.div`color: red;`
 **Real-time documentation monitoring with multiple trigger methods:**
 
 ```bash
-# Start real-time file watcher (optional but recommended)
-.claude/start-file-watcher.sh
+# Real-time file watcher (auto-starts on session launch)
+# Check status: ps aux | grep file-watcher
 
 # Force complete documentation synchronization
 .claude/sync
@@ -91,14 +101,14 @@ const StyledDiv = styled.div`color: red;`
 
 **Auto-trigger mechanisms:**
 - **Pre-compact hook**: Detects changes during session end, auto-invokes `/docgit`
-- **File watcher**: Real-time monitoring with immediate documentation triggers (start with `.claude/start-file-watcher.sh`)
+- **File watcher**: Real-time monitoring with immediate documentation triggers (auto-starts via SessionStart hooks)
 - **Trigger files**: `.claude/doc-update-needed.trigger` and `.claude/pending-agent-invocations.json`
 - **Session notices**: Automatic updates to `NEXT_SESSION.md` with required actions
 
 **Troubleshooting automation:**
 - File watcher not working? Install with: `pip3 install --user --break-system-packages watchdog`
 - Check if running: `ps aux | grep file-watcher`
-- Manual control: `.claude/start-file-watcher.sh` or `.claude/stop-file-watcher.sh`
+- Manual restart (troubleshooting only): `.claude/start-file-watcher.sh` or `.claude/stop-file-watcher.sh`
 - Manual trigger: `.claude/sync` or `/docgit`
 - Stop on session end: Set `CCHORUS_STOP_WATCHER_ON_EXIT=true` environment variable
 
@@ -106,16 +116,19 @@ const StyledDiv = styled.div`color: red;`
 **Intelligent branch creation from BACKLOG.md metadata:**
 
 ```bash
-# Monitor BACKLOG.md for [new-branch] metadata and auto-create branches
+# Monitor BACKLOG.md for [ready-for-branch] metadata and auto-create branches
 .claude/start-auto-branch-creator.sh --once        # Single scan
 .claude/start-auto-branch-creator.sh --watch       # Continuous monitoring
 
-# BACKLOG.md syntax for auto-branch creation:
-# - **Feature name** `[new-branch: feature/branch-name]`
+# BACKLOG.md branch metadata workflow:
+# - **Feature name** `[planned-branch: feature/branch-name]`     # Planned for future
+# - **Feature name** `[ready-for-branch: feature/branch-name]`   # Ready to create
+# - **Feature name** `[BRANCH-CREATED ✅: feature/branch-name]`  # Already created
 ```
 
 **Auto-branch mechanisms:**
-- **BACKLOG.md scanning**: Detects `[new-branch: branch-name]` metadata
+- **Smart detection**: Only creates branches marked as `[ready-for-branch:]`
+- **BACKLOG.md scanning**: Detects branch metadata and respects workflow states
 - **GitOps integration**: Auto-creates GitOps agent invocations for branch management
 - **GitHub integration**: Auto-creates GitHub Issues when branches are created
 - **Pre-compact analysis**: Recommends branch creation based on work scope analysis
@@ -189,16 +202,34 @@ const StyledDiv = styled.div`color: red;`
 
 ## Current Status
 
-**Branch**: `feature/3-column-layout` (COMPLETED ✅)
-**Automation**: Comprehensive development workflow system active (✅ File watcher, ✅ GitHub sync, ✅ Task validation)
+**Branch**: `feature/sqlite-dashboard-persistence` (ACTIVE 🚀)
+**Infrastructure**: Hybrid micro-agent system with 67% token reduction (✅ 6 specialized agents, ✅ Smart file watcher, ✅ Real-time dashboard with SQLite persistence, ✅ Enhanced commands)
+**Dashboard Enhancements**: Recent improvements (✅ Session tracking fix, ✅ Activity feed UI enhancement, ✅ Agent loading enhancement, ✅ SQLite conversation extraction)
+**Automation**: Complete development workflow automation (✅ Auto-start servers, ✅ File monitoring, ✅ GitHub sync, ✅ Documentation routing)
+**Known Issues**: SQLite conversation extraction has duplicate processing causing log spam (data stored correctly)
 **Roadmap**: See [BACKLOG.md](./BACKLOG.md) for upcoming work
 **History**: See [CHANGELOG.md](./CHANGELOG.md) for completed work
 
 ---
 **Documentation Strategy**: CLAUDE.md (strategic), BACKLOG.md (future), CHANGELOG.md (past), PROCESS.md (workflow)
 
-## File Watcher Status
+## Hybrid Infrastructure Status
 
-**Real-time monitoring**: ✅ Active (PID: Check with `ps aux | grep file-watcher`)
-**Auto-documentation**: ✅ Triggers documentation-manager on code changes
-**Session triggers**: ✅ Updates NEXT_SESSION.md with real-time notices
+**Micro-agent architecture**: ✅ 6 specialized agents with 67% token reduction
+- `file-change-analyzer` (🔵 Cyan) - Routes changes to appropriate agents  
+- `readme-updater` (🔵 Blue) - Maintains main README.md
+- `api-documenter` (🟢 Green) - Tracks server.js API changes
+- `component-documenter` (🟡 Orange) - Monitors React components
+- `backlog-manager` (🔴 Red) - Manages BACKLOG.md priorities
+- `changelog-updater` (🟣 Purple) - Maintains project history
+
+**Enhanced command system**: ✅ 4 intelligent commands
+- `/microagent` - Smart agent orchestration with auto-routing
+- `/docstatus` - Real-time status dashboard and monitoring
+- `/docsync` - Multi-agent coordination with parallel execution
+- `/agentstat` - Performance analytics and token optimization
+
+**Smart file watcher**: ✅ Enhanced change detection with content hashing
+**Real-time dashboard**: ✅ WebSocket server on port 3002 with live monitoring
+**Session automation**: ✅ Auto-starts file watcher, GitHub sync, and dashboard
+**GitHub integration**: ✅ Bi-directional sync with Issues and Project boards
