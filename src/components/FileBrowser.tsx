@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Folder, File, ChevronRight, X, Plus, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FileItem {
   name: string;
@@ -85,12 +86,13 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({ onSelectFile, onCancel
               </span>
             )}
           </div>
-          <button
+          <Button
             onClick={onCancel}
-            className="p-1 text-gray-500 hover:text-gray-700"
+            variant="ghost"
+            size="sm"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
         
         <div className="p-6">
@@ -101,14 +103,15 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({ onSelectFile, onCancel
           )}
           
           <div className="flex items-center gap-2 mb-4">
-            <button
+            <Button
               onClick={handleGoBack}
               disabled={!items.some(item => item.name === '..')}
-              className="flex items-center gap-1 px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
+              size="sm"
             >
               <ArrowLeft size={14} />
               Back
-            </button>
+            </Button>
             <span className="text-sm text-gray-600">
               Select a markdown file to import as an agent
             </span>
@@ -169,16 +172,16 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({ onSelectFile, onCancel
                       {item.type === 'directory' ? (
                         <ChevronRight className="text-gray-400" size={16} />
                       ) : (
-                        <button
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             onSelectFile(item.relativePath || item.path);
                           }}
-                          className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                          size="sm"
                         >
                           <Plus size={14} />
                           Import
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>

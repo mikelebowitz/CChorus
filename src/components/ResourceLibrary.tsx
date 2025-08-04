@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Checkbox } from './ui/checkbox';
 import { 
   Search, 
   Filter, 
@@ -136,8 +137,8 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
   };
 
   const ResourceCard = ({ resource }: { resource: ResourceItem }) => {
-    const TypeIcon = RESOURCE_TYPE_ICONS[resource.type];
-    const ScopeIcon = SCOPE_ICONS[resource.scope];
+    const TypeIcon = RESOURCE_TYPE_ICONS[resource.type] || FolderOpen;
+    const ScopeIcon = SCOPE_ICONS[resource.scope] || Globe;
     const isSelected = selectedResources.has(resource.id);
 
     return (
@@ -160,14 +161,11 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
             </div>
             
             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isSelected}
-                onChange={(e) => {
-                  e.stopPropagation();
+                onCheckedChange={(checked) => {
                   toggleResourceSelection(resource.id);
                 }}
-                className="w-4 h-4"
               />
             </div>
           </div>
@@ -177,7 +175,7 @@ export function ResourceLibrary({ onResourceSelect, onResourceAssign }: Resource
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Badge 
-                className={`text-xs ${SCOPE_COLORS[resource.scope]}`}
+                className={`text-xs ${SCOPE_COLORS[resource.scope] || SCOPE_COLORS.system}`}
                 variant="secondary"
               >
                 <ScopeIcon size={12} className="mr-1" />

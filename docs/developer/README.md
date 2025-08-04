@@ -1,8 +1,9 @@
 # CChorus Developer Documentation
 
 <!-- ARCHITECTURE_STATUS -->
-<!-- Components: Core [COMPLETED], Resource Managers [COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED] -->
-<!-- LAST_UPDATED: 2025-07-31 - Resource Library and Assignment Manager fully implemented -->
+<!-- Components: Core [COMPLETED], Resource Managers [COMPLETED], Assignment Engine [COMPLETED], Integration [COMPLETED], Streaming [COMPLETED], Caching [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete platform with advanced automation infrastructure and workflow enforcement -->
+<!-- LAST_UPDATED: 2025-08-03 - All components completed, automation systems operational, mandatory workflow enforcement active -->
 
 ## 🏗️ Architecture Overview
 
@@ -23,11 +24,15 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 ```
 
 ### Data Flow
-1. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
-2. **API Layer**: RESTful endpoints provide unified access to all resource types
-3. **Frontend Services**: Service layer abstracts API calls and provides unified data models
-4. **Component Tree**: React components consume services and manage UI state
-5. **Assignment Engine**: Handles resource deployment operations between scopes
+1. **Client-side Caching**: Intelligent caching layer provides instant loading with background refresh capabilities
+2. **Real-time Project Discovery**: Backend streams project discovery via Server-Sent Events for immediate user feedback
+3. **Resource Discovery**: Backend scanners traverse filesystem to find Claude Code resources
+4. **API Layer**: RESTful endpoints provide unified access to all resource types with streaming capabilities
+5. **Frontend Services**: Service layer abstracts API calls and provides unified data models with EventSource integration
+6. **Component Tree**: React components consume services and manage UI state with real-time updates
+7. **Assignment Engine**: Handles resource deployment operations between scopes
+8. **Streaming Updates**: Progressive UI updates as data becomes available through SSE connections
+9. **Cache Management**: Intelligent cache invalidation and background refresh for optimal performance
 
 ### Technology Stack
 <!-- TECH_STACK -->
@@ -39,18 +44,29 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - shadcn/ui + Radix UI for component library
 - Tailwind CSS 3.4.17 for styling
 - Lucide React for icons
+- @uiw/react-md-editor for integrated CLAUDE.md editing within 3-column layout
+- Modern 3-column interface as default user experience
 
 **Backend:**
 - Node.js with Express.js framework
-- readdirp v4 for efficient filesystem scanning
+- readdirp v4 for efficient filesystem scanning with deduplication
 - js-yaml for YAML frontmatter parsing
+- Enhanced error handling and filesystem resilience
 - CORS enabled for development
 
 **Development Tools:**
 - TypeScript strict mode
-- ESLint for code quality
+- ESLint for code quality with automatic fixing
 - Path aliases (@/* → src/*)
-- Hot reload development servers
+- tmux-dev for mandatory server management (hot reload)
+
+**Automation Infrastructure (NEW in v2.0.0):**
+- Auto-documentation system with file watchers
+- Auto-branch creation from BACKLOG.md metadata
+- GitHub Issues/Projects bi-directional synchronization
+- Task completion validation with category-specific requirements
+- Pre-compact hooks for workflow enforcement
+- Agent workflow sequence validation
 
 ### Backend Services
 <!-- BACKEND_SERVICES -->
@@ -58,17 +74,161 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 <!-- CONTENT: agentScanner.js, projectScanner.js, hooksScanner.js, etc. -->
 
 **Core Scanner Modules:**
-- `agentScanner.js` - System-wide agent discovery with project context
+- `agentScanner.js` - System-wide agent discovery with enhanced deduplication and home directory inclusion
 - `projectScanner.js` - CLAUDE.md file discovery and project metadata extraction
-- `hooksScanner.js` - Hook configuration parsing from settings files
+- `hooksScanner.js` - Hook configuration parsing supporting both legacy and modern formats
 - `commandsScanner.js` - Slash command discovery and management
 - `settingsManager.js` - Safe settings file read/write operations
 
+**Frontend Services:**
+- `cacheService.ts` - Client-side caching with TTL and version management
+- `resourceLibraryService.ts` - Resource discovery API integration with deduplication
+
+**GitOps Integration:**
+- `.claude/hooks/pre-compact.py` - Enhanced with automated /docgit workflow invocation
+  - **Automated Documentation**: Detects pending documentation changes and auto-invokes `/docgit`
+  - **Workflow Integration**: Seamlessly integrates documentation and GitOps workflows
+  - **Claude CLI Integration**: Uses Claude CLI to execute `/docgit` command automatically
+  - **Error Handling**: Graceful fallback to manual workflow if automation fails
+  - **Timeout Management**: 5-minute timeout for automated workflow execution
+  - **Status Reporting**: Enhanced session documentation with automation status
+
 **Scanner Architecture:**
 - Stream-based scanning using async generators for memory efficiency
-- Configurable depth limits and directory filtering
+- Real-time Server-Sent Events streaming for immediate user feedback
+- Configurable depth limits and directory filtering for performance optimization
 - Error resilience with graceful handling of permissions issues
 - AbortSignal support for user-triggered cancellation
+- EventSource client integration with automatic fallback systems
+- Progressive UI updates with live progress counters
+
+**Caching Architecture:**
+- Client-side localStorage caching with 24-hour TTL
+- Version-aware cache invalidation with automatic cleanup
+- Background refresh for stale data (5+ minutes old)
+- Cache statistics and monitoring capabilities
+- Memory-efficient cache management with size tracking
+
+### Recent Bug Fixes and Improvements (August 2025)
+
+<!-- BUG_FIXES_AUGUST_2025 -->
+<!-- UPDATE_TRIGGER: When critical bug fixes are implemented -->
+<!-- STATUS: COMPLETED - All fixes implemented and tested -->
+
+**Fixed Agent Discovery Duplicate Detection:**
+- **Issue**: Agents were appearing multiple times in API responses due to overlapping scan roots
+- **Solution**: Implemented `deduplicateAgentFiles()` function in `agentScanner.js`
+- **Technical Details**: Uses Set-based deduplication by file path to prevent duplicates
+- **Impact**: Clean, unique agent lists without redundant entries
+
+**Fixed Missing User-Level Agents:**
+- **Issue**: User-level agents in `~/.claude/agents` were not being discovered
+- **Solution**: Added home directory to scan roots in `server.js`
+- **Technical Details**: Includes `os.homedir()` in the `potentialRoots` array for system-wide scanning
+- **Impact**: Complete resource discovery across both user and project scopes
+
+**Fixed Hook Discovery Issues:**
+- **Issue**: Hooks array was empty despite settings files having `hasHooks: true`
+- **Solution**: Enhanced `hooksScanner.js` to handle both legacy and modern hook formats
+- **Technical Details**: 
+  - Legacy format: `{ matcher: "pattern", hooks: [...] }`
+  - Modern format: `{ hooks: [...] }` (without matcher field)
+  - Fallback pattern generation: `hook-${index}` for configurations without matcher
+- **Impact**: Robust hook discovery supporting all configuration variants
+
+**Integrated react-md-editor:**
+- **Enhancement**: Replaced basic textarea with full markdown editor in ProjectManager
+- **Features**: Live preview, toolbar, proper markdown rendering
+- **Technical Details**: Added `@uiw/react-md-editor` package with TypeScript support
+- **Impact**: Professional CLAUDE.md editing experience with visual feedback
+
+**Enhanced Documentation Manager Configuration:**
+- **Enhancement**: Updated documentation-manager agent to maintain main README.md
+- **Scope**: Includes feature sections, installation steps, architecture updates, troubleshooting
+- **Technical Details**: Comprehensive instructions for README.md maintenance as part of documentation workflow
+- **Impact**: Consistent, up-to-date project documentation across all files
+
+### API Endpoint Improvements
+
+**Enhanced `/api/agents/system` Endpoint:**
+- Fixed duplicate agent responses through backend deduplication
+- Added home directory scanning for complete user-level agent discovery
+- Improved error handling for filesystem access issues
+- Enhanced project context extraction for better resource organization
+
+**Improved Hook Discovery Endpoints:**
+- Updated hook parsing to handle configuration format variations
+- Added validation for both legacy and modern hook structures
+- Enhanced error reporting for malformed hook configurations
+- Improved compatibility with existing settings files
+
+### Streaming Implementation Architecture
+<!-- STREAMING_ARCHITECTURE -->
+<!-- UPDATE_TRIGGER: When streaming capabilities are enhanced -->
+<!-- CONTENT: Server-Sent Events, EventSource, real-time discovery -->
+
+**Real-time Project Discovery System:**
+
+The CChorus streaming implementation transforms the user experience from batch-loading delays to immediate, progressive results using Server-Sent Events (SSE) technology.
+
+**Technical Architecture:**
+```typescript
+// Backend: Express SSE endpoint
+app.get('/api/projects/stream', async (req, res) => {
+  // Set SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+  
+  // Stream projects as discovered
+  for await (const projectData of scanClaudeProjects(scanRoots)) {
+    res.write(`data: ${JSON.stringify({
+      type: 'project_found',
+      project: projectData,
+      count: ++projectCount
+    })}\n\n`);
+  }
+  
+  res.write(`data: ${JSON.stringify({
+    type: 'scan_complete',
+    total: projectCount
+  })}\n\n`);
+});
+
+// Frontend: EventSource client
+const eventSource = new EventSource('/api/projects/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'project_found':
+      setProjects(prev => [...prev, data.project]);
+      setScanningMessage(`Found ${data.count} projects...`);
+      break;
+  }
+};
+```
+
+**User Experience Benefits:**
+- **Immediate Feedback**: Projects appear as soon as they're discovered, not after full scan completion
+- **Live Progress**: Real-time counters show discovery progress ("Found X projects...")
+- **Perceived Performance**: Same backend discovery speed, dramatically improved user experience
+- **Cancellation Support**: Users can stop operations in progress via EventSource.close()
+- **Resilient Fallback**: Automatic fallback to batch loading if streaming fails
+
+**Technical Benefits:**
+- **Memory Efficiency**: Streaming prevents large result set accumulation in memory
+- **Network Optimization**: Progressive data transfer instead of single large response
+- **User Control**: Client-side cancellation capability via EventSource management
+- **Error Isolation**: Individual project errors don't halt entire discovery process
+- **Connection Management**: Proper EventSource lifecycle with cleanup on component unmount
+
+**Performance Optimizations:**
+- **Scanner Enhancements**: Improved depth limits and directory filtering in `agentScanner.js` and `projectScanner.js`
+- **Debug Logging Removal**: Eliminated verbose console output for production performance
+- **Stream Processing**: Async generator patterns prevent blocking operations
+- **Connection Reuse**: EventSource maintains persistent connection for entire discovery session
 
 ## 📦 Component Documentation
 
@@ -144,10 +304,12 @@ const SCOPE_COLORS = {
 - **Selection Persistence**: Multi-select state maintained across filter changes
 
 **Performance Optimizations:**
+- **Resource Deduplication**: Prevents duplicate resources from appearing in UI
 - **Lazy Loading**: Resources loaded on component mount with caching
 - **Efficient Filtering**: Client-side filtering with optimized algorithms
 - **Responsive Design**: Grid layout adapts to screen size with CSS Grid
 - **Memoized Calculations**: Resource counts and filter results cached
+- **Safe Icon Rendering**: Fallback icons prevent crashes when resource types are unknown
 
 #### AssignmentManager.tsx
 <!-- COMPONENT_ASSIGNMENT_MANAGER -->
@@ -244,14 +406,187 @@ ResourceLibraryService.loadAllResources(): Promise<ResourceItem[]>
 - **Real-time Updates**: Deployment status refreshed after operations
 - **Assignment Tracking**: Recent assignments maintained for user feedback
 
+#### CacheService.ts [NEW SERVICE]
+<!-- COMPONENT_CACHE_SERVICE -->
+<!-- UPDATE_TRIGGER: When CacheService.ts is modified -->
+<!-- STATUS: COMPLETED - Full client-side caching implementation -->
+
+**Purpose**: Client-side caching service providing instant loading with background refresh capabilities
+
+**Cache Interface:**
+```typescript
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  version: string;
+}
+
+export class CacheService {
+  static set<T>(key: string, data: T, options?: Partial<CacheOptions>): void;
+  static get<T>(key: string, options?: Partial<CacheOptions>): T | null;
+  static isStale(key: string, refreshThresholdMs?: number): boolean;
+  static remove(key: string): void;
+  static clearAll(): void;
+  static getStats(): CacheStats;
+}
+```
+
+**Key Features:**
+- **TTL Management**: 24-hour default TTL with customizable expiration
+- **Version Control**: Version-aware cache invalidation for API changes
+- **Stale Detection**: Automatic detection of stale data (5+ minutes old)
+- **Background Refresh**: Smart background updates without blocking UI
+- **Storage Management**: localStorage-based persistence with cleanup
+- **Statistics**: Cache performance monitoring and size tracking
+- **Error Resilience**: Graceful fallback when localStorage is unavailable
+
+**Integration Points:**
+- **ProjectManager**: Primary consumer for project data caching
+- **ResourceLibrary**: Potential future integration for resource caching
+- **Component State**: Seamless integration with React component lifecycle
+- **Toast Notifications**: User feedback for cache operations
+
 ### Specialized Manager Components
 <!-- COMPONENT_MANAGERS -->
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
-<!-- PLACEHOLDER: ProjectManager, HooksManager, CommandsManager, SettingsManager -->
+<!-- STATUS: PROJECT_MANAGER_COMPLETED_WITH_STREAMING - ProjectManager.tsx with SSE streaming -->
 
-*[To be documented when manager components are implemented]*
+#### ProjectManager.tsx [COMPLETED WITH STREAMING]
+<!-- COMPONENT_PROJECT_MANAGER -->
+<!-- UPDATE_TRIGGER: When ProjectManager.tsx is modified -->
+<!-- STATUS: COMPLETED WITH STREAMING - Full implementation with CLAUDE.md editing and real-time discovery -->
 
-**ProjectManager.tsx** - Project discovery and CLAUDE.md editing
+**Purpose**: Visual interface for managing Claude Code projects with comprehensive project discovery and CLAUDE.md editing capabilities
+
+**Props Interface:**
+```typescript
+interface ProjectManagerProps {
+  onProjectSelect?: (project: ClaudeProject) => void;
+  onProjectEdit?: (project: ClaudeProject, content: string) => void;
+}
+```
+
+**Component Architecture:**
+```typescript
+// Core state management
+const [projects, setProjects] = useState<ClaudeProject[]>([]);
+const [filteredProjects, setFilteredProjects] = useState<ClaudeProject[]>([]);
+const [selectedProject, setSelectedProject] = useState<ClaudeProject | null>(null);
+const [searchQuery, setSearchQuery] = useState('');
+const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+const [editorContent, setEditorContent] = useState('');
+const [originalContent, setOriginalContent] = useState('');
+const [isEditing, setIsEditing] = useState(false);
+const [isDirty, setIsDirty] = useState(false);
+
+// Enhanced with caching state
+const [loadedFromCache, setLoadedFromCache] = useState(false);
+const [refreshing, setRefreshing] = useState(false);
+
+// Project health assessment
+const getProjectHealth = (project: ClaudeProject) => {
+  let score = 0;
+  if (project.hasAgents) score += 25;
+  if (project.hasCommands) score += 25;
+  if (project.isGitRepo) score += 25;
+  if (project.description && project.description.length > 50) score += 25;
+  // Returns health status and color coding
+};
+```
+
+**Key Features:**
+- **Intelligent Caching**: Client-side caching with instant loading and background refresh
+- **Cache Management**: Visual cache status indicators and manual refresh controls
+- **Real-time Project Discovery**: Uses `/api/projects/stream` Server-Sent Events for streaming project discovery
+- **Live Progress Indicators**: "Found X projects..." counters update in real-time during scanning
+- **Background Refresh**: Automatic background updates for stale cached data
+- **Cancellable Operations**: Users can stop project discovery scans in progress
+- **Fallback System**: Automatic fallback to batch loading if streaming fails
+- **Dual View Modes**: Toggle between grid and list views with responsive layouts
+- **Advanced Search and Filtering**: Real-time search across project names, paths, and descriptions
+- **Project Health Assessment**: Visual health indicators based on multiple criteria
+- **Built-in CLAUDE.md Editor**: Complete editor with save/cancel functionality
+- **Template Generation**: Automatic template creation for projects without CLAUDE.md files
+- **Change Detection**: Real-time tracking of unsaved changes with visual indicators
+- **Responsive Design**: Split-pane layout adapting to different screen sizes
+
+**CLAUDE.md Editor Features:**
+- **Content Loading**: Loads existing CLAUDE.md content or generates templates
+- **Live Editing**: Real-time content modification with immediate feedback
+- **Save Operations**: Atomic save operations with automatic backup creation
+- **Content Validation**: Ensures proper content structure and format
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Undo Functionality**: Cancel changes to revert to original content
+
+**API Integration:**
+```typescript
+// Core API endpoints used
+GET /api/projects/stream             // Real-time streaming project discovery
+GET /api/projects/system             // Batch project discovery (fallback)
+GET /api/projects/:path/claudemd     // Load CLAUDE.md content
+PUT /api/projects/:path/claudemd     // Save CLAUDE.md content
+
+// EventSource streaming implementation
+const eventSource = new EventSource('http://localhost:3001/api/projects/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'project_found':
+      // Add project to state in real-time
+      setProjects(prev => [...prev, data.project]);
+      setScanningMessage(`Found ${data.count} projects...`);
+      break;
+    case 'scan_complete':
+      setLoading(false);
+      break;
+  }
+};
+
+// Project health data from ClaudeProject interface
+interface ClaudeProject {
+  name: string;           // Project name
+  path: string;           // Full project path
+  claudeMdPath: string;   // CLAUDE.md file path
+  description: string;    // Project description
+  lastModified: Date;     // Last modification time
+  isGitRepo: boolean;     // Git repository status
+  hasAgents: boolean;     // Agent presence
+  hasCommands: boolean;   // Command presence
+  agentCount: number;     // Number of agents
+  commandCount: number;   // Number of commands
+}
+```
+
+**Layout Structure:**
+- **Projects List Panel**: Left panel with search, view mode toggle, cache controls, and project cards
+- **Cache Status Section**: Visual indicators for cache status ("Cached", "Updating...") and manual refresh button
+- **Editor Panel**: Right panel with CLAUDE.md editor and controls (shown when project selected)
+- **Project Cards**: Rich cards displaying project metadata, health indicators, and resource counts
+- **Editor Controls**: Save/cancel buttons, change indicators, and status feedback
+
+**Error Handling:**
+- **Loading Errors**: Graceful handling of project discovery failures
+- **Content Errors**: CLAUDE.md loading/saving error management
+- **Network Errors**: Backend connectivity error handling with retry options
+- **File System Errors**: Permission and file access error handling
+
+**Integration Points:**
+- **Resource Library**: Project information used for resource filtering and association
+- **Assignment Manager**: Project discovery shared with assignment target selection
+- **Toast Notifications**: User feedback for all operations using `useToast` hook
+- **Theme System**: Full support for light/dark themes with consistent styling
+
+**Performance Optimizations:**
+- **Intelligent Caching**: Client-side caching eliminates redundant API calls
+- **Background Refresh**: Non-blocking updates when cache becomes stale
+- **Efficient Filtering**: Client-side filtering with optimized search algorithms
+- **Lazy Loading**: Content loaded only when projects are selected
+- **Responsive Updates**: Smart state management to minimize unnecessary re-renders
+- **Memory Management**: Proper cleanup of editor content, project data, and cache
+- **EventSource Management**: Proper connection lifecycle with cleanup on unmount
+
+*[Other managers to be implemented in future development phases]*
+
 **HooksManager.tsx** - Visual hook configuration interface  
 **CommandsManager.tsx** - Slash command library and editor
 **SettingsManager.tsx** - Settings file hierarchy management
@@ -268,7 +603,7 @@ ResourceLibraryService.loadAllResources(): Promise<ResourceItem[]>
 <!-- STATUS: COMPLETED - Full project discovery and management -->
 
 **GET /api/projects/system**
-- **Purpose**: System-wide discovery of all Claude Code projects
+- **Purpose**: System-wide discovery of all Claude Code projects (batch loading)
 - **Implementation**: Uses `scanClaudeProjectsArray()` for comprehensive filesystem scanning
 - **Returns**: Array of `ClaudeProject` objects with complete metadata
 - **Response Format**:
@@ -284,23 +619,65 @@ ClaudeProject {
 }
 ```
 
+**GET /api/projects/stream** [NEW STREAMING ENDPOINT]
+- **Purpose**: Real-time streaming discovery of Claude Code projects using Server-Sent Events
+- **Technology**: EventSource/Server-Sent Events for real-time project discovery
+- **Implementation**: Uses `scanClaudeProjects()` async generator for streaming results
+- **Response Format**: Server-Sent Events stream with multiple event types:
+```typescript
+// Connection confirmation
+{ type: 'connected', message: 'Stream started' }
+
+// Scan initiation
+{ type: 'scan_started', roots: string[], message: 'Scanning for projects...' }
+
+// Individual project discovery
+{ type: 'project_found', project: ClaudeProject, count: number }
+
+// Project processing errors
+{ type: 'project_error', path: string, error: string }
+
+// Scan completion
+{ type: 'scan_complete', total: number, message: 'Scan completed' }
+```
+- **User Experience**: Projects appear in real-time as discovered, with live progress counters
+- **Performance**: Same backend discovery speed, dramatically improved perceived performance
+- **Cancellation**: Supports client-side cancellation via EventSource.close()
+- **Fallback**: Automatic fallback to batch loading if streaming fails
+
 **GET /api/projects/:projectPath/info**
 - **Purpose**: Detailed information about specific project
 - **Security**: Path validation to prevent directory traversal
 - **Implementation**: Uses `extractProjectInfo()` for metadata extraction
 - **Returns**: Enhanced project metadata with resource analysis
 
-**GET /api/projects/:projectPath/claude-md**
-- **Purpose**: Retrieve CLAUDE.md content for editing
+**GET /api/projects/:projectPath/claude-md** [LEGACY ENDPOINT]
+- **Purpose**: Retrieve CLAUDE.md content for editing (legacy hyphenated version)
 - **Security**: Validates project path and file existence
 - **Returns**: Raw file content as text
 - **Error Handling**: 404 if CLAUDE.md not found, 403 for access violations
 
-**PUT /api/projects/:projectPath/claude-md**
-- **Purpose**: Update CLAUDE.md file content
+**PUT /api/projects/:projectPath/claude-md** [LEGACY ENDPOINT]
+- **Purpose**: Update CLAUDE.md file content (legacy hyphenated version)
 - **Body**: `{ content: string }`
 - **Security**: Full path validation and write permission checks
 - **Implementation**: Atomic file writes with backup on failure
+
+**GET /api/projects/:projectPath/claudemd** [ACTIVE ENDPOINT]
+- **Purpose**: Retrieve CLAUDE.md content for ProjectManager component (current implementation)
+- **Security**: Path validation with decodeURIComponent for URL encoding
+- **Implementation**: File existence checking with 404 handling for missing files
+- **Returns**: `{ content: string }` for existing files, 404 status for missing files
+- **Error Handling**: 404 if CLAUDE.md not found, 403 for access violations, 500 for read errors
+- **Template Support**: ProjectManager handles missing files by generating default templates
+
+**PUT /api/projects/:projectPath/claudemd** [ACTIVE ENDPOINT]
+- **Purpose**: Update CLAUDE.md file content from ProjectManager editor
+- **Body**: `{ content: string }` - Complete CLAUDE.md content
+- **Security**: Full path validation with decodeURIComponent and write permission checks
+- **Implementation**: Atomic file writes with proper directory creation and backup handling
+- **Safety Features**: Creates parent directories if needed, handles file permissions
+- **Integration**: Used by ProjectManager save functionality with comprehensive error handling
 
 ### Agents API
 <!-- STATUS: COMPLETED - Full agent management with assignment support -->
@@ -723,10 +1100,17 @@ npm run dev:server # Backend only (port 3001)
 
 **Completed Backend Services:**
 - ✅ agentScanner.js - System-wide agent discovery with project context
-- ✅ projectScanner.js - CLAUDE.md project discovery and metadata extraction
+- ✅ projectScanner.js - CLAUDE.md project discovery and metadata extraction with streaming support
 - ✅ hooksScanner.js - Hook configuration parsing from settings files
 - ✅ commandsScanner.js - Slash command discovery and management
 - ✅ settingsManager.js - Safe settings file operations with backup
+
+**Completed Frontend Services:**
+- ✅ cacheService.ts - Client-side caching with TTL and version management
+- ✅ resourceLibraryService.ts - Enhanced with resource deduplication and error handling
+
+**Completed Automation:**
+- ✅ .claude/hooks/pre-compact.py - Enhanced with automated /docgit workflow invocation
 
 **Completed API Endpoints:**
 - ✅ GET /api/agents/system - System-wide agent discovery
@@ -749,31 +1133,47 @@ npm run dev:server # Backend only (port 3001)
 
 **Status:** Production-ready with comprehensive testing completed
 
-### Phase 2: Resource Managers [COMPLETED]
+### Phase 2: Resource Managers [PARTIALLY COMPLETED]
 <!-- PHASE_2_STATUS -->
 <!-- UPDATE_TRIGGER: During feature/resource-managers branch -->
-<!-- COMPLETION_DATE: 2025-07-31 - Implemented through integrated Assignment Manager -->
+<!-- COMPLETION_DATE: 2025-08-01 - Project Manager completed; others integrated through Assignment Manager -->
 
-**Completed Through Assignment Manager Integration:**
-- ✅ Project Management - Project discovery, metadata display, and resource overview
+**Project Manager - Enhanced with Streaming & Caching [COMPLETED]:**
+- ✅ **ProjectManager.tsx**: Complete standalone project management interface with intelligent caching
+- ✅ **Intelligent Caching**: Client-side caching with instant loading and background refresh
+- ✅ **Server-Sent Events**: Real-time streaming project discovery with live progress updates
+- ✅ **Cache Management**: Visual cache status indicators and manual refresh controls
+- ✅ **System-wide Project Discovery**: Comprehensive scanning across entire home directory
+- ✅ **CLAUDE.md Editor**: Built-in editor with template generation and content management
+- ✅ **Project Health Assessment**: Visual indicators based on Git status, agents, commands, and documentation
+- ✅ **Search and Filtering**: Real-time project search with advanced filtering capabilities
+- ✅ **Responsive Design**: Grid/list view modes with split-pane editor layout
+- ✅ **API Integration**: Complete backend integration with `/api/projects/*` endpoints
+- ✅ **Performance Optimization**: Background refresh and cache-first loading for optimal UX
+
+**Other Resource Managers - Assignment Manager Integration:**
 - ✅ Hook Management - Hook assignment, deployment, and settings file integration
 - ✅ Command Management - Slash command assignment and configuration management
 - ✅ Settings Management - Settings file assignment and scope management
 
 **Implementation Approach:**
-Rather than separate manager components, Phase 2 was implemented through:
-- **Unified Assignment Interface**: Single interface handles all resource types
+Phase 2 was implemented using a hybrid approach:
+- **Standalone Project Manager**: Dedicated component for comprehensive project management
+- **Unified Assignment Interface**: Single interface handles resource deployment and management
 - **Type-Specific Logic**: Backend APIs provide specialized handling per resource type
 - **Scope-based Management**: Tabbed interface separates user-level and project-level management
 - **Resource-Specific Actions**: Assignment cards adapt to resource type capabilities
 
 **Specialized Features by Resource Type:**
 
-**Project Management:**
-- Complete project discovery with CLAUDE.md detection
-- Project metadata extraction and display
-- Resource count statistics per project
-- Project-specific resource filtering and management
+**Project Management [ENHANCED WITH DEDICATED COMPONENT]:**
+- **Complete Standalone Interface**: Dedicated ProjectManager component with full project lifecycle management
+- **Advanced Project Discovery**: System-wide scanning with comprehensive metadata extraction
+- **Built-in CLAUDE.md Editor**: Visual editor with template generation, save/cancel functionality, and change tracking
+- **Project Health Assessment**: Visual health indicators based on multiple criteria (Git, agents, commands, documentation)
+- **Dual View Modes**: Grid and list views with responsive design and search capabilities
+- **Resource Integration**: Seamless integration with Assignment Manager for resource deployment to projects
+- **API Backend**: Complete REST API for project operations (`/api/projects/*` endpoints)
 
 **Hook Management:**
 - Hook discovery from all settings files (user and project)
@@ -793,7 +1193,7 @@ Rather than separate manager components, Phase 2 was implemented through:
 - Settings assignment and merging capabilities
 - Safe settings file modification with backup
 
-**Status:** Fully integrated and production-ready
+**Status:** Fully integrated and production-ready with advanced caching and streaming capabilities
 
 ### Phase 3: Assignment Engine [COMPLETED]
 <!-- PHASE_3_STATUS -->

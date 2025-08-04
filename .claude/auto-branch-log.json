@@ -1,0 +1,16 @@
+{
+  "created_branches": [
+    {
+      "branch_name": "fix/conversation-extraction-duplicates",
+      "description": "### SQLite Conversation Extraction Bug Fixes",
+      "created_at": "10:37:49pm",
+      "priority": "high",
+      "source": "BACKLOG.md metadata"
+    }
+  ],
+  "last_scan": "10:37:49pm",
+  "statistics": {
+    "total_branches_created": 1,
+    "last_creation_date": "10:37:49pm"
+  }
+}

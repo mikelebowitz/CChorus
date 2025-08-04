@@ -1,0 +1,39 @@
+{
+  "repository": {
+    "owner": "mikelebowitz",
+    "repo": "CChorus"
+  },
+  "authentication": {
+    "token": "${GITHUB_TOKEN}",
+    "type": "token"
+  },
+  "sync": {
+    "enabled": true,
+    "direction": "bidirectional",
+    "auto_create_issues": true,
+    "auto_create_projects": true,
+    "sync_interval": 300000,
+    "webhook_enabled": false
+  },
+  "mapping": {
+    "priority_labels": {
+      "high": "priority: high",
+      "medium": "priority: medium",
+      "low": "priority: low"
+    },
+    "category_labels": {
+      "UI/UX Improvements": "type: ui",
+      "Feature Migration": "type: feature",
+      "Documentation Automation": "type: docs",
+      "Performance Optimization": "type: performance",
+      "Developer Experience": "type: dev-experience",
+      "Testing & Quality": "type: testing",
+      "Technical Debt": "type: tech-debt"
+    },
+    "status_mapping": {
+      "pending": "open",
+      "in_progress": "open",
+      "completed": "closed"
+    }
+  }
+}

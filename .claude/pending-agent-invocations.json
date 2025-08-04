@@ -1,26 +1,25 @@
 [
   {
     "agent": "documentation-manager",
-    "timestamp": "2025-08-03T11:22:19.240249",
+    "timestamp": "11:31:07pm",
     "trigger": "file-watcher-auto",
-    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
-    "priority": "high",
+    "prompt": "Auto-triggered: Update documentation for 13 file changes detected by real-time watcher",
+    "priority": "medium",
     "auto_triggered": true,
     "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ResourceLibrary.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/separator.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ProjectManager.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/server.js",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceLibraryService.ts",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/dialog.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/projectPreferencesService.ts",
       "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md",
-      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/documentation-manager.md"
-    ]
-  },
-  {
-    "agent": "documentation-manager",
-    "timestamp": "2025-08-03T11:22:19.244489",
-    "trigger": "file-watcher-auto",
-    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
-    "priority": "high",
-    "auto_triggered": true,
-    "files_changed": [
       "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/documentation-manager.md",
-      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/select.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/command.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/dropdown-menu.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/cacheService.ts"
     ]
   }
 ]

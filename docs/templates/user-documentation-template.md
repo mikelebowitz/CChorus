@@ -1,7 +1,9 @@
 # CChorus User Guide
 
 <!-- STATUS_TRACKER -->
-<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [PENDING], Hooks Manager [PENDING], Commands Manager [PENDING], Settings Manager [PENDING] -->
+<!-- Features: Resource Library [COMPLETED], Assignment Manager [COMPLETED], Project Manager [COMPLETED], 3-Column Interface [COMPLETED], Resource Assignment Panel [COMPLETED], Resource Data Service [COMPLETED], Automation Systems [COMPLETED] -->
+<!-- VERSION: 2.0.0 Released - Complete CChorus platform with advanced automation infrastructure -->
+<!-- TEMPLATE_STATUS: Updated to reflect v2.0.0 completion state -->
 
 ## 🚀 Quick Start
 
@@ -15,8 +17,11 @@ CChorus is a comprehensive management platform for Claude Code resources. Get st
 # Install dependencies
 npm install
 
-# Start both frontend and backend
-npm run dev:full
+# MANDATORY: Start servers using tmux-dev
+/tmux-dev start both frontend and backend in separate sessions
+
+# PROHIBITED: Direct npm commands (use tmux-dev instead)
+# npm run dev:full    ❌
 ```
 
 Navigate to `http://localhost:5173` to access the CChorus interface.
@@ -60,16 +65,18 @@ The Assignment Manager handles resource deployment and management:
 ### Project Manager
 <!-- FEATURE_PROJECT_MANAGER -->
 <!-- UPDATE_TRIGGER: When ProjectManager.tsx is created/modified -->
-<!-- PLACEHOLDER: Project discovery, CLAUDE.md editing, project-specific resource management -->
+<!-- STATUS: COMPLETED - Full project management with CLAUDE.md editing -->
 
-*[To be implemented in feature/resource-managers branch]*
+The Project Manager provides comprehensive project discovery and management:
 
-The Project Manager discovers and manages Claude Code projects:
-
-- **Project Discovery**: Automatically find all projects with CLAUDE.md files
-- **Project Overview**: See resource counts and project metadata
-- **CLAUDE.md Editor**: Edit project configuration files directly
-- **Resource Summary**: View all resources associated with each project
+- **System-wide Project Discovery**: Automatically scans entire home directory for Claude Code projects
+- **Advanced Project Search**: Real-time search and filtering by name, path, or description
+- **Dual View Modes**: Toggle between grid and list views for optimal project browsing
+- **Project Health Assessment**: Visual indicators showing project completeness and quality
+- **Built-in CLAUDE.md Editor**: Complete editor with template generation and save/cancel functionality
+- **Template Generation**: Automatic CLAUDE.md template creation for projects without existing files
+- **Responsive Design**: Split-pane layout adapting to different screen sizes
+- **Integration Ready**: Seamless integration with resource management and assignment systems
 
 ### Resource Managers
 <!-- FEATURE_RESOURCE_MANAGERS -->
@@ -112,7 +119,7 @@ Specialized interfaces for managing each resource type:
 <!-- UPDATE_TRIGGER: After feature/resource-managers branch -->
 <!-- PLACEHOLDER: Project-specific resource management workflows -->
 
-*[To be documented when Project Manager is implemented]*
+**Complete Project Management Workflow**: Access via Projects tab for comprehensive project discovery, health assessment, and CLAUDE.md editing capabilities
 
 ## 🔧 Troubleshooting
 

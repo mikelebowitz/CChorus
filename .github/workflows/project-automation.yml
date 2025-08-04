@@ -1,0 +1,89 @@
+name: Project Board Automation
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+      - closed
+      - labeled
+      - unlabeled
+
+env:
+  PROJECT_NUMBER: 1  # Update this to your actual project number
+  ORGANIZATION: ''   # Leave empty for user projects
+  PROJECT_OWNER: mikelebowitz
+
+jobs:
+  add-to-project:
+    name: Add Issue to Project Board
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'reopened'
+    steps:
+      - name: Add Issue to Project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/${{ env.PROJECT_OWNER }}/projects/${{ env.PROJECT_NUMBER }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  move-to-column:
+    name: Move Issue to Correct Column
+    runs-on: ubuntu-latest
+    if: github.event.action == 'labeled' || github.event.action == 'unlabeled' || github.event.action == 'closed' || github.event.action == 'reopened'
+    steps:
+      - name: Get Project Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Get issue labels
+          LABELS=$(gh api repos/${{ github.repository }}/issues/${{ env.ISSUE_NUMBER }} --jq '.labels[].name' | tr '\n' ' ')
+          echo "Issue labels: $LABELS"
+          
+          # Determine target column based on labels and state
+          if [[ "${{ github.event.issue.state }}" == "closed" ]] || [[ "$LABELS" == *"status: completed"* ]]; then
+            echo "TARGET_COLUMN=Done" >> $GITHUB_ENV
+          elif [[ "$LABELS" == *"status: in_progress"* ]]; then
+            echo "TARGET_COLUMN=In Progress" >> $GITHUB_ENV
+          else
+            echo "TARGET_COLUMN=To Do" >> $GITHUB_ENV
+          fi
+
+      - name: Move to Column
+        if: env.TARGET_COLUMN != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Moving issue to column: ${{ env.TARGET_COLUMN }}"
+          
+          # This is a simplified version - for full implementation, you'd need to:
+          # 1. Query the project to get column IDs
+          # 2. Find the issue's project item ID
+          # 3. Update the item's column
+          # The actions/add-to-project action handles some of this automatically
+          
+          # For now, we'll use labels as the source of truth
+          # The manual step would be to set up Project automation rules:
+          # - When "status: in_progress" is added → Move to "In Progress"
+          # - When "status: completed" is added → Move to "Done"
+          # - When issue is closed → Move to "Done"
+
+  sync-status-labels:
+    name: Ensure Status Labels Match State
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' || github.event.action == 'reopened'
+    steps:
+      - name: Update Status Labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [[ "${{ github.event.issue.state }}" == "closed" ]]; then
+            # Remove other status labels and add completed
+            gh issue edit ${{ env.ISSUE_NUMBER }} --remove-label "status: pending,status: in_progress" || true
+            gh issue edit ${{ env.ISSUE_NUMBER }} --add-label "status: completed"
+          elif [[ "${{ github.event.issue.state }}" == "open" ]]; then
+            # Remove completed label if reopened
+            gh issue edit ${{ env.ISSUE_NUMBER }} --remove-label "status: completed" || true
+            gh issue edit ${{ env.ISSUE_NUMBER }} --add-label "status: pending"
+          fi

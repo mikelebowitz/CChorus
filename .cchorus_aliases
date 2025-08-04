@@ -1,0 +1,92 @@
+#!/bin/bash
+#
+# CChorus Development Aliases
+# Source this file in your shell configuration to enforce CChorus development practices
+#
+# Usage: Add this line to ~/.bashrc, ~/.zshrc, or ~/.profile:
+# source /path/to/CChorus/.cchorus_aliases
+#
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helper function to check if we're in CChorus directory
+is_cchorus_project() {
+    if [ -f "CLAUDE.md" ] && [ -d ".claude" ] && grep -q "CChorus" CLAUDE.md 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+# Helper function to show CChorus server management message
+show_cchorus_server_message() {
+    echo -e "${RED}🚫 CChorus Development Rule:${NC}"
+    echo -e "${YELLOW}   Use /tmux-dev instead of direct npm commands${NC}"
+    echo ""
+    echo -e "${GREEN}✅ Correct commands:${NC}"
+    echo "   /tmux-dev start both frontend and backend in separate sessions"
+    echo "   /tmux-dev check logs from cchorus-frontend"
+    echo "   /tmux-dev show last 50 lines from cchorus-backend"
+    echo "   /tmux-dev list all running sessions"
+    echo ""
+    echo -e "${BLUE}📖 See CLAUDE.md for complete server management guide${NC}"
+}
+
+# Override npm for CChorus projects
+npm() {
+    if is_cchorus_project; then
+        case "$1" in
+            "run")
+                case "$2" in
+                    "dev"|"dev:server"|"dev:full"|"start")
+                        show_cchorus_server_message
+                        return 1
+                        ;;
+                    "build"|"preview"|"lint"|"lint:fix")
+                        # Allow build and utility commands
+                        command npm "$@"
+                        ;;
+                    *)
+                        # Allow other npm run commands but warn
+                        echo -e "${YELLOW}⚠️  Running npm command in CChorus project${NC}"
+                        command npm "$@"
+                        ;;
+                esac
+                ;;
+            "install"|"ci"|"update"|"audit"|"list")
+                # Allow package management commands
+                command npm "$@"
+                ;;
+            *)
+                # Warn for other npm commands
+                echo -e "${YELLOW}⚠️  Running npm command in CChorus project - consider if /tmux-dev is more appropriate${NC}"
+                command npm "$@"
+                ;;
+        esac
+    else
+        # Not in CChorus project, run npm normally
+        command npm "$@"
+    fi
+}
+
+# Direct command aliases for CChorus
+if is_cchorus_project; then
+    alias npm-dev='echo "Use: /tmux-dev start frontend server in session cchorus-frontend" && false'
+    alias npm-start='echo "Use: /tmux-dev start backend server in session cchorus-backend" && false'
+    alias npm-dev-server='echo "Use: /tmux-dev start backend server in session cchorus-backend" && false'
+fi
+
+# Helper aliases for quick CChorus development
+alias cchorus-servers='if is_cchorus_project; then /tmux-dev start both frontend and backend in separate sessions; else echo "Not in CChorus project"; fi'
+alias cchorus-status='if is_cchorus_project; then /tmux-dev list all running sessions; else echo "Not in CChorus project"; fi'
+alias cchorus-logs='if is_cchorus_project; then /tmux-dev check logs from cchorus-frontend && /tmux-dev show last 50 lines from cchorus-backend; else echo "Not in CChorus project"; fi'
+
+# Show activation message when sourced
+if is_cchorus_project; then
+    echo -e "${GREEN}✅ CChorus development aliases activated${NC}"
+    echo -e "${BLUE}📋 Use 'cchorus-servers' to start both frontend and backend${NC}"
+fi
