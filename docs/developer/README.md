@@ -189,12 +189,16 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
   - Total: 10 agents correctly displayed
 - **Impact**: Complete agent visibility for comprehensive monitoring
 
-**SQLite Conversation Extraction:**
-- **Feature**: Integration with Claude conversation JSONL files
-- **Database Schema**: Conversations, messages, and search indexing
-- **Known Issue**: Foreign key constraint errors during startup due to duplicate processing
-- **Status**: Data is stored correctly (18 conversations, 4,805 messages, 186 activities) but extractor reprocesses files causing log spam
-- **Future Fix**: File modification tracking to prevent reprocessing of unchanged JSONL files
+**SQLite Conversation Extraction - Duplicate Processing Fix `[COMPLETED ✅]`:**
+- **Feature**: Integration with Claude conversation JSONL files with duplicate processing prevention
+- **Database Schema**: Conversations, messages, search indexing, and processed_files tracking table
+- **Fixed Issue**: Added processed_files table to track JSONL files that have been processed
+- **Technical Implementation**: 
+  - Modified `processAllConversations()` in conversation-extractor.js to check if files were already processed
+  - Fixed `upsertConversation()` in database-service.js to update existing conversations instead of replacing them
+  - Changed message insertion to use INSERT OR IGNORE to prevent foreign key constraint errors
+- **Status**: Clean startup with no foreign key constraint errors (18 conversations, 4,805 messages, 186 activities)
+- **Performance**: Optimized conversation loading by only processing new/modified conversation files
 
 **Database Schema:**
 ```sql
@@ -207,7 +211,7 @@ metrics: session_id, metric_name, metric_value, metric_unit, agent, timestamp
 ```
 
 **Troubleshooting Dashboard Issues:**
-- **Foreign key constraint errors**: Indicates duplicate JSONL processing (data is still stored correctly)
+- **Foreign key constraint errors**: `[RESOLVED ✅]` - Fixed with processed_files table and duplicate processing prevention
 - **Agent count mismatch**: Ensure both `.claude/agents/` and `~/.claude/agents/` directories are accessible
 - **Session time incorrect**: Verify `.claude/compact-tracking.json` exists and is updated
 - **WebSocket connection issues**: Check port 3002 availability and firewall settings

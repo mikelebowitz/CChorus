@@ -202,6 +202,20 @@ class DatabaseService {
             )
         `);
 
+        // Processed files table - tracks JSONL files that have been processed
+        await this.db.exec(`
+            CREATE TABLE IF NOT EXISTS processed_files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_path TEXT UNIQUE NOT NULL,
+                file_name TEXT NOT NULL,
+                file_size INTEGER NOT NULL,
+                file_modified TEXT NOT NULL,
+                processed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                message_count INTEGER DEFAULT 0,
+                session_id TEXT
+            )
+        `);
+
         // Create indexes for performance
         await this.db.exec('CREATE INDEX IF NOT EXISTS idx_activities_timestamp ON activities(timestamp)');
         await this.db.exec('CREATE INDEX IF NOT EXISTS idx_activities_agent ON activities(agent)');
@@ -216,6 +230,10 @@ class DatabaseService {
         await this.db.exec('CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp)');
         await this.db.exec('CREATE INDEX IF NOT EXISTS idx_messages_type ON messages(message_type)');
         await this.db.exec('CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id)');
+        
+        // Processed files indexes
+        await this.db.exec('CREATE INDEX IF NOT EXISTS idx_processed_files_path ON processed_files(file_path)');
+        await this.db.exec('CREATE INDEX IF NOT EXISTS idx_processed_files_modified ON processed_files(file_modified)');
         
         console.log('📋 Database schema created successfully');
     }
@@ -482,18 +500,30 @@ class DatabaseService {
             token_count = 0
         } = conversationData;
 
-        await this.db.run(`
-            INSERT OR REPLACE INTO conversations 
-            (session_id, conversation_uuid, name, project_path, git_branch, started_at, last_updated, message_count, token_count)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [session_id, conversation_uuid, name, project_path, git_branch, started_at, last_updated, message_count, token_count]);
-
-        // Return the conversation ID
-        const conversation = await this.db.get(
+        // Check if conversation already exists
+        const existing = await this.db.get(
             'SELECT id FROM conversations WHERE conversation_uuid = ?',
             [conversation_uuid]
         );
-        return conversation.id;
+
+        if (existing) {
+            // Update existing conversation
+            await this.db.run(`
+                UPDATE conversations 
+                SET name = ?, project_path = ?, git_branch = ?, last_updated = ?, 
+                    message_count = ?, token_count = ?
+                WHERE id = ?
+            `, [name, project_path, git_branch, last_updated, message_count, token_count, existing.id]);
+            return existing.id;
+        } else {
+            // Insert new conversation
+            const result = await this.db.run(`
+                INSERT INTO conversations 
+                (session_id, conversation_uuid, name, project_path, git_branch, started_at, last_updated, message_count, token_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [session_id, conversation_uuid, name, project_path, git_branch, started_at, last_updated, message_count, token_count]);
+            return result.lastID;
+        }
     }
 
     /**
@@ -517,9 +547,9 @@ class DatabaseService {
             cwd = null
         } = messageData;
 
-        // Insert message
+        // Insert message - use INSERT OR IGNORE to prevent foreign key constraint errors
         const result = await this.db.run(`
-            INSERT OR REPLACE INTO messages 
+            INSERT OR IGNORE INTO messages 
             (conversation_id, message_uuid, parent_uuid, session_id, message_type, role, content, 
              is_meta, is_sidechain, timestamp, git_branch, cwd)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -527,9 +557,9 @@ class DatabaseService {
             is_meta, is_sidechain, timestamp, git_branch, cwd]);
 
         // Add to full-text search index (skip meta messages for cleaner search)
-        if (!is_meta && content.trim().length > 0) {
+        if (!is_meta && content.trim().length > 0 && result.changes > 0) {
             await this.db.run(`
-                INSERT OR REPLACE INTO message_search 
+                INSERT OR IGNORE INTO message_search 
                 (message_uuid, content, role, session_id, git_branch)
                 VALUES (?, ?, ?, ?, ?)
             `, [message_uuid, content, role, session_id, git_branch]);
@@ -664,6 +694,48 @@ class DatabaseService {
             total_messages: messages.count,
             searchable_messages: searchEntries.count
         };
+    }
+
+    /**
+     * Check if a JSONL file has already been processed
+     */
+    async isFileProcessed(filePath, stats) {
+        await this.ensureInitialized();
+        
+        const processed = await this.db.get(`
+            SELECT * FROM processed_files 
+            WHERE file_path = ? AND file_size = ? AND file_modified = ?
+        `, [filePath, stats.size, stats.mtime.toISOString()]);
+        
+        return !!processed;
+    }
+
+    /**
+     * Mark a file as processed
+     */
+    async markFileProcessed(filePath, stats, messageCount, sessionId) {
+        await this.ensureInitialized();
+        
+        const fileName = filePath.split('/').pop();
+        
+        await this.db.run(`
+            INSERT OR REPLACE INTO processed_files 
+            (file_path, file_name, file_size, file_modified, message_count, session_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [filePath, fileName, stats.size, stats.mtime.toISOString(), messageCount, sessionId]);
+    }
+
+    /**
+     * Get list of processed files
+     */
+    async getProcessedFiles(limit = 100) {
+        await this.ensureInitialized();
+        
+        return await this.db.all(`
+            SELECT * FROM processed_files 
+            ORDER BY processed_at DESC 
+            LIMIT ?
+        `, [limit]);
     }
 }
 

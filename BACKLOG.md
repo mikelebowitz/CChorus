@@ -36,12 +36,12 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Agent loading enhancement** - ✅ Complete: Dashboard now loads agents from both project-level and user-level directories (shows all 10 agents)
 - **Activity feed UI improvement** - ✅ Complete: Unified activity item styling to match grouped summary format
 
-### SQLite Conversation Extraction Bug Fixes `[ready-for-branch: fix/conversation-extraction-duplicates]`
-- **Fix conversation extractor duplicate processing** - Add logic to skip already-processed JSONL files to prevent foreign key constraint errors
-- **Optimize conversation loading performance** - Only process new/modified conversation files instead of reprocessing all 24 files on every startup
-- **Add conversation file modification tracking** - Track file modification times to detect when conversation files need reprocessing
-- **Reduce dashboard startup log spam** - Eliminate repetitive foreign key constraint error messages from duplicate conversation insertion attempts
-- **Database integrity validation** - All data is being stored correctly (18 conversations, 4,805 messages, 186 activities) but extractor reprocesses files causing log spam
+### SQLite Conversation Extraction Bug Fixes `[COMPLETED ✅]`
+- **Fix conversation extractor duplicate processing** - Added processed_files table to track JSONL files that have been processed ✅
+- **Optimize conversation loading performance** - Modified processAllConversations() to check if files were already processed ✅
+- **Add conversation file modification tracking** - Fixed upsertConversation() to update existing conversations instead of replacing them ✅
+- **Reduce dashboard startup log spam** - Changed message insertion to use INSERT OR IGNORE to prevent foreign key constraint errors ✅
+- **Database integrity validation** - Database now correctly handles file processing state with processed_files table ✅
 
 ### UI/UX Bug Fixes `[COMPLETED ✅]`
 - **Fixed Badge component implementation** - Proper minimal version with correct variant support ✅
