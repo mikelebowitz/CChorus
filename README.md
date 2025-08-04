@@ -163,7 +163,7 @@ http://localhost:3002  # Auto-starts with VS Code project opening
 - **Activity Feed Improvement**: Unified activity styling with clean single-line entries showing agent name, description, and timestamp
 - **Agent Discovery Enhancement**: Correctly loads agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories, displaying all 10 agents instead of previous count of 6
 - **SQLite Persistence**: Historical activity data stored in `.claude/cchorus.db` with conversation extraction capabilities
-- **Known Issue**: Conversation extractor may show foreign key constraint errors during startup (data is stored correctly, but files are reprocessed causing log spam)
+- **Duplicate Processing Fix**: SQLite conversation extraction now tracks processed files to prevent duplicate foreign key constraint errors
 
 ### Development Server Management
 
@@ -628,8 +628,7 @@ CChorus implements **mandatory workflow sequences** to ensure code quality and d
 - Task validation errors: Use `.claude/start-task-validator.sh --validate-todos`
 - SessionStart hook issues: Check `.claude/settings.json` and verify hook configuration
 - Project board sync problems: Run `.claude/project-setup.js` for one-time setup
-- SQLite conversation extraction issues: Foreign key constraint errors indicate duplicate processing of JSONL files
-- Dashboard log spam: Repetitive conversation extraction errors during startup (data is stored correctly but files are reprocessed)
+- ✅ FIXED: SQLite conversation extraction duplicate processing - added processed_files table and file modification tracking
 - Agent count display issues: Dashboard should show all agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
 
 ### Performance Optimization

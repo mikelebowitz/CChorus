@@ -208,7 +208,19 @@ class ConversationExtractor {
         const processedConversations = [];
 
         for (const file of jsonlFiles) {
-            console.log(`🔍 Processing ${path.basename(file)}...`);
+            console.log(`🔍 Checking ${path.basename(file)}...`);
+            
+            // Get file stats
+            const stats = fs.statSync(file);
+            
+            // Check if file has already been processed
+            const isProcessed = await this.dbService.isFileProcessed(file, stats);
+            if (isProcessed) {
+                console.log(`✓ Already processed: ${path.basename(file)}`);
+                continue;
+            }
+            
+            console.log(`📝 Processing new file: ${path.basename(file)}...`);
             
             const conversation = await this.extractConversation(file);
             if (!conversation || conversation.messages.length === 0) {
@@ -260,6 +272,9 @@ class ConversationExtractor {
                 });
 
                 console.log(`✅ Processed conversation: ${messageCount} messages`);
+                
+                // Mark file as processed
+                await this.dbService.markFileProcessed(file, stats, messageCount, conversation.session_id);
 
             } catch (error) {
                 console.error(`❌ Error storing conversation from ${file}:`, error);
