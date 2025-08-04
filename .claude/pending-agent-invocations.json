@@ -74,5 +74,105 @@
       "/Users/mikelebowitz/Documents/Code/CChorus/.claude/commands/docsync.md",
       "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
     ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "07:51:01pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md.tmp.20312.1754265061167",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "08:09:03pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 3 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md.tmp.20312.1754265061167",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "08:40:33pm",
+    "trigger": "pre-compact-auto",
+    "prompt": "Auto-triggered: Please update documentation for code changes detected by pre-compact hook",
+    "priority": "high",
+    "auto_triggered": true
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "08:48:41pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/api-documenter.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "08:51:18pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 2 file changes detected by real-time watcher",
+    "priority": "low",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md.tmp.75774.1754268678715",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/api-documenter.md"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "08:51:49pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 8 file changes detected by real-time watcher",
+    "priority": "low",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md.tmp.75774.1754268678715",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md.tmp.75774.1754268705747",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/component-documenter.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/readme-updater.md.tmp.75774.1754268690298",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/frontend-tester.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/file-change-analyzer.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/file-change-analyzer.md.tmp.75774.1754268698065"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "09:20:51pm",
+    "trigger": "pre-compact-auto",
+    "prompt": "Auto-triggered: Please update documentation for code changes detected by pre-compact hook",
+    "priority": "high",
+    "auto_triggered": true
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:34:25pm",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 7 file changes detected by real-time watcher",
+    "priority": "high",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/documentation-manager.md.tmp.75774.1754268728875",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/CLAUDE.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/documentation-manager.md",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/backlog-manager.md.tmp.75774.1754268720368",
+      "/Users/mikelebowitz/Documents/Code/CChorus/.claude/agents/changelog-updater.md.tmp.75774.1754268712824"
+    ]
   }
 ]

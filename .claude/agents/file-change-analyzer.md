@@ -2,7 +2,7 @@
 name: file-change-analyzer
 description: Analyzes file changes to intelligently route documentation work to appropriate micro-agents and coordinate workflow orchestration
 tools: Read, Grep, Glob, Bash
-model: claude-3-haiku
+model: haiku
 max_tokens: 1500
 priority: high
 color: "#06B6D4"

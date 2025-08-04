@@ -2,7 +2,7 @@
 name: component-documenter
 description: Maintains component documentation by monitoring src/components/ changes and updating technical references with props, interfaces, and usage patterns
 tools: Read, Write, Edit, Grep, Glob
-model: claude-3-haiku
+model: haiku
 max_tokens: 2000
 priority: medium
 color: "#F59E0B"

@@ -2,7 +2,7 @@
 name: changelog-updater
 description: Maintains CHANGELOG.md by monitoring completed features, milestones, and significant changes to create chronological project history
 tools: Read, Write, Edit, Bash
-model: claude-3-haiku
+model: haiku
 max_tokens: 2000
 priority: medium
 color: "#8B5CF6"

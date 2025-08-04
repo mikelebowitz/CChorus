@@ -116,16 +116,19 @@ const StyledDiv = styled.div`color: red;`
 **Intelligent branch creation from BACKLOG.md metadata:**
 
 ```bash
-# Monitor BACKLOG.md for [new-branch] metadata and auto-create branches
+# Monitor BACKLOG.md for [ready-for-branch] metadata and auto-create branches
 .claude/start-auto-branch-creator.sh --once        # Single scan
 .claude/start-auto-branch-creator.sh --watch       # Continuous monitoring
 
-# BACKLOG.md syntax for auto-branch creation:
-# - **Feature name** `[new-branch: feature/branch-name]`
+# BACKLOG.md branch metadata workflow:
+# - **Feature name** `[planned-branch: feature/branch-name]`     # Planned for future
+# - **Feature name** `[ready-for-branch: feature/branch-name]`   # Ready to create
+# - **Feature name** `[BRANCH-CREATED ✅: feature/branch-name]`  # Already created
 ```
 
 **Auto-branch mechanisms:**
-- **BACKLOG.md scanning**: Detects `[new-branch: branch-name]` metadata
+- **Smart detection**: Only creates branches marked as `[ready-for-branch:]`
+- **BACKLOG.md scanning**: Detects branch metadata and respects workflow states
 - **GitOps integration**: Auto-creates GitOps agent invocations for branch management
 - **GitHub integration**: Auto-creates GitHub Issues when branches are created
 - **Pre-compact analysis**: Recommends branch creation based on work scope analysis
@@ -199,9 +202,11 @@ const StyledDiv = styled.div`color: red;`
 
 ## Current Status
 
-**Branch**: `feature/claude-spec-hybrid-infrastructure` (ACTIVE 🚀)
-**Infrastructure**: Hybrid micro-agent system with 67% token reduction (✅ 6 specialized agents, ✅ Smart file watcher, ✅ Real-time dashboard, ✅ Enhanced commands)
+**Branch**: `feature/sqlite-dashboard-persistence` (ACTIVE 🚀)
+**Infrastructure**: Hybrid micro-agent system with 67% token reduction (✅ 6 specialized agents, ✅ Smart file watcher, ✅ Real-time dashboard with SQLite persistence, ✅ Enhanced commands)
+**Dashboard Enhancements**: Recent improvements (✅ Session tracking fix, ✅ Activity feed UI enhancement, ✅ Agent loading enhancement, ✅ SQLite conversation extraction)
 **Automation**: Complete development workflow automation (✅ Auto-start servers, ✅ File monitoring, ✅ GitHub sync, ✅ Documentation routing)
+**Known Issues**: SQLite conversation extraction has duplicate processing causing log spam (data stored correctly)
 **Roadmap**: See [BACKLOG.md](./BACKLOG.md) for upcoming work
 **History**: See [CHANGELOG.md](./CHANGELOG.md) for completed work
 

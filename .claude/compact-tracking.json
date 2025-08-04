@@ -1,0 +1,43 @@
+{
+  "lastEvent": {
+    "type": "clear",
+    "timestamp": "2025-08-04T02:34:27.269Z",
+    "sessionId": "session-3301.104652875",
+    "totalTokensAtEvent": 28900,
+    "trigger": "session-change",
+    "formattedTime": "10:34:27 pm"
+  },
+  "eventHistory": [
+    {
+      "type": "compact",
+      "timestamp": "2025-08-03T20:40:33.443043",
+      "sessionId": "5bd25270-1fb4-410d-8fde-dbfab345ee93",
+      "totalTokensAtEvent": 20900,
+      "trigger": "manual",
+      "formattedTime": "08:40:33pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-04T00:48:44.817Z",
+      "sessionId": "session-411.063279584",
+      "totalTokensAtEvent": 28900,
+      "trigger": "session-change",
+      "formattedTime": "08:48:44 pm"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-03T21:20:51.272347",
+      "sessionId": "5bd25270-1fb4-410d-8fde-dbfab345ee93",
+      "totalTokensAtEvent": 28900,
+      "trigger": "manual",
+      "formattedTime": "09:20:51pm"
+    }
+  ],
+  "currentSession": {
+    "sessionId": "session-3301.104652875",
+    "compactsThisSession": 0,
+    "sessionStartTime": "2025-08-04T02:34:27.269Z",
+    "tokensSinceLastEvent": 0
+  },
+  "lastCompactionCheck": 1754274867167
+}

@@ -149,6 +149,22 @@ CChorus provides **comprehensive resource discovery** across your entire system 
    
    **Note**: CChorus now opens with the modern 3-column interface by default. Use the layout toggle button to switch between 3-column and classic tabbed interfaces. The file watcher starts automatically for real-time documentation updates.
 
+### Real-time Development Dashboard
+
+CChorus includes a comprehensive development dashboard with SQLite persistence:
+
+```bash
+# Access the dashboard
+http://localhost:3002  # Auto-starts with VS Code project opening
+```
+
+**Recent Dashboard Enhancements:**
+- **Session Tracking Fix**: Dashboard now shows time since last Claude context compaction (not server start time) with proper session ID integration from compact-tracking.json
+- **Activity Feed Improvement**: Unified activity styling with clean single-line entries showing agent name, description, and timestamp
+- **Agent Discovery Enhancement**: Correctly loads agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories, displaying all 10 agents instead of previous count of 6
+- **SQLite Persistence**: Historical activity data stored in `.claude/cchorus.db` with conversation extraction capabilities
+- **Known Issue**: Conversation extractor may show foreign key constraint errors during startup (data is stored correctly, but files are reprocessed causing log spam)
+
 ### Development Server Management
 
 ```bash
@@ -612,6 +628,9 @@ CChorus implements **mandatory workflow sequences** to ensure code quality and d
 - Task validation errors: Use `.claude/start-task-validator.sh --validate-todos`
 - SessionStart hook issues: Check `.claude/settings.json` and verify hook configuration
 - Project board sync problems: Run `.claude/project-setup.js` for one-time setup
+- SQLite conversation extraction issues: Foreign key constraint errors indicate duplicate processing of JSONL files
+- Dashboard log spam: Repetitive conversation extraction errors during startup (data is stored correctly but files are reprocessed)
+- Agent count display issues: Dashboard should show all agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
 
 ### Performance Optimization
 

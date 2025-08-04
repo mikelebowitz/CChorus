@@ -2,6 +2,7 @@
 name: documentation-manager
 description: Maintains comprehensive, up-to-date documentation for CChorus by monitoring code changes and updating documentation templates with implementation details, user workflows, and API changes.
 tools: Read, Write, Edit, MultiEdit, Grep, Glob, LS, Bash
+model: sonnet
 color: "#8B5CF6"
 ---
 

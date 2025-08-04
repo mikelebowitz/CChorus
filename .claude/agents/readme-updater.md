@@ -2,7 +2,7 @@
 name: readme-updater
 description: Maintains the main README.md file with current project capabilities, installation steps, and feature status
 tools: Read, Write, Edit, Grep, Bash
-model: claude-3-haiku
+model: haiku
 max_tokens: 2000
 priority: high
 ---

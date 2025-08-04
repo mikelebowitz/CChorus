@@ -147,6 +147,71 @@ CChorus is built as a React frontend with an Express.js backend API, designed to
 - **Enhancement**: Updated documentation-manager agent to maintain main README.md
 - **Scope**: Includes feature sections, installation steps, architecture updates, troubleshooting
 - **Technical Details**: Comprehensive instructions for README.md maintenance as part of documentation workflow
+
+### Real-time Development Dashboard (August 2025)
+
+<!-- DASHBOARD_ARCHITECTURE -->
+<!-- UPDATE_TRIGGER: When dashboard features are enhanced or modified -->
+<!-- STATUS: ACTIVE - SQLite persistence with conversation extraction -->
+
+**Dashboard Architecture:**
+- **Port**: 3002 (WebSocket + HTTP server)
+- **Storage**: SQLite database at `.claude/cchorus.db`
+- **Frontend**: `tools/dev-dashboard.html` with WebSocket client
+- **Backend**: `tools/dashboard-server.js` with real-time updates
+
+**Core Components:**
+- **`tools/database-service.js`**: SQLite service layer for activities, sessions, conversations, and metrics
+- **`tools/conversation-extractor.js`**: Claude conversation JSONL file processing and indexing
+- **`tools/dashboard-server.js`**: WebSocket server with persistence and real-time broadcasting
+- **`.claude/cchorus.db`**: SQLite database with comprehensive schema
+
+**Recent Dashboard Enhancements (August 2025):**
+
+**Session Tracking Fix:**
+- **Issue**: Dashboard showed server uptime instead of actual Claude session time
+- **Solution**: Integrated with `.claude/compact-tracking.json` to use actual Claude session IDs
+- **Technical Details**: `getCurrentSessionId()` now extracts session ID from compaction events
+- **Impact**: Accurate "time since last compaction" display instead of meaningless server uptime
+
+**Activity Feed UI Enhancement:**
+- **Issue**: Complex nested card layout caused visual inconsistency
+- **Solution**: Unified activity item styling to match grouped summary format
+- **Technical Details**: Simplified to clean single-line entries with agent name, description, and timestamp
+- **Impact**: Consistent, professional activity feed display
+
+**Agent Loading Enhancement:**
+- **Issue**: Dashboard only showed 6 agents instead of all available agents
+- **Solution**: Enhanced agent discovery to load from both project-level and user-level directories
+- **Technical Details**: 
+  - Project-level: `.claude/agents/` (8 agents)
+  - User-level: `~/.claude/agents/` (2 agents)
+  - Total: 10 agents correctly displayed
+- **Impact**: Complete agent visibility for comprehensive monitoring
+
+**SQLite Conversation Extraction:**
+- **Feature**: Integration with Claude conversation JSONL files
+- **Database Schema**: Conversations, messages, and search indexing
+- **Known Issue**: Foreign key constraint errors during startup due to duplicate processing
+- **Status**: Data is stored correctly (18 conversations, 4,805 messages, 186 activities) but extractor reprocesses files causing log spam
+- **Future Fix**: File modification tracking to prevent reprocessing of unchanged JSONL files
+
+**Database Schema:**
+```sql
+-- Core tables
+sessions: session_id, start_time, end_time, project_path, branch_context, status
+activities: session_id, agent, description, files, timestamp
+conversations: uuid, name, summary, created_at, updated_at, project_path
+messages: conversation_id, content, sender, timestamp, tokens
+metrics: session_id, metric_name, metric_value, metric_unit, agent, timestamp
+```
+
+**Troubleshooting Dashboard Issues:**
+- **Foreign key constraint errors**: Indicates duplicate JSONL processing (data is still stored correctly)
+- **Agent count mismatch**: Ensure both `.claude/agents/` and `~/.claude/agents/` directories are accessible
+- **Session time incorrect**: Verify `.claude/compact-tracking.json` exists and is updated
+- **WebSocket connection issues**: Check port 3002 availability and firewall settings
+- **Database corruption**: Delete `.claude/cchorus.db` to rebuild (will lose historical data)
 - **Impact**: Consistent, up-to-date project documentation across all files
 
 ### API Endpoint Improvements

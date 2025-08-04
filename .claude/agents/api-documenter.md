@@ -2,10 +2,8 @@
 name: api-documenter
 description: Maintains API documentation by monitoring server.js changes and updating endpoint references with request/response formats
 tools: Read, Write, Edit, Grep, Bash
-model: claude-3-haiku
-max_tokens: 2000
-priority: medium
-color: "#10B981"
+model: haiku
+color: #10B981
 ---
 
 # API Documenter Agent

@@ -164,7 +164,7 @@ python3 .claude/change-analyzer.py src/components/NewComponent.tsx
 
 ### 4. Real-time Development Dashboard
 
-**WebSocket-powered Dashboard** for live monitoring:
+**WebSocket-powered Dashboard** with SQLite persistence for live monitoring:
 
 #### Features
 - **3-Column Layout**: Agents | Activity Feed | System Status
@@ -172,10 +172,16 @@ python3 .claude/change-analyzer.py src/components/NewComponent.tsx
 - **Agent Status Visualization**: Color-coded status indicators per micro-agent
 - **Performance Metrics**: Token usage, response times, efficiency tracking
 - **Infrastructure Monitoring**: File watcher, GitHub sync, server status
+- **SQLite Persistence**: Historical activity data with `.claude/cchorus.db` storage
+- **Enhanced Session Tracking**: Proper Claude session ID integration from compact-tracking.json
+- **Agent Discovery**: Loads agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
+- **Conversation Intelligence**: SQLite-based conversation extraction with search capabilities
 
 #### Components
-- **`tools/dev-dashboard.html`**: Modern dashboard UI with dark theme
-- **`tools/dashboard-server.js`**: WebSocket server for real-time updates
+- **`tools/dev-dashboard.html`**: Modern dashboard UI with dark theme and unified activity styling
+- **`tools/dashboard-server.js`**: WebSocket server with SQLite persistence and conversation extraction
+- **`tools/database-service.js`**: SQLite service layer for activities, sessions, and conversations
+- **`tools/conversation-extractor.js`**: Claude conversation JSONL file processing and indexing
 - **`tools/start-dashboard.sh`**: One-command startup with background mode
 
 #### Usage

@@ -352,16 +352,21 @@
         }
         
         .activity-item {
-            background: var(--card);
-            border: 1px solid var(--border);
+            background: var(--muted);
+            color: var(--muted-foreground);
+            padding: 12px 16px;
             border-radius: var(--radius);
-            padding: 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .activity-item:hover {
-            border-color: var(--ring);
+            background: var(--secondary);
         }
         
         .activity-item.selected {
@@ -370,52 +375,6 @@
             color: var(--eerie-black);
         }
         
-        .activity-item.selected .activity-time {
-            color: var(--outer-space);
-        }
-        
-        .activity-item.selected .activity-title,
-        .activity-item.selected .activity-description {
-            color: var(--eerie-black);
-        }
-        
-        .activity-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .activity-title {
-            font-weight: 600;
-            color: var(--foreground);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .activity-time {
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-        
-        .activity-description {
-            color: var(--muted);
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-        
-        .activity-item.selected .activity-description {
-            color: var(--eerie-black) !important;
-        }
-        
-        /* Agent Color Dots */
-        .agent-color {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
         
         /* Tooltip Component */
         .tooltip {
@@ -515,7 +474,8 @@
 <body>
     <div class="dashboard">
         <header class="header">
-            <h1>CChorus Development Dashboard</h1>
+            <img src="/cchorus-logo.png" alt="CChorus" style="height: 32px; width: auto; margin-right: 12px; filter: brightness(0) invert(1);">
+            <h1>Development Dashboard</h1>
             <div class="status-indicator">
                 <div class="badge success">
                     <div class="dot"></div>
@@ -570,6 +530,26 @@
                     </div>
                     <div class="metric-widget-value" id="response-time-display">2.1s</div>
                     <div class="metric-widget-subtitle">Average</div>
+                </div>
+            </div>
+            
+            <div class="widget-grid">
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: #9b59b6;"><i data-lucide="refresh-cw"></i></div>
+                        <div class="metric-widget-title">Since /compact</div>
+                    </div>
+                    <div class="metric-widget-value" id="tokens-since-compact">0</div>
+                    <div class="metric-widget-subtitle" id="compact-time-ago">No compacts yet</div>
+                </div>
+                
+                <div class="metric-widget">
+                    <div class="metric-widget-header">
+                        <div class="metric-widget-icon" style="background: #e67e22;"><i data-lucide="layers"></i></div>
+                        <div class="metric-widget-title">This Session</div>
+                    </div>
+                    <div class="metric-widget-value" id="compacts-this-session">0</div>
+                    <div class="metric-widget-subtitle" id="session-time-ago">Just started</div>
                 </div>
             </div>
             
@@ -775,6 +755,71 @@
             if (filesCount) {
                 filesCount.textContent = metrics.filesWatched || 135;
             }
+            
+            // Update tokens since compact
+            const tokensSinceCompact = document.getElementById('tokens-since-compact');
+            const compactTimeAgo = document.getElementById('compact-time-ago');
+            if (tokensSinceCompact && metrics.tokensSinceCompact) {
+                tokensSinceCompact.textContent = formatNumber(metrics.tokensSinceCompact.tokens);
+                
+                if (compactTimeAgo) {
+                    if (metrics.tokensSinceCompact.lastEventTime) {
+                        const timeAgo = getTimeAgo(new Date(metrics.tokensSinceCompact.lastEventTime));
+                        const eventType = metrics.tokensSinceCompact.lastEventType || 'event';
+                        compactTimeAgo.textContent = `${timeAgo} (${eventType})`;
+                    } else {
+                        compactTimeAgo.textContent = 'No resets yet';
+                    }
+                }
+            }
+            
+            // Update session stats
+            const compactsThisSession = document.getElementById('compacts-this-session');
+            const sessionTimeAgo = document.getElementById('session-time-ago');
+            if (compactsThisSession && metrics.sessionStats) {
+                compactsThisSession.textContent = metrics.sessionStats.compactsThisSession || 0;
+                
+                if (sessionTimeAgo) {
+                    if (metrics.sessionStats.sessionStartTime) {
+                        const timeAgo = getTimeAgo(new Date(metrics.sessionStats.sessionStartTime));
+                        sessionTimeAgo.textContent = timeAgo;
+                    } else {
+                        sessionTimeAgo.textContent = 'Just started';
+                    }
+                }
+            }
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffDays > 0) {
+                return `${diffDays}d ago`;
+            } else if (diffHours > 0) {
+                const remainingMins = diffMins % 60;
+                if (remainingMins > 0) {
+                    return `${diffHours}h ${remainingMins}m`;
+                } else {
+                    return `${diffHours}h`;
+                }
+            } else if (diffMins > 0) {
+                return `${diffMins}m`;
+            } else {
+                return 'Just now';
+            }
         }
         
         function addRealActivityItem(activity) {
@@ -791,28 +836,13 @@
                 hour12: true
             }).toLowerCase();
             
-            // Get agent info for color and tooltip
-            const agentInfo = dashboardAgents[activity.agent] || {};
-            const agentColor = agentInfo.color || '#06B6D4';
-            const agentPrompt = agentInfo.prompt || 'No prompt available';
+            
+            // Create summary-style content
+            const activityText = `${activity.agent} • ${activity.description}`;
             
             newItem.innerHTML = `
-                <div class="activity-header">
-                    <div class="activity-title">
-                        <div class="tooltip">
-                            <div class="agent-color" style="background: ${agentColor};"></div>
-                            <div class="tooltip-content" style="white-space: pre-wrap; max-width: 400px; font-family: monospace;">${escapeHtml(agentPrompt)}</div>
-                        </div>
-                        <div class="tooltip">
-                            <span>${activity.agent}</span>
-                            <div class="tooltip-content" style="white-space: pre-wrap; max-width: 400px; font-family: monospace;">${escapeHtml(agentPrompt)}</div>
-                        </div>
-                    </div>
-                    <div class="activity-time">${timestamp}</div>
-                </div>
-                <div class="activity-description">
-                    ${activity.description}
-                </div>
+                <span>${activityText}</span>
+                <span style="margin-left: auto; font-size: 0.75rem; opacity: 0.7;">${timestamp}</span>
             `;
             
             feed.insertBefore(newItem, feed.firstChild);

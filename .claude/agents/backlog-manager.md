@@ -2,7 +2,7 @@
 name: backlog-manager
 description: Maintains BACKLOG.md by monitoring TodoWrite sessions and updating project priorities, categorization, and GitHub integration
 tools: Read, Write, Edit, Bash
-model: claude-3-haiku
+model: haiku
 max_tokens: 2000
 priority: high
 color: "#EF4444"
