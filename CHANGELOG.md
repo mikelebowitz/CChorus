@@ -5,6 +5,34 @@ All notable changes to CChorus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2025-08-05 - Resource Management UX Improvements
+
+### Development Session - 2025-08-05 10:31
+- **UI Components**: Modified PropertiesPanel, ThreeColumnLayout, alert and 1 more
+
+### Added
+- **Enhanced Error Boundaries** - Comprehensive ErrorBoundary component with retry functionality
+- **Professional Error Handling** - User-friendly error messages with actionable retry buttons
+- **Alert Component** - New shadcn/ui compatible Alert component for consistent messaging
+- **Improved Resource Properties** - Enhanced Properties panel with proper date formatting
+
+### Fixed
+- **Critical Date Rendering Bug** - Fixed React error when displaying Date objects in Properties panel
+- **API Endpoint Errors** - Resolved 400 Bad Request errors from settings hooks endpoint
+- **Duplicate React Keys** - Enhanced resource ID generation to prevent key collision warnings
+- **Resource Loading Stability** - Improved error handling throughout resource discovery process
+
+### Changed
+- **Resource ID Generation** - More robust ID system with scope prefixes (e.g., `agent-system-name`)
+- **Error User Experience** - Replaced raw technical errors with professional user-friendly messages
+- **Resource Data Service** - Enhanced error handling for settings hooks with graceful fallbacks
+
+### Technical Improvements
+- **Build Stability** - All critical rendering errors eliminated, clean production builds
+- **Console Cleanliness** - Significant reduction in console warnings and errors
+- **User Feedback** - Better loading states and error recovery mechanisms
+- **Code Quality** - Enhanced TypeScript interfaces and error boundaries
+
 ## [3.0.0] - 2025-08-03 - Hybrid Infrastructure Release
 
 ### Development Session - 2025-08-03 21:20

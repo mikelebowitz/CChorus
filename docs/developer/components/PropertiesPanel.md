@@ -34,7 +34,7 @@ interface PropertiesPanelProps {
 - **Description**: Optional description display when available
 
 ### Metadata Section
-- **Last Modified**: Timestamp with human-readable formatting
+- **Last Modified**: Timestamp with human-readable formatting and Date object safety
 - **File Path**: Full path display with monospace font and word breaking
 - **Additional Properties**: Extensible property display based on item type
 
@@ -282,6 +282,20 @@ function ThreeColumnLayout() {
   );
 }
 ```
+
+## Recent Enhancements (v3.1.0)
+
+### Date Object Safety Enhancement
+```tsx
+// Enhanced date formatting with error boundary protection
+<p className="text-sm">
+  {selectedItem.lastModified instanceof Date 
+    ? selectedItem.lastModified.toLocaleDateString()
+    : String(selectedItem.lastModified)}
+</p>
+```
+
+This enhancement prevents React crashes when Date objects are passed as children, providing graceful fallback formatting.
 
 ## Future Enhancements
 

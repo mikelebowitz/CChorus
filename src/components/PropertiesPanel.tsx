@@ -96,7 +96,11 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ selectedItem }
             <Clock className="w-4 h-4 text-muted-foreground" />
             <div>
               <Label className="text-xs text-muted-foreground">Last Modified</Label>
-              <p className="text-sm">{selectedItem.lastModified}</p>
+              <p className="text-sm">
+                {selectedItem.lastModified instanceof Date 
+                  ? selectedItem.lastModified.toLocaleDateString()
+                  : String(selectedItem.lastModified)}
+              </p>
             </div>
           </div>
         )}

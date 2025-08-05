@@ -54,14 +54,15 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Dynamic content system** - Context-aware header with breadcrumb navigation ✅
 - **Complete shadcn/ui migration** - All raw HTML elements replaced with shadcn/ui components ✅
 
-### Linear-Style 3-Column Layout Implementation `[COMPLETED ✅]`
-- **PropertiesPanel component** - Persistent right column for metadata and actions display ✅
-- **Enhanced ThreeColumnLayout architecture** - Proper column width management and navigation state ✅
-- **Intelligent navigation patterns** - Context-aware middle column with breadcrumb support ✅
-- **Real-time resource counts** - Dynamic sidebar with live resource statistics ✅
-- **Enhanced project integration** - Seamless ProjectManager embedding in middle column ✅
-- **Navigation stack state management** - Implemented for Column 2 (list → detail with breadcrumbs) ✅
-- **Context-aware properties display** - Dynamic right panel based on selected items ✅
+### Professional 3-Column Layout Implementation `[COMPLETED ✅]`
+- **PropertiesPanel component** - Persistent right column with context-aware metadata display and intelligent type detection ✅
+- **Enhanced ThreeColumnLayout architecture** - Professional interface with real resource data integration and navigation state management ✅
+- **Intelligent navigation patterns** - Context-aware middle column with breadcrumb support and dynamic resource lists ✅
+- **Real-time resource counts** - Dynamic sidebar with live resource statistics and performance optimization ✅
+- **Enhanced project integration** - Seamless ProjectManager embedding with streaming discovery and caching ✅
+- **Navigation stack state management** - Complete implementation for Column 2 with persistent state ✅
+- **Context-aware properties display** - Dynamic right panel with type-specific actions and metadata ✅
+- **Resource assignment integration** - Cross-project assignment with ResourceAssignmentPanel and visual tracking ✅
 
 ### Documentation Automation `[COMPLETED ✅]`
 - **Enhanced pre-compact hook** with automatic CHANGELOG.md updates and `/docgit` workflow triggers
@@ -89,11 +90,20 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Tool usage analytics and patterns** - Analyze tool usage patterns and frequency for optimization insights
 - **Session-based activity filtering** - Add dashboard filtering by session, time range, and activity type
 
-### Enhanced Resource Editing `[planned-branch: feature/resource-editors]`
+### Enhanced Resource Management `[COMPLETED ✅]`
+- **Resource Library implementation** - Unified resource browser with filtering, search, and multi-selection capabilities ✅
+- **Resource assignment system** - Cross-project deployment with copy/move/activate/deactivate operations ✅
+- **Project preferences management** - Archiving, favoriting, and visibility controls with persistent storage ✅
+- **Enhanced resource discovery** - System-wide scanning with intelligent deduplication and performance optimization ✅
+- **Resource assignment operations** - Comprehensive deployment management with status tracking and error handling ✅
+- **Project streaming discovery** - Real-time project discovery with Server-Sent Events and caching ✅
+
+### Advanced Resource Editing `[planned-branch: feature/resource-editors]`
 - Visual hook editor within 3-column layout
 - Command editor with YAML validation
 - Settings file management interface
 - Resource templates and scaffolding
+- In-place resource editing capabilities
 
 ### Workflow Improvements
 - `/sync` slash command for documentation synchronization
@@ -121,11 +131,15 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Response time analytics** - Monitor and analyze Claude response times and performance bottlenecks
 - **Session context preservation** - Maintain session context across dashboard restarts and tool invocations
 
-### Performance Optimization `[planned-branch: feature/performance]`
-- Incremental sync API endpoints for changes since timestamp
-- Cache management UI with clear cache and status indicators
-- Skeleton screens and enhanced loading feedback
-- Memory optimization for large resource sets
+### Performance Optimization `[ENHANCED ✅]`
+- **Streaming resource discovery** - Server-Sent Events for real-time updates and improved performance ✅
+- **Enhanced caching system** - Intelligent cache management with automatic invalidation and status tracking ✅
+- **Resource deduplication** - Advanced deduplication system with conflict resolution ✅
+- **Concurrent API calls** - Optimized resource loading with parallel requests ✅
+- **Memory optimization** - Efficient resource management for large datasets ✅
+- Incremental sync API endpoints for changes since timestamp `[planned-branch: feature/incremental-sync]`
+- Cache management UI with clear cache and status indicators `[planned-branch: feature/cache-ui]`
+- Skeleton screens and enhanced loading feedback `[planned-branch: feature/loading-states]`
 
 ### Developer Experience `[planned-branch: feature/dev-experience]`
 - Hot reload for agent changes
@@ -147,6 +161,8 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ### Backend Issues
 - **Add missing /api/health endpoint** `[planned-branch: fix/health-endpoint]` - Backend returns 404 on health checks
+- **Fix readdirp v4 glob pattern matching issue** `[planned-branch: fix/readdirp-glob]` - String filters only match exact filenames instead of glob patterns (#69)
+- **Improve session detection in development dashboard** `[planned-branch: fix/session-detection]` - Real session detection needs improvement when Claude session IDs become accessible (#70)
 
 ### Bundle Optimization
 - **Fix 1.5MB production bundle size** `[planned-branch: fix/bundle-size]` - Implement code-splitting and dynamic imports
@@ -179,6 +195,8 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - ESLint rule enforcement
 - CSS organization and optimization
 - **Remove "revolutionary" from commit messages** `[planned-branch: chore/commit-message-cleanup]` - Update commit message templates and documentation to use more professional language, removing the word "revolutionary" from templates and any existing documentation
+- **Clean up documentation Note references** `[planned-branch: docs/cleanup-notes]` - Review and standardize Note references throughout documentation (#72)
+- **Review and update Notebook tool references** `[planned-branch: chore/notebook-tools]` - Verify NotebookRead/NotebookEdit tools in simple-server.js (#73)
 
 ### Architecture
 - Service layer abstraction improvements

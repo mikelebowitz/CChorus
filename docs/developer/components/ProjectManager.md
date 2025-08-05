@@ -6,7 +6,7 @@
 
 ## Overview
 
-The ProjectManager component provides comprehensive project discovery and CLAUDE.md editing capabilities with enhanced markdown editing features. It combines real-time project scanning with professional markdown editing tools.
+The ProjectManager component provides comprehensive project discovery and CLAUDE.md editing capabilities with streaming discovery, enhanced caching, and integrated project preferences management. It combines real-time project scanning with professional markdown editing tools and advanced project management features.
 
 ## Component Props
 
@@ -14,6 +14,8 @@ The ProjectManager component provides comprehensive project discovery and CLAUDE
 interface ProjectManagerProps {
   onProjectSelect?: (project: ClaudeProject) => void;
   onProjectEdit?: (project: ClaudeProject, content: string) => void;
+  showEditor?: boolean; // Control whether to show the editor panel
+  layoutMode?: 'standalone' | 'list-only'; // Layout mode for 3-column integration
 }
 
 interface ClaudeProject {
@@ -48,11 +50,13 @@ interface ClaudeProject {
 - **Client-side Caching**: Intelligent caching with background refresh
 - **Metadata Extraction**: Project paths, file sizes, modification dates, Git status
 
-### Project Management
-- **Status Filtering**: Filter by active, archived, hidden, favorited projects
-- **Project Preferences**: LocalStorage-based preference management
-- **Search Functionality**: Text-based project search
-- **Dual View Modes**: Grid and list view layouts
+### Enhanced Project Management
+- **Advanced Status Filtering**: Filter by active, archived, hidden, favorited, and all projects with dedicated tab interface
+- **Project Preferences System**: Comprehensive preference management with archiving, favoriting, and visibility controls
+- **Search Functionality**: Real-time text-based project search with instant filtering
+- **Professional UI**: Clean list layout with alternating row colors and metadata display
+- **Cache Management**: Intelligent caching with background refresh and cache clearing capabilities
+- **Streaming Discovery**: Server-Sent Events for real-time project discovery with progress feedback
 
 ## Dependencies
 
@@ -100,13 +104,30 @@ if (CacheService.isStale(cacheKey, 5 * 60 * 1000)) {
 
 ### Real-time Updates
 
-Server-Sent Events provide live project discovery:
+Server-Sent Events provide live project discovery with comprehensive event handling:
 
 ```typescript
-const eventSource = new EventSource('/api/projects/stream');
+const eventSource = new EventSource('http://localhost:3001/api/projects/stream');
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  // Update UI with streaming data
+  
+  switch (data.type) {
+    case 'scan_started':
+      setScanningMessage('Scanning for projects...');
+      break;
+    case 'project_found':
+      const projectWithPreferences = {
+        ...data.project,
+        ...ProjectPreferencesService.getProjectPreferences(data.project.path)
+      };
+      setProjects(prev => [...prev, projectWithPreferences]);
+      setScanningMessage(`Found ${data.count} project${data.count !== 1 ? 's' : ''}...`);
+      break;
+    case 'scan_complete':
+      setLoading(false);
+      setScanningMessage('');
+      break;
+  }
 };
 ```
 
@@ -114,10 +135,11 @@ eventSource.onmessage = (event) => {
 
 ### Endpoints Used
 
-- `GET /api/projects/stream` - Server-Sent Events for real-time project discovery
-- `GET /api/projects` - Cached project list
-- `GET /api/file/read` - Read CLAUDE.md file content
-- `POST /api/file/write` - Save CLAUDE.md file content
+- `GET /api/projects/stream` - Server-Sent Events for real-time project discovery with progress updates
+- `GET /api/projects/system` - System-wide project discovery with batch loading fallback
+- `GET /api/projects/:projectPath(*)/claudemd` - Read CLAUDE.md file content with proper path encoding
+- `PUT /api/projects/:projectPath(*)/claudemd` - Save CLAUDE.md file content with backup creation
+- Project preferences managed via `ProjectPreferencesService` with localStorage persistence
 
 ### Error Handling
 
@@ -139,15 +161,29 @@ try {
 ## Recent Enhancements (August 2025)
 
 ### react-md-editor Integration
-- **Enhanced User Experience**: Replaced basic textarea with professional markdown editor
-- **Visual Editing**: Live preview with split-view editing
-- **Rich Formatting**: Toolbar with markdown formatting shortcuts
-- **Improved Workflow**: Better CLAUDE.md editing experience
+- **Enhanced User Experience**: Full MDEditor integration with live preview and visual editing
+- **Template Generation**: Automatic CLAUDE.md template creation for projects without existing files
+- **Professional Editing**: Split-view editing with toolbar and syntax highlighting
+- **Height Management**: Configurable editor height (400px) with responsive design
 
-### Bug Fixes Applied
-- **Duplicate Detection**: Projects now properly deduplicated in listings
-- **User-level Discovery**: Home directory projects properly included
-- **Error Resilience**: Better handling of filesystem access issues
+### Project Preferences System
+- **Archiving System**: Archive/unarchive projects with status persistence
+- **Favoriting System**: Star/unstar projects with visual indicators
+- **Visibility Controls**: Hide/show projects with proper filtering
+- **View Tracking**: Mark projects as viewed with automatic preference updates
+
+### Streaming and Caching Enhancements
+- **Cache Invalidation**: Intelligent cache clearing on first load to fix inconsistent state
+- **Background Refresh**: Automatic cache refresh when data becomes stale
+- **Streaming Accumulator**: Reliable project accumulation during streaming discovery
+- **Progress Feedback**: Real-time scanning progress with user-friendly messages
+- **Fallback Handling**: Graceful fallback to batch loading when streaming fails
+
+### Performance and Reliability Improvements
+- **Event Source Management**: Proper cleanup and error handling for streaming connections
+- **Toast Notifications**: Comprehensive user feedback for all operations
+- **Error Recovery**: Robust error handling with retry mechanisms
+- **Memory Management**: Efficient state management and component cleanup
 
 ## Usage Example
 

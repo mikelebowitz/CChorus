@@ -1,11 +1,12 @@
 {
   "lastEvent": {
-    "type": "clear",
-    "timestamp": "2025-08-04T02:34:27.269Z",
-    "sessionId": "session-3301.104652875",
-    "totalTokensAtEvent": 28900,
-    "trigger": "session-change",
-    "formattedTime": "10:34:27 pm"
+    "type": "compact",
+    "timestamp": "2025-08-05T14:33:44.171Z",
+    "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
+    "totalTokensAtEvent": 60900,
+    "trigger": "compaction",
+    "processed": false,
+    "formattedTime": "10:33:44 am"
   },
   "eventHistory": [
     {
@@ -31,13 +32,45 @@
       "totalTokensAtEvent": 28900,
       "trigger": "manual",
       "formattedTime": "09:20:51pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-04T02:34:27.269Z",
+      "sessionId": "session-3301.104652875",
+      "totalTokensAtEvent": 28900,
+      "trigger": "session-change",
+      "formattedTime": "10:34:27 pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-04T19:55:43.643Z",
+      "sessionId": "session-34.543913709",
+      "totalTokensAtEvent": 36900,
+      "trigger": "session-change",
+      "formattedTime": "03:55:43 pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-04T20:33:00.976Z",
+      "sessionId": "session-652.302579042",
+      "totalTokensAtEvent": 44900,
+      "trigger": "session-change",
+      "formattedTime": "04:33:00 pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-05T14:18:49.045Z",
+      "sessionId": "session-1770.611266708",
+      "totalTokensAtEvent": 52900,
+      "trigger": "session-change",
+      "formattedTime": "10:18:49 am"
     }
   ],
   "currentSession": {
-    "sessionId": "session-3301.104652875",
-    "compactsThisSession": 0,
-    "sessionStartTime": "2025-08-04T02:34:27.269Z",
+    "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
+    "compactsThisSession": 2,
+    "sessionStartTime": "2025-08-05T14:33:44.172Z",
     "tokensSinceLastEvent": 0
   },
-  "lastCompactionCheck": 1754274867167
+  "lastCompactionCheck": 1754404424171
 }

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ThreeColumnLayout` component provides CChorus's modern professional interface with real resource data integration, featuring a hierarchical navigation sidebar, context-aware middle column with live resource data, and enhanced content editor with resource assignment capabilities. This component represents the primary user interface for CChorus as of August 2025.
+The `ThreeColumnLayout` component provides CChorus's modern professional Linear-style interface with comprehensive resource data integration, featuring a hierarchical navigation sidebar, context-aware middle column with dynamic resource lists, and persistent PropertiesPanel with intelligent type detection. This component represents the primary user interface for CChorus as of August 2025, providing complete resource management capabilities.
 
 ## Component Architecture
 
@@ -15,22 +15,26 @@ interface ThreeColumnLayoutProps {
 ## Layout Structure
 
 ### Left Sidebar (Fixed 256px width)
-- **Navigation Categories**: Users, Projects, Agents, Commands, Hooks, CLAUDE.md
-- **Global Search**: Full-text search across all resource types
-- **Resource Counts**: Dynamic count badges for each category
-- **Collapse Toggle**: Collapsible sidebar with menu button
+- **Navigation Categories**: Users, Projects, Agents, Commands, Hooks, CLAUDE.md with dynamic resource counts
+- **Global Search**: Full-text search across all resource types with real-time filtering
+- **Resource Counts**: Live count badges updated from ResourceDataService with loading states
+- **Collapse Toggle**: Collapsible sidebar with menu button and responsive design
+- **Resource Loading**: Intelligent resource loading based on navigation selection
 
-### Middle Column (Fixed 320px width)
-- **Context-Aware Lists**: Dynamic content based on selected navigation item
-- **Project Integration**: Embedded ProjectManager for project browsing
-- **Filter Controls**: Search and filter functionality for each resource type
-- **Selection Management**: Handles resource selection for right column
+### Middle Column (Flexible width)
+- **Context-Aware Lists**: Dynamic resource lists with real data loading and performance optimization
+- **Project Integration**: Embedded ProjectManager with streaming discovery and enhanced caching
+- **Advanced Filtering**: Search, filter, and selection capabilities for each resource type
+- **Professional Styling**: Alternating row colors, hover states, and consistent visual hierarchy
+- **Users Section**: Dedicated user-level vs project-level resource distinction
+- **Resource Assignment**: Multi-selection and bulk operations support
 
 ### Right Column (Fixed 320px width)
-- **PropertiesPanel Component**: Persistent properties and actions panel for selected items
-- **Context-Aware Content**: Dynamic metadata display based on selected resource/project type
-- **Action Integration**: Type-specific actions (edit, test, deploy, delete) for enhanced workflow
-- **Professional Empty States**: Guided empty states when no selection with clear instructions
+- **PropertiesPanel Component**: Persistent properties panel with context-aware metadata display
+- **Intelligent Type Detection**: Dynamic property display based on selected resource/project type
+- **Type-Specific Actions**: Edit, test, deploy, delete actions with proper workflow integration
+- **Resource Assignment Integration**: Cross-project assignment with ResourceAssignmentPanel
+- **Professional Empty States**: Guided empty states with clear selection instructions
 
 ## Information-Rich Header
 
@@ -83,7 +87,7 @@ const navItems: NavItem[] = [
 
 ### Resource Assignment System
 
-Integrated resource assignment capabilities:
+Comprehensive resource assignment capabilities with cross-project deployment:
 
 ```tsx
 const handleAssignmentChange = async (resourceName: string) => {
@@ -92,18 +96,33 @@ const handleAssignmentChange = async (resourceName: string) => {
   // Reload current view
   await loadResourcesForNavItem(selectedNavItem);
 };
+
+// Build assignment map for resource tracking
+const assignments = new Map<string, string[]>();
+combinedResources.forEach(resource => {
+  if (resource.projectPath) {
+    const existing = assignments.get(resource.name) || [];
+    if (!existing.includes(resource.projectPath)) {
+      assignments.set(resource.name, [...existing, resource.projectPath]);
+    }
+  }
+});
+setResourceAssignments(assignments);
 ```
 
 ### State Management
-- `selectedNavItem`: Currently active navigation category
-- `sidebarCollapsed`: Sidebar visibility state
-- `searchQuery`: Global search input
-- `selectedProject`: Current project for CLAUDE.md editing
-- `selectedResource`: Current resource for content editing
-- `resources`: Current resource list based on selected navigation item
-- `allResources`: Complete resource collection for assignment operations
-- `resourceAssignments`: Map of resource assignments across projects
-- `resourceCounts`: Dynamic counts for each navigation category
+- `selectedNavItem`: Currently active navigation category with type safety
+- `sidebarCollapsed`: Sidebar visibility state with responsive behavior
+- `searchQuery`: Global search input with real-time filtering
+- `selectedProject`: Current project for CLAUDE.md editing with preference integration
+- `selectedResource`: Current resource for properties panel display
+- `resources`: Current resource list based on selected navigation item with performance optimization
+- `allResources`: Complete resource collection for assignment operations and bulk actions
+- `projects`: Complete project list for assignment panel integration
+- `resourceAssignments`: Map of resource assignments across projects with visual tracking
+- `resourceCounts`: Dynamic counts for each navigation category with loading states
+- `loading`: Loading state management for different navigation contexts
+- `error`: Error state handling with user-friendly messages
 
 ### Integration Points
 
@@ -273,11 +292,13 @@ The component provides specialized content rendering for each resource type:
 ## Future Enhancements
 
 ### Planned Features
-- **Enhanced Resource Editing**: Visual editors for hooks and commands
-- **Resizable Columns**: User-adjustable column widths with persistence
-- **Drag & Drop**: Resource movement between columns
-- **Quick Switcher**: Cmd+K navigation overlay
-- **Mobile Responsive**: Collapsible columns for mobile devices
+- **Enhanced Resource Editing**: Visual editors for hooks and commands within the properties panel
+- **Resizable Columns**: User-adjustable column widths with localStorage persistence
+- **Drag & Drop**: Resource movement between columns and cross-project assignment
+- **Quick Switcher**: Cmd+K navigation overlay with fuzzy search
+- **Mobile Responsive**: Collapsible columns for mobile devices with touch gestures
+- **Resource Templates**: Template system for creating new resources
+- **Bulk Operations**: Multi-select with bulk assignment and management actions
 
 ### Extension Points
 - **Custom Navigation Items**: Plugin system for additional resource types
@@ -307,11 +328,30 @@ The component provides specialized content rendering for each resource type:
 - High contrast mode compatibility
 - Focus management validation
 
+## Error Handling and Resilience (v3.1.0)
+
+### Production-Grade Error Boundaries
+```tsx
+// Enhanced with comprehensive ErrorBoundary wrapping
+<ErrorBoundary>
+  <div className="h-full flex flex-col">
+    {/* Component content with error protection */}
+  </div>
+</ErrorBoundary>
+```
+
+### Enhanced Error Management
+- **Comprehensive ErrorBoundary integration** - Catches and handles component-level errors gracefully
+- **User-friendly error displays** - Professional Alert components with retry mechanisms
+- **Graceful degradation** when resources fail to load
+- **Enhanced error messaging** with actionable guidance and improved user experience
+- **Build stability improvements** - All critical rendering errors eliminated
+
 ## Development Notes
 
 - **Component Isolation**: ThreeColumnLayout is self-contained with minimal external dependencies
 - **TypeScript Integration**: Full type safety with proper interfaces
-- **Error Boundaries**: Graceful error handling for failed content loading
+- **Production-Grade Error Handling**: Comprehensive error boundaries with retry functionality (v3.1.0)
 - **State Persistence**: Navigation state maintained across sessions
 
 This component represents the culmination of CChorus's evolution into a professional-grade Claude Code resource management platform.

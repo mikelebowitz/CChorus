@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { ErrorBoundary } from './ui/error-boundary';
+import { Alert, AlertDescription } from './ui/alert';
 // import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable';
 import { 
   User, 
@@ -15,7 +17,8 @@ import {
   Search,
   Settings,
   Menu,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 import { Input } from './ui/input';
 import { ProjectManager } from './ProjectManager';
@@ -346,9 +349,21 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
                 <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : error ? (
-              <div className="flex items-center justify-center h-32 text-destructive">
-                <p className="text-sm">{error}</p>
-              </div>
+              <Alert variant="destructive" className="m-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  {error}
+                  <Button 
+                    onClick={() => window.location.reload()} 
+                    variant="outline" 
+                    size="sm" 
+                    className="ml-2"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
             ) : (
               <div className="space-y-0">
                 {resources.length > 0 ? (
@@ -497,7 +512,8 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <ErrorBoundary>
+      <div className="h-full flex flex-col">
       {/* Information-Rich Header */}
       <div className="h-12 bg-card border-b flex items-center px-4">
         <div className="flex items-center gap-2 flex-1">
@@ -552,6 +568,7 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
           {renderContentColumn()}
         </div>
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -16,26 +16,28 @@
 
 ## Features
 
-### **🎯 Linear-Style 3-Column Interface (NEW in v2.0.0)**
-- **Modern Layout Architecture** - Professional 3-column design with hierarchical navigation, real resource data integration, and persistent properties panel
-- **PropertiesPanel Component** - Persistent right column with context-aware metadata display and type-specific actions
-- **Integrated CLAUDE.md Editor** - Full react-md-editor integration with live preview, edit/save workflows, and template generation
-- **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md) and dynamic counts
-- **Context-Aware Middle Column** - Dynamic resource lists with real data loading, filtering, and search capabilities
-- **Information-Rich Header** - Contextual breadcrumbs, action buttons, and metadata display
-- **Enhanced Resource Management** - Seamless resource selection with persistent property display and actions
-- **Resource Assignment System** - Cross-project resource deployment with visual assignment tracking
+### **🎯 Professional 3-Column Interface (v2.0.0)**
+- **Modern Layout Architecture** - Professional Linear-style 3-column design with hierarchical navigation, real resource data integration, and persistent properties panel
+- **PropertiesPanel Component** - Persistent right column with context-aware metadata display, type-specific actions, and intelligent property detection
+- **Integrated CLAUDE.md Editor** - Full react-md-editor integration with live preview, edit/save workflows, template generation, and project-specific editing
+- **Smart Navigation System** - Left sidebar with resource categories (Users, Projects, Agents, Commands, Hooks, CLAUDE.md) and real-time dynamic counts
+- **Context-Aware Middle Column** - Dynamic resource lists with real data loading, advanced filtering, search capabilities, and alternating row styling
+- **Information-Rich Header** - Contextual breadcrumbs, action buttons, metadata display, and navigation state management
+- **Enhanced Resource Management** - Seamless resource selection with persistent property display, bulk operations, and cross-project assignment capabilities
+- **Resource Assignment System** - Cross-project resource deployment with visual assignment tracking, copy/move operations, and deployment status monitoring
 
-### **Agent Management**
-- **Modern Visual Editor** - Clean, accessible form interface with shadcn/ui components
+### **Enhanced Resource Management**
+- **Modern Visual Interface** - Clean, accessible interface with shadcn/ui components and professional styling
 - **Professional Theme System** - Light/dark theme switching with keyboard shortcuts (Ctrl/Cmd + T)
-- **Muted Visual Hierarchy** - Subtle, professional color scheme that adapts to themes
+- **Unified Resource Library** - Comprehensive resource browser with filtering, search, and multi-selection capabilities
 - **Enhanced Accessibility** - Full keyboard navigation and screen reader support via Radix UI
-- **Smart Organization** - Color-coded agents with intuitive search and filtering
-- **System-Wide Agent Discovery** - Comprehensive scanning across all projects on your system
-- **Project Context Awareness** - Each agent includes project metadata (name, path, source type)
-- **Performance Optimized** - Memory-efficient streaming scanner handles large directory structures
-- **Robust Error Handling** - Gracefully handles filesystem issues and permissions
+- **Smart Organization** - Color-coded resources with intuitive search, filtering, and bulk operations
+- **System-Wide Resource Discovery** - Comprehensive scanning across all projects with intelligent deduplication
+- **Project Context Awareness** - Each resource includes project metadata, assignment status, and scope information
+- **Performance Optimized** - Memory-efficient streaming scanner with caching and real-time updates
+- **Production-Grade Error Handling** - Comprehensive error boundaries, user-friendly error messages, and automatic retry mechanisms
+- **Cross-Project Assignment** - Visual assignment tracking with copy/move/activate/deactivate operations
+- **Stable Resource Loading** - Eliminated critical rendering errors with enhanced ID generation and proper date formatting
 
 ### **🚀 System-Wide Resource Discovery & Advanced Automation**
 
@@ -63,15 +65,16 @@ CChorus provides **comprehensive resource discovery** across your entire system 
 
 ### **Advanced Resource Management**
 
-- **Integrated Project Manager** - Full CLAUDE.md editing within 3-column layout with react-md-editor, live preview, and enhanced caching system
-- **Real Resource Data Integration** - ResourceDataService provides unified access to agents, commands, hooks, and CLAUDE.md files across user and project scopes
-- **Cross-Project Assignment System** - ResourceAssignmentPanel enables copy/activate/deactivate resources between projects with visual tracking
-- **Smart Content Organization** - Clean project display showing descriptions instead of file paths with improved list performance
-- **Hook Configuration Support** - Handles both legacy (with matcher field) and modern (without matcher) hook formats with real-time discovery
-- **Enhanced API Integration** - Concurrent API calls for optimal performance with complete resource discovery across system
-- **Duplicate Prevention** - Advanced deduplication with streaming cache management for consistent project state
-- **MCP Server Integration** - Automatic detection and management of MCP (Model Context Protocol) tools
-- **File Import System** - Import existing Markdown files as agents with YAML frontmatter parsing
+- **Integrated Project Manager** - Full CLAUDE.md editing within 3-column layout with react-md-editor, live preview, enhanced caching, and streaming project discovery
+- **Real Resource Data Integration** - ResourceDataService and ResourceLibraryService provide unified access to all resources across user and project scopes
+- **Cross-Project Assignment System** - ResourceAssignmentPanel enables comprehensive resource deployment with copy/move/activate/deactivate operations and visual tracking
+- **Smart Content Organization** - Professional resource display with alternating row colors, metadata display, and improved list performance
+- **Comprehensive Resource Types** - Unified management of agents, commands, hooks, projects, settings, and CLAUDE.md files
+- **Enhanced API Integration** - Concurrent API calls with Server-Sent Events streaming for optimal performance and real-time updates
+- **Advanced Deduplication** - Intelligent deduplication system with streaming cache management and conflict resolution
+- **MCP Server Integration** - Automatic detection and management of MCP (Model Context Protocol) tools with permission validation
+- **Resource Assignment Operations** - Sophisticated assignment system with operation validation, error handling, and status tracking
+- **Project Preferences System** - User preference management with archiving, favoriting, and visibility controls
 
 ### **Developer Experience**
 - **Modern Development Stack** - Vite 7.0.4 with lightning-fast hot reload
@@ -159,11 +162,13 @@ http://localhost:3002  # Auto-starts with VS Code project opening
 ```
 
 **Recent Dashboard Enhancements:**
-- **Session Tracking Fix**: Dashboard now shows time since last Claude context compaction (not server start time) with proper session ID integration from compact-tracking.json
+- **Session Tracking Fix**: Dashboard shows time since last Claude context compaction with proper session ID integration from compact-tracking.json
 - **Activity Feed Improvement**: Unified activity styling with clean single-line entries showing agent name, description, and timestamp
-- **Agent Discovery Enhancement**: Correctly loads agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories, displaying all 10 agents instead of previous count of 6
+- **Agent Discovery Enhancement**: Loads agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
 - **SQLite Persistence**: Historical activity data stored in `.claude/cchorus.db` with conversation extraction capabilities
-- **Duplicate Processing Fix**: SQLite conversation extraction now tracks processed files to prevent duplicate foreign key constraint errors
+- **Duplicate Processing Fix**: SQLite conversation extraction tracks processed files to prevent duplicate foreign key constraint errors
+- **Resource Management Enhancement**: Complete integration with 3-column interface and real resource data loading
+- **Performance Optimization**: Streaming resource discovery with intelligent caching and deduplication
 
 ### Development Server Management
 
@@ -244,16 +249,18 @@ cchorus/
 │   │   │   └── ...         # Additional UI primitives
 │   │   ├── theme-provider.tsx      # Theme context and management
 │   │   ├── theme-toggle.tsx        # Theme switching component
-│   │   ├── ThreeColumnLayout.tsx   # ✅ Professional 3-column interface with real data
+│   │   ├── ThreeColumnLayout.tsx   # ✅ Professional 3-column interface with real resource data integration
+│   │   ├── PropertiesPanel.tsx     # ✅ Context-aware metadata and actions panel with intelligent type detection
 │   │   ├── ClaudeMdEditor.tsx      # ✅ Integrated CLAUDE.md editor with react-md-editor
 │   │   ├── LayoutToggle.tsx        # ✅ Interface switching component
-│   │   ├── ResourceAssignmentPanel.tsx # ✅ Cross-project resource assignment
-│   │   ├── ResourceLibrary.tsx     # ✅ Unified resource browser
+│   │   ├── ResourceAssignmentPanel.tsx # ✅ Cross-project resource assignment with copy/move operations
+│   │   ├── ResourceLibrary.tsx     # ✅ Unified resource browser with filtering, search, and multi-selection
 │   │   ├── AssignmentManager.tsx   # ✅ Resource deployment system
-│   │   ├── ProjectManager.tsx      # ✅ Enhanced project discovery with caching
+│   │   ├── ProjectManager.tsx      # ✅ Enhanced project discovery with streaming, caching, and preferences
 │   │   ├── AgentCard.tsx           # Individual agent display
 │   │   ├── AgentEditor.tsx         # Agent creation/editing form
-│   │   └── FileBrowser.tsx         # File system browser
+│   │   ├── FileBrowser.tsx         # File system browser
+│   │   └── FileSearch.tsx          # File search capabilities
 │   ├── lib/
 │   │   └── utils.ts        # Utility functions (clsx, tailwind-merge)
 │   ├── hooks/
@@ -261,8 +268,10 @@ cchorus/
 │   ├── utils/              # Business logic utilities
 │   │   ├── agentUtils.ts         # Agent parsing and validation
 │   │   ├── apiFileSystem.ts      # API communication
-│   │   ├── resourceDataService.ts # ✅ Unified resource discovery service
-│   │   └── resourceLibraryService.ts # Resource assignment operations
+│   │   ├── resourceDataService.ts # ✅ Unified resource discovery service with concurrent API calls
+│   │   ├── resourceLibraryService.ts # ✅ Resource assignment operations with comprehensive deployment management
+│   │   ├── projectPreferencesService.ts # ✅ Project preferences management (archiving, favoriting, visibility)
+│   │   └── cacheService.ts       # ✅ Enhanced caching system with intelligent invalidation
 │   ├── types.ts            # TypeScript type definitions
 │   ├── App.tsx             # Main application with theme provider
 │   ├── main.tsx            # Application entry point
@@ -346,14 +355,14 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 > **📈 For development workflow and process enforcement, see [PROCESS.md](./PROCESS.md)**
 
 ### Current Status (August 2025) - Version 2.0.0
-- ✅ **Backend Infrastructure** (100% complete) - All API endpoints and scanners with enhanced GitHub integration
-- ✅ **3-Column UI Architecture** (100% complete) - Professional interface with real resource data integration
-- ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel
-- ✅ **Core Resource Management** (100% complete) - Resource Library, Assignment Manager, Project Manager with enhanced caching
-- ✅ **Advanced Automation Systems** (100% complete) - Auto-documentation, branch creation, GitHub sync, task validation
-- ✅ **Process Automation** (100% complete) - Workflow enforcement, agent sequences, documentation triggers
-- ✅ **GitHub Integration Platform** (100% complete) - Issues/Projects sync, automated labeling, project board workflows
-- ✅ **Developer Workflow System** (100% complete) - Session hooks, file watching, task validation, quality gates
+- ✅ **Backend Infrastructure** (100% complete) - Comprehensive API endpoints with streaming support, resource assignment, and enhanced GitHub integration
+- ✅ **Professional 3-Column UI Architecture** (100% complete) - Linear-style interface with real resource data integration and persistent properties panel
+- ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel, copy/move operations, and visual tracking
+- ✅ **Core Resource Management** (100% complete) - Resource Library with filtering/search, Assignment Manager, Project Manager with streaming discovery and caching
+- ✅ **Advanced Resource Discovery** (100% complete) - System-wide scanning with intelligent deduplication, performance optimization, and real-time updates
+- ✅ **Enhanced Project Management** (100% complete) - Project preferences, archiving/favoriting, streaming discovery, and integrated CLAUDE.md editing
+- ✅ **Advanced Automation Systems** (100% complete) - Auto-documentation, branch creation, GitHub sync, task validation, and workflow enforcement
+- ✅ **Developer Workflow System** (100% complete) - Session hooks, file watching, task validation, quality gates, and real-time dashboard
 
 ### What's Next
 - Enhanced resource editing capabilities within 3-column layout
@@ -587,13 +596,20 @@ CChorus implements **mandatory workflow sequences** to ensure code quality and d
 **Resources not loading**
 - Verify YAML frontmatter syntax for agents
 - Check file permissions on resource directories
-- Ensure backend server is running on port 3001
-- Restart server if home directory scanning is not working
+- Ensure backend server is running on port 3001 with streaming endpoints
+- Check console for resource discovery errors and API connectivity
+- Verify ResourceDataService and ResourceLibraryService API calls
 
-**Duplicate agents appearing**
-- This issue has been fixed with enhanced deduplication
-- Restart the backend server to apply the fix
-- Clear browser cache if duplicates persist
+**Resource assignment issues**
+- Check project preferences service for proper configuration
+- Verify target project paths exist and are accessible
+- Review assignment operation logs for copy/move/activate errors
+- Ensure ResourceAssignmentPanel has proper project data
+
+**Duplicate resources appearing**
+- Enhanced deduplication system handles this automatically
+- Restart backend server if deduplication isn't working
+- Clear browser cache and resource service cache if duplicates persist
 
 **Hooks not discovered**
 - Verify settings.json file format is correct
@@ -629,7 +645,10 @@ CChorus implements **mandatory workflow sequences** to ensure code quality and d
 - SessionStart hook issues: Check `.claude/settings.json` and verify hook configuration
 - Project board sync problems: Run `.claude/project-setup.js` for one-time setup
 - ✅ FIXED: SQLite conversation extraction duplicate processing - added processed_files table and file modification tracking
-- Agent count display issues: Dashboard should show all agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
+- ✅ FIXED: Agent count display issues - Dashboard shows all agents from both project-level (.claude/agents/) and user-level (~/.claude/agents/) directories
+- ✅ FIXED: Resource discovery performance - Streaming discovery with intelligent caching and deduplication
+- ✅ FIXED: Project management issues - Enhanced project preferences with archiving, favoriting, and visibility controls
+- ✅ FIXED: Resource assignment workflow - Comprehensive assignment system with copy/move/activate/deactivate operations
 
 ### Performance Optimization
 

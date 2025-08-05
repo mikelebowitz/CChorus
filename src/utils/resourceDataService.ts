@@ -47,7 +47,7 @@ export class ResourceDataService {
       
       const data = await response.json();
       return data.map((agent: any): AgentResource => ({
-        id: agent.name || agent.filePath,
+        id: `agent-${scope}-${agent.name || agent.filePath}`,
         name: agent.name,
         type: 'agent',
         scope: agent.projectPath ? 'project' : scope,
@@ -77,7 +77,7 @@ export class ResourceDataService {
       const commands = data.commands || []; // Extract commands array from response
       
       return commands.map((command: any): CommandResource => ({
-        id: command.id || command.name,
+        id: `command-${scope}-${command.id || command.name}`,
         name: command.name || command.fullName,
         type: 'command',
         scope: command.scope === 'builtin' ? 'system' : command.scope,
@@ -98,6 +98,13 @@ export class ResourceDataService {
    */
   static async fetchHooks(scope: 'system' | 'settings' = 'system'): Promise<HookResource[]> {
     try {
+      // For settings hooks, we need to fetch user-level hooks differently
+      if (scope === 'settings') {
+        // Instead of calling the problematic settings endpoint, return empty array for now
+        // TODO: Implement proper user settings hooks discovery
+        return [];
+      }
+      
       const response = await fetch(`${this.BASE_URL}/hooks/${scope}`);
       if (!response.ok) throw new Error(`Failed to fetch ${scope} hooks`);
       
@@ -105,7 +112,7 @@ export class ResourceDataService {
       const hooks = data.hooks || []; // Extract hooks array from response
       
       return hooks.map((hook: any): HookResource => ({
-        id: hook.id || `${hook.eventType}-${hook.matcher}`,
+        id: `hook-${scope}-${hook.id || hook.eventType}-${hook.matcher || 'default'}`,
         name: `${hook.eventType} (${hook.sourceType})`,
         type: 'hook',
         scope: hook.sourceType === 'user' ? 'user' : 'system',
