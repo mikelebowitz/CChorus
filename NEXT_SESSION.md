@@ -1,5 +1,56 @@
 # CChorus Next Session Brief
 
+## 🔔 REAL-TIME: Documentation Update Needed
+
+**Auto-detected by file watcher at 2025-08-05 10:55:52**
+
+**Files Changed**: 5 files
+**Priority**: MEDIUM
+
+```bash
+# IMMEDIATE ACTION REQUIRED:
+@documentation-manager please update documentation for recent file changes
+# After completion:
+@gitops-workflow-manager please commit and push changes
+```
+
+**Changed Files**:
+- ThreeColumnLayout.tsx.tmp.89687.1754405696143
+- ThreeColumnLayout.tsx.tmp.89687.1754405752414
+- ThreeColumnLayout.tsx
+- ThreeColumnLayout.tsx.tmp.89687.1754405721892
+- ThreeColumnLayout.tsx.tmp.89687.1754405706823
+
+
+**Trigger Files**: 
+- `.claude/doc-update-needed.trigger`
+- `.claude/pending-agent-invocations.json`
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **Generated**: 2025-08-05 10:31
 **Project**: CChorus - Claude Code Resource Management Platform
 

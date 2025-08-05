@@ -89,5 +89,119 @@
     "prompt": "Auto-triggered: Please update documentation for code changes detected by pre-compact hook",
     "priority": "high",
     "auto_triggered": true
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:49:29am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 3 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/alert.tsx.tmp.89687.1754403817890",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405368986",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ui/alert.tsx"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:50:54am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 4 file changes detected by real-time watcher",
+    "priority": "low",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405368986",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/systemDetectionService.ts.tmp.89687.1754405454043",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405380944",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:51:29am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 5 file changes detected by real-time watcher",
+    "priority": "low",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/systemDetectionService.ts",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405480278",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/systemDetectionService.ts.tmp.89687.1754405454043",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405489743"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:52:40am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 4 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405503781",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts.tmp.89687.1754405489743",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ResourceListItem.tsx.tmp.89687.1754405560241",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/utils/resourceDataService.ts"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:53:26am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 6 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405582731",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405567010",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ResourceListItem.tsx.tmp.89687.1754405560241",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405606884",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ResourceListItem.tsx"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:53:57am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 4 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405627415",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405635932",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405606884"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:54:56am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 3 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405696143",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405654413"
+    ]
+  },
+  {
+    "agent": "documentation-manager",
+    "timestamp": "10:55:52am",
+    "trigger": "file-watcher-auto",
+    "prompt": "Auto-triggered: Update documentation for 5 file changes detected by real-time watcher",
+    "priority": "medium",
+    "auto_triggered": true,
+    "files_changed": [
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405696143",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405752414",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405721892",
+      "/Users/mikelebowitz/Documents/Code/CChorus/src/components/ThreeColumnLayout.tsx.tmp.89687.1754405706823"
+    ]
   }
 ]

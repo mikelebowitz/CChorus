@@ -1,7 +1,10 @@
 /**
  * Service for fetching resource data (agents, commands, hooks)
  * Provides unified interface for loading real resource data into 3-column layout
+ * Now includes system detection and grouping capabilities
  */
+
+import { SystemDetectionService } from './systemDetectionService';
 
 export interface ResourceItem {
   id: string;
@@ -13,6 +16,21 @@ export interface ResourceItem {
   description?: string;
   lastModified?: Date | string;
   enabled?: boolean;
+  
+  // System grouping properties
+  systemId?: string;              // "ccplugins", "claude-flow", "builtin"
+  systemName?: string;            // "CCPlugins", "Claude Flow", "Built-in"
+  systemVersion?: string;         // System version when resource was created
+  isSystemResource?: boolean;     // Part of a larger system
+  isEditable?: boolean;          // Can user modify this resource
+  
+  // Change tracking properties
+  originalResourceId?: string;    // Reference to original system resource
+  isModified?: boolean;          // Has been customized from original
+  modificationReason?: string;   // Why was this changed
+  modificationDate?: Date;       // When was it modified
+  resourceVersion?: number;      // Version of this specific resource
+  originalContent?: string;      // Original system content for comparison
 }
 
 export interface AgentResource extends ResourceItem {
@@ -32,6 +50,45 @@ export interface HookResource extends ResourceItem {
   type: 'hook';
   hookType?: string;
   configuration?: any;
+}
+
+// Change tracking interface
+export interface ResourceChange {
+  id: string;
+  timestamp: Date;
+  author: string;
+  reason: string;                // User-provided explanation
+  changeType: 'create' | 'modify' | 'delete' | 'restore';
+  beforeContent?: string;
+  afterContent: string;
+  projectPath: string;
+}
+
+// System management interface
+export interface ResourceSystem {
+  id: string;
+  name: string;
+  description: string;
+  version?: string;
+  author?: string;
+  enabled: boolean;
+  resources: {
+    original: ResourceItem[];    // Unmodified system resources
+    modified: ResourceItem[];    // Project-customized variants
+    counts: { 
+      agents: number; 
+      commands: number; 
+      hooks: number; 
+      claudeFiles: number;
+      total: number;
+    };
+  };
+  health: 'complete' | 'partial' | 'broken' | 'customized';
+  modifications: {
+    total: number;
+    byProject: Map<string, number>;
+  };
+  isEditable: boolean;
 }
 
 export class ResourceDataService {
@@ -183,11 +240,30 @@ export class ResourceDataService {
         this.fetchClaudeFiles()
       ]);
 
+      // Combine all resources for system detection
+      const allResources = [
+        ...userAgents,
+        ...systemAgents,
+        ...systemCommands,
+        ...systemHooks,
+        ...userHooks,
+        ...claudeFiles
+      ];
+
+      // Apply system detection to all resources
+      const resourcesWithSystemInfo = SystemDetectionService.analyzeResources(allResources);
+
+      // Separate back into categories
+      const processedAgents = resourcesWithSystemInfo.filter(r => r.type === 'agent');
+      const processedCommands = resourcesWithSystemInfo.filter(r => r.type === 'command');
+      const processedHooks = resourcesWithSystemInfo.filter(r => r.type === 'hook');
+      const processedClaudeFiles = resourcesWithSystemInfo.filter(r => r.type === 'claude-file');
+
       return {
-        agents: [...userAgents, ...systemAgents],
-        commands: systemCommands,
-        hooks: [...systemHooks, ...userHooks],
-        claudeFiles
+        agents: processedAgents,
+        commands: processedCommands,
+        hooks: processedHooks,
+        claudeFiles: processedClaudeFiles
       };
     } catch (error) {
       console.error('Error fetching all resources:', error);
@@ -265,5 +341,71 @@ export class ResourceDataService {
   static formatDate(date: Date | string): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     return d.toLocaleDateString();
+  }
+
+  /**
+   * Get all detected resource systems
+   */
+  static async fetchResourceSystems(): Promise<ResourceSystem[]> {
+    try {
+      const allResourcesData = await this.fetchAllResources();
+      const allResources = [
+        ...allResourcesData.agents,
+        ...allResourcesData.commands,
+        ...allResourcesData.hooks,
+        ...allResourcesData.claudeFiles
+      ];
+
+      return SystemDetectionService.createSystemSummaries(allResources);
+    } catch (error) {
+      console.error('Error fetching resource systems:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch resources with system-aware sorting
+   */
+  static async fetchResourcesWithSystemSorting(type?: 'agents' | 'commands' | 'hooks' | 'claude-files'): Promise<ResourceItem[]> {
+    try {
+      let resources: ResourceItem[];
+      
+      if (type) {
+        resources = await this.fetchResourcesByType(type);
+      } else {
+        const allResourcesData = await this.fetchAllResources();
+        resources = [
+          ...allResourcesData.agents,
+          ...allResourcesData.commands,
+          ...allResourcesData.hooks,
+          ...allResourcesData.claudeFiles
+        ];
+      }
+
+      return SystemDetectionService.sortResourcesWithSystemPriority(resources);
+    } catch (error) {
+      console.error('Error fetching resources with system sorting:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get resources grouped by system
+   */
+  static async fetchResourcesBySystem(): Promise<Map<string, ResourceItem[]>> {
+    try {
+      const allResourcesData = await this.fetchAllResources();
+      const allResources = [
+        ...allResourcesData.agents,
+        ...allResourcesData.commands,
+        ...allResourcesData.hooks,
+        ...allResourcesData.claudeFiles
+      ];
+
+      return SystemDetectionService.groupResourcesBySystem(allResources);
+    } catch (error) {
+      console.error('Error fetching resources by system:', error);
+      return new Map();
+    }
   }
 }

@@ -18,7 +18,9 @@ import {
   Settings,
   Menu,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Package,
+  Lock
 } from 'lucide-react';
 import { Input } from './ui/input';
 import { ProjectManager } from './ProjectManager';
@@ -28,9 +30,10 @@ import { PropertiesPanel } from './PropertiesPanel';
 import { ClaudeProject } from '../types';
 import { ResourceDataService, ResourceItem, AgentResource } from '../utils/resourceDataService';
 import MDEditor from '@uiw/react-md-editor';
+import { ResourceListItem, sortResourcesForDisplay } from './ResourceListItem';
 
 // Navigation item types
-type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files';
+type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files' | 'systems';
 
 interface NavItem {
   id: NavItemType;
@@ -56,13 +59,15 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
   const [allResources, setAllResources] = useState<ResourceItem[]>([]);
   const [projects, setProjects] = useState<ClaudeProject[]>([]);
   const [resourceAssignments, setResourceAssignments] = useState<Map<string, string[]>>(new Map());
+  const [systems, setSystems] = useState<any[]>([]); // ResourceSystem[] from systemDetectionService
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resourceCounts, setResourceCounts] = useState<Record<string, number>>({
     agents: 0,
     commands: 0,
     hooks: 0,
-    'claude-files': 0
+    'claude-files': 0,
+    systems: 0
   });
 
   // Load resources when nav item changes
@@ -112,18 +117,24 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
         console.error('Error loading projects:', err);
       }
       
+      // Load systems data
+      const systemsData = await ResourceDataService.fetchResourceSystems();
+      setSystems(systemsData);
+      
       setResourceCounts({
         agents: allResourcesData.agents.length,
         commands: allResourcesData.commands.length,
         hooks: allResourcesData.hooks.length,
-        'claude-files': allResourcesData.claudeFiles.length
+        'claude-files': allResourcesData.claudeFiles.length,
+        systems: systemsData.length
       });
       
       console.log('Resource counts loaded:', {
         agents: allResourcesData.agents.length,
         commands: allResourcesData.commands.length,
         hooks: allResourcesData.hooks.length,
-        claudeFiles: allResourcesData.claudeFiles.length
+        claudeFiles: allResourcesData.claudeFiles.length,
+        systems: systemsData.length
       });
     } catch (error) {
       console.error('Error loading resource counts:', error);
@@ -150,6 +161,12 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
       } finally {
         setLoading(false);
       }
+      return;
+    }
+
+    if (navItem === 'systems') {
+      // Systems section is handled differently - just clear resources
+      setResources([]);
       return;
     }
 
@@ -213,6 +230,7 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
   const navItems: NavItem[] = [
     { id: 'users', label: 'Users', icon: User, count: 1 },
     { id: 'projects', label: 'Projects', icon: FolderOpen, count: 5, expanded: true },
+    { id: 'systems', label: 'Systems', icon: Package, count: resourceCounts.systems },
     { id: 'agents', label: 'Agents', icon: Bot, count: resourceCounts.agents },
     { id: 'commands', label: 'Commands', icon: Terminal, count: resourceCounts.commands },
     { id: 'hooks', label: 'Hooks', icon: Webhook, count: resourceCounts.hooks },
@@ -331,6 +349,106 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
       );
     }
 
+    if (selectedNavItem === 'systems') {
+      return (
+        <div className="h-full flex flex-col bg-background border-r">
+          {/* Systems Header */}
+          <div className="p-4 border-b">
+            <h3 className="font-medium text-sm">Resource Systems</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Manage grouped resources and plugin systems
+            </p>
+          </div>
+
+          {/* Systems Content */}
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : error ? (
+              <Alert variant="destructive" className="m-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  {error}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-0">
+                {systems.map((system, i) => (
+                  <div 
+                    key={system.id} 
+                    className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 border-b ${
+                      i % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                    }`}
+                    onClick={() => console.log('System selected:', system.name)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        {/* System name and health */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-sm font-medium">{system.name}</h4>
+                          <div className={`w-2 h-2 rounded-full ${
+                            system.health === 'complete' ? 'bg-green-500' :
+                            system.health === 'customized' ? 'bg-orange-500' : 
+                            system.health === 'partial' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`} />
+                          {!system.isEditable && <Lock className="w-3 h-3 text-muted-foreground" />}
+                        </div>
+                        
+                        {/* System description */}
+                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                          {system.description}
+                        </p>
+                        
+                        {/* Resource counts */}
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="text-purple-600">
+                            {system.resources.counts.agents} agents
+                          </span>
+                          <span className="text-orange-600">
+                            {system.resources.counts.commands} commands
+                          </span>
+                          <span className="text-red-600">
+                            {system.resources.counts.hooks} hooks
+                          </span>
+                          {system.modifications.total > 0 && (
+                            <span className="text-orange-600 font-medium">
+                              {system.modifications.total} modified
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* System metadata */}
+                      <div className="flex flex-col items-end text-xs text-muted-foreground ml-2">
+                        {system.version && (
+                          <span className="text-blue-600">v{system.version}</span>
+                        )}
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          system.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {system.enabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {systems.length === 0 && (
+                  <div className="flex items-center justify-center h-32">
+                    <p className="text-sm text-muted-foreground">
+                      No resource systems detected
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     if (selectedNavItem === 'users') {
       return (
         <div className="h-full flex flex-col bg-background border-r">
@@ -367,33 +485,14 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
             ) : (
               <div className="space-y-0">
                 {resources.length > 0 ? (
-                  resources.map((resource, i) => (
-                    <div 
-                      key={resource.id} 
-                      className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 ${
-                        i % 2 === 0 ? 'bg-background' : 'bg-muted/30'
-                      } ${selectedResource?.id === resource.id ? 'bg-accent' : ''}`}
+                  sortResourcesForDisplay(resources).map((resource, i) => (
+                    <ResourceListItem
+                      key={resource.id}
+                      resource={resource}
+                      index={i}
+                      isSelected={selectedResource?.id === resource.id}
                       onClick={() => setSelectedResource(resource)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          <div className="w-2 h-2 rounded-full bg-blue-500" />
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">{resource.name}</h4>
-                            {resource.lastModified && (
-                              <p className="text-xs text-muted-foreground">
-                                Last updated {ResourceDataService.formatDate(resource.lastModified)}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-blue-600 dark:text-blue-400 capitalize">
-                            {resource.type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                    />
                   ))
                 ) : (
                   <div className="flex items-center justify-center h-32">
@@ -438,36 +537,14 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
           ) : (
             <div className="space-y-0">
               {resources.length > 0 ? (
-                resources.map((resource, i) => (
-                  <div 
-                    key={resource.id} 
-                    className={`cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3 ${
-                      i % 2 === 0 ? 'bg-background' : 'bg-muted/30'
-                    } ${selectedResource?.id === resource.id ? 'bg-accent' : ''}`}
+                sortResourcesForDisplay(resources).map((resource, i) => (
+                  <ResourceListItem
+                    key={resource.id}
+                    resource={resource}
+                    index={i}
+                    isSelected={selectedResource?.id === resource.id}
                     onClick={() => setSelectedResource(resource)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className={`w-2 h-2 rounded-full ${
-                          resource.scope === 'user' ? 'bg-blue-500' : 
-                          resource.scope === 'system' ? 'bg-green-500' : 'bg-orange-500'
-                        }`} />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">{resource.name}</h4>
-                          {resource.lastModified && (
-                            <p className="text-xs text-muted-foreground">
-                              Last updated {ResourceDataService.formatDate(resource.lastModified)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {resource.scope}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  />
                 ))
               ) : (
                 <div className="flex items-center justify-center h-32">
