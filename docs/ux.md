@@ -1,6 +1,3 @@
-Excellent point. That's a crucial piece of functionality for managing global resources. The Properties Panel (Column 3) is the perfect place for this, making it a true command center for the selected resource.
-Let's update the UX specification to reflect this enhancement. The key is to make the panel context-aware: it should show these project assignments when a User-level (Global) resource is selected.
-Here is the revised documentation in Markdown.
 UX Specification: Integrated Explorer Panel
 This document outlines the user experience and component architecture for the resource management application, based on an integrated "VS Code" style layout. The primary goal is to provide a powerful, familiar, and efficient interface for developers.
 1. High-Level Layout
