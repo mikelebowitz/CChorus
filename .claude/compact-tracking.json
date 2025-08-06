@@ -1,11 +1,11 @@
 {
   "lastEvent": {
     "type": "clear",
-    "timestamp": "2025-08-06T02:18:56.017Z",
-    "sessionId": "session-281.489222334",
-    "totalTokensAtEvent": 68900,
+    "timestamp": "2025-08-06T20:37:27.467Z",
+    "sessionId": "session-311.206472208",
+    "totalTokensAtEvent": 76900,
     "trigger": "session-change",
-    "formattedTime": "10:18:56 pm"
+    "formattedTime": "04:37:27 pm"
   },
   "eventHistory": [
     {
@@ -88,13 +88,30 @@
       "totalTokensAtEvent": 60900,
       "trigger": "session-change",
       "formattedTime": "11:02:24 am"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-06T02:18:56.017Z",
+      "sessionId": "session-281.489222334",
+      "totalTokensAtEvent": 68900,
+      "trigger": "session-change",
+      "formattedTime": "10:18:56 pm"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-06T05:51:59.146Z",
+      "sessionId": "1f89f535-1e15-4c1b-83a6-71955cfb0099",
+      "totalTokensAtEvent": 76900,
+      "trigger": "compaction",
+      "processed": false,
+      "formattedTime": "01:51:59 am"
     }
   ],
   "currentSession": {
-    "sessionId": "session-281.489222334",
+    "sessionId": "session-311.206472208",
     "compactsThisSession": 0,
-    "sessionStartTime": "2025-08-06T02:18:56.017Z",
+    "sessionStartTime": "2025-08-06T20:37:27.467Z",
     "tokensSinceLastEvent": 0
   },
-  "lastCompactionCheck": 1754446725591
+  "lastCompactionCheck": 1754512607005
 }

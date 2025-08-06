@@ -54,7 +54,6 @@ export function ChangeHistoryDialog({
         // Reload history to show the revert
         await loadChangeHistory();
         // TODO: Show success toast
-        console.log('Change reverted successfully');
       }
     } catch (error) {
       console.error('Error reverting change:', error);

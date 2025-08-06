@@ -108,18 +108,15 @@ export function ResourceListItem({
       setShowModificationDialog(true);
     } else {
       // TODO: Open regular resource editor
-      console.log('Edit user resource:', resource.name);
     }
   };
 
   const handleDuplicateResource = () => {
     // TODO: Implement resource duplication
-    console.log('Duplicate resource:', resource.name);
   };
 
   const handleDeleteResource = () => {
     // TODO: Implement resource deletion with confirmation
-    console.log('Delete resource:', resource.name);
   };
 
   const handleViewHistory = async () => {
@@ -128,12 +125,10 @@ export function ResourceListItem({
 
   const handleViewOriginal = () => {
     // TODO: Show original system resource content
-    console.log('View original:', resource.name);
   };
 
   const handleCompareWithOriginal = () => {
     // TODO: Show diff between original and modified
-    console.log('Compare with original:', resource.name);
   };
 
   const handleRevertChanges = async () => {
@@ -142,7 +137,6 @@ export function ResourceListItem({
     if (history.length > 0) {
       const success = await ResourceDataService.revertResourceModification(resource.id, history[history.length - 1].id);
       if (success) {
-        console.log('Changes reverted for:', resource.name);
         // TODO: Refresh resource list
       }
     }
