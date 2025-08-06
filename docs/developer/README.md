@@ -302,6 +302,12 @@ eventSource.onmessage = (event) => {
 
 ## 📦 Component Documentation
 
+### 🆕 New: Resource System Groupings
+
+**Latest Addition**: Complete resource system management with modification tracking and rollback capabilities.
+
+- [**Resource System Groupings**](components/resource-system-groupings.md) - Comprehensive guide to system management, modification workflows, change tracking, and rollback capabilities
+
 ### Core Components
 
 #### ResourceLibrary.tsx

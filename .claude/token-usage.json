@@ -49,9 +49,24 @@
       "timestamp": "2025-08-05T14:18:49.118Z",
       "agent": "documentation-manager",
       "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-05T15:02:24.652Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-06T02:18:56.032Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-06T20:37:27.479Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
     }
   ],
-  "totalTokens": 60900,
-  "averagePerSession": 6090,
-  "reductionVsBaseline": 24
+  "totalTokens": 84900,
+  "averagePerSession": 6531,
+  "reductionVsBaseline": 18
 }

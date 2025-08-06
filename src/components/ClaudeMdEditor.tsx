@@ -19,6 +19,14 @@ interface ClaudeMdEditorProps {
 }
 
 export function ClaudeMdEditor({ project, onContentChange }: ClaudeMdEditorProps) {
+  // TODO: [UX Spec] Add Markdown syntax highlighting and preview sync
+  //       Reference: docs/ux.md - Section 3 specifies Markdown editor for resources
+  //       Priority: Medium - Enhances content editing experience
+  
+  // TODO: [UX Spec] Implement auto-save with debouncing for better UX
+  //       Reference: docs/ux.md - User flow shows immediate save feedback
+  //       Priority: Low - Quality of life improvement
+  
   const [editorContent, setEditorContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);

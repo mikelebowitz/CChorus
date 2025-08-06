@@ -454,6 +454,15 @@ A:
   - Clear corrupted localStorage data and restart
   - Verify JavaScript execution is allowed
 
+## 📖 User Workflows
+
+Detailed step-by-step guides for common tasks:
+
+- [**Resource System Management**](workflows/resource-system-management.md) - 🆕 Managing resource systems, modifications, and change tracking
+- [Resource Management](workflows/resource-management.md) - Finding, organizing, and assigning resources  
+- [Project Setup](workflows/project-setup.md) - Setting up new projects with CChorus
+- [Agent Management](workflows/agent-management.md) - Creating and managing Claude Code agents
+
 ## 📖 Advanced Topics
 
 <!-- ADVANCED_TOPICS -->
