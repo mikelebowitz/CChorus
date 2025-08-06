@@ -22,6 +22,21 @@ export function ResourceAssignmentPanel({
   allProjects,
   onAssignmentChange 
 }: ResourceAssignmentPanelProps) {
+  // TODO: [UX Spec] Replace Checkbox with Switch component for project toggles
+  //       Reference: docs/ux.md - Section 4B specifies Switch for on/off control
+  //       Priority: High - Key UX consistency requirement
+  //       GitHub Issue: #77
+  
+  // TODO: [UX Spec] Add filter input at top of project list for large project sets
+  //       Reference: docs/ux.md - Section 4B Implementation Details specifies filter input
+  //       Priority: Medium - Essential for scalability with many projects
+  //       GitHub Issue: #81
+  
+  // TODO: [UX Spec] Implement scrollable container with max-height for project list
+  //       Reference: docs/ux.md - Section 4B specifies overflow-y: auto container
+  //       Priority: Low - UI polish for better space utilization
+  //       GitHub Issue: (Part of #81)
+  
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 

@@ -6,7 +6,20 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 
 ## 🔥 High Priority
 
-[... previous content remains the same ...]
+### UX Specification Implementation `[ready-for-branch: feature/ux-spec-implementation]`
+Based on `docs/ux.md` specification - VS Code-style interface enhancements
+
+#### High Priority UX Tasks
+- **Resizable panels** (#74) - Implement react-resizable-panels for VS Code-style layout
+- **Recursive tree navigation** (#75) - Build collapsible tree structure for Explorer Panel
+- **Dynamic Properties Panel** (#76) - Adapt content based on User vs Project resource scope
+- **Switch components for assignments** (#77) - Replace Checkbox with Switch for project toggles
+- **Enhanced Toast notifications** (#78) - Comprehensive feedback for all user actions
+
+#### Medium Priority UX Tasks
+- **Hover actions** (#79) - Add PlusCircle & RefreshCw buttons for resource management
+- **Enhanced search** (#80) - Resource type filtering and advanced search capabilities
+- **Project filter input** (#81) - Filter input for large project lists in assignments
 
 ### Backend Integration for Resource System Groupings `[ready-for-branch: feature/resource-system-backend]`
 - **API endpoint development** - Replace LocalStorage with proper backend persistence

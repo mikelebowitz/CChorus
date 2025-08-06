@@ -33,6 +33,11 @@ import MDEditor from '@uiw/react-md-editor';
 import { ResourceListItem, sortResourcesForDisplay } from './ResourceListItem';
 import { SystemToggleSwitch } from './SystemToggleSwitch';
 
+// TODO: [UX Spec] Implement resizable panels using react-resizable-panels for VS Code-style layout
+//       Reference: docs/ux.md - Section 1 & 5 specify resizable three-column layout
+//       Priority: High - Core layout enhancement for professional IDE experience
+//       GitHub Issue: #74
+
 // Navigation item types
 type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files' | 'systems';
 
@@ -83,7 +88,6 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
 
   const loadAllResourceCounts = async () => {
     try {
-      console.log('Loading all resource counts...');
       const allResourcesData = await ResourceDataService.fetchAllResources();
       
       // Combine all resources
@@ -260,6 +264,11 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
 
   const renderSidebar = () => (
     <div className="h-full flex flex-col bg-background border-r">
+      {/* TODO: [UX Spec] Add hover actions for resource creation and refresh
+       *       Reference: docs/ux.md - Section 5 specifies PlusCircle & RefreshCw hover buttons
+       *       Priority: Medium - Streamlines resource management actions
+       *       GitHub Issue: #79
+       */}
       {/* Sidebar Header */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-3">
@@ -275,6 +284,11 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
         </div>
         
         {/* Global Search */}
+        {/* TODO: [UX Spec] Enhance search with resource type filtering
+         *       Reference: docs/ux.md - Global filter should work across all resource types
+         *       Priority: Medium - Improves resource discovery workflow
+         *       GitHub Issue: #80
+         */}
         <div className="relative">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={14} />
           <Input
@@ -340,7 +354,7 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
               onProjectSelect={handleProjectSelect}
               onProjectEdit={(project, content) => {
                 // Handle project edit if needed
-                console.log('Project edited:', project.name);
+                // TODO: Handle project edit
               }}
               showEditor={false}
               layoutMode="list-only"

@@ -21,6 +21,16 @@ interface PropertiesPanelProps {
 }
 
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ selectedItem }) => {
+  // TODO: [UX Spec] Implement dynamic content adaptation based on resource scope
+  //       Reference: docs/ux.md - Section 4 specifies dynamic panel based on User vs Project scope
+  //       Priority: High - Core UX requirement for context-aware properties
+  //       GitHub Issue: #76
+  
+  // TODO: [UX Spec] Add Switch components for boolean settings
+  //       Reference: docs/ux.md - Section 4A specifies Switch for boolean properties
+  //       Priority: Medium - Improves property editing interface
+  //       GitHub Issue: (Part of #76)
+  
   if (!selectedItem) {
     return (
       <div className="w-80 border-l bg-muted/30 p-6 flex flex-col items-center justify-center text-muted-foreground">

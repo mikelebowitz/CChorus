@@ -574,6 +574,11 @@ export class ResourceDataService {
       
       localStorage.setItem(stateKey, 'enabled');
       
+      // TODO: [UX Spec] Show Toast notification when system is enabled/disabled
+      //       Reference: docs/ux.md - Section 6 workflow shows Toast feedback for all actions
+      //       Priority: High - User needs immediate confirmation of system state changes
+      //       GitHub Issue: #78
+      
       // TODO: Send to backend API
       // await fetch(`${this.BASE_URL}/systems/${systemId}/enable`, {
       //   method: 'POST',
@@ -645,7 +650,6 @@ export class ResourceDataService {
   ): Promise<boolean> {
     try {
       // TODO: Implement system resource update logic
-      console.log(`Updating system ${systemId} to version ${newVersion}`);
       return true;
     } catch (error) {
       console.error('Error updating system resources:', error);
@@ -659,7 +663,6 @@ export class ResourceDataService {
   static async detectOutdatedSystemResources(): Promise<ResourceItem[]> {
     try {
       // TODO: Implement outdated resource detection
-      console.log('Detecting outdated system resources');
       return [];
     } catch (error) {
       console.error('Error detecting outdated resources:', error);
