@@ -62,6 +62,11 @@ export interface ResourceChange {
   beforeContent?: string;
   afterContent: string;
   projectPath: string;
+  // TODO: Add additional change metadata fields
+  // parentChangeId?: string;     // For tracking change chains
+  // reviewStatus?: 'pending' | 'approved' | 'rejected';
+  // impactScore?: number;        // Estimated impact of change
+  // rollbackData?: any;          // Data needed for rollback
 }
 
 // System management interface
@@ -159,6 +164,8 @@ export class ResourceDataService {
       if (scope === 'settings') {
         // Instead of calling the problematic settings endpoint, return empty array for now
         // TODO: Implement proper user settings hooks discovery
+        // Need to parse ~/.claude/settings.json directly to find user-defined hooks
+        // This will enable full resource system detection for user-level customizations
         return [];
       }
       
@@ -406,6 +413,257 @@ export class ResourceDataService {
     } catch (error) {
       console.error('Error fetching resources by system:', error);
       return new Map();
+    }
+  }
+
+  /**
+   * Create a new resource modification with change tracking
+   */
+  static async createResourceModification(
+    resourceId: string,
+    projectPath: string,
+    reason: string,
+    content: string,
+    originalContent?: string
+  ): Promise<ResourceChange> {
+    try {
+      const change: ResourceChange = {
+        id: `change-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date(),
+        author: 'current-user', // TODO: Get from user context
+        reason,
+        changeType: 'modify',
+        beforeContent: originalContent,
+        afterContent: content,
+        projectPath
+      };
+
+      // Store change in local storage for now (TODO: implement proper persistence)
+      const changeKey = `resource_change_${resourceId}`;
+      const existingChanges = JSON.parse(localStorage.getItem(changeKey) || '[]');
+      existingChanges.push(change);
+      localStorage.setItem(changeKey, JSON.stringify(existingChanges));
+
+      // TODO: Send to backend API
+      // await fetch(`${this.BASE_URL}/resources/${resourceId}/changes`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(change)
+      // });
+
+      return change;
+    } catch (error) {
+      console.error('Error creating resource modification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the change history for a resource
+   */
+  static async getResourceHistory(resourceId: string): Promise<ResourceChange[]> {
+    try {
+      // Get from local storage for now (TODO: implement proper persistence)
+      const changeKey = `resource_change_${resourceId}`;
+      const changes = JSON.parse(localStorage.getItem(changeKey) || '[]');
+      
+      // Convert timestamp strings back to Date objects
+      return changes.map((change: any) => ({
+        ...change,
+        timestamp: new Date(change.timestamp)
+      }));
+    } catch (error) {
+      console.error('Error fetching resource history:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Revert a resource modification
+   */
+  static async revertResourceModification(
+    resourceId: string,
+    changeId: string
+  ): Promise<boolean> {
+    try {
+      const history = await this.getResourceHistory(resourceId);
+      const changeToRevert = history.find(change => change.id === changeId);
+      
+      if (!changeToRevert || !changeToRevert.beforeContent) {
+        throw new Error('Cannot revert: original content not available');
+      }
+
+      // Create a revert change entry
+      const revertChange: ResourceChange = {
+        id: `revert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date(),
+        author: 'current-user',
+        reason: `Reverted change: ${changeToRevert.reason}`,
+        changeType: 'restore',
+        beforeContent: changeToRevert.afterContent,
+        afterContent: changeToRevert.beforeContent,
+        projectPath: changeToRevert.projectPath
+      };
+
+      // Store revert change
+      const changeKey = `resource_change_${resourceId}`;
+      const existingChanges = JSON.parse(localStorage.getItem(changeKey) || '[]');
+      existingChanges.push(revertChange);
+      localStorage.setItem(changeKey, JSON.stringify(existingChanges));
+
+      // TODO: Apply revert to actual resource file
+      // TODO: Update resource in backend
+
+      return true;
+    } catch (error) {
+      console.error('Error reverting resource modification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Compare two versions of a resource
+   */
+  static async compareResourceVersions(
+    resourceId: string,
+    version1Content: string,
+    version2Content: string
+  ): Promise<{ added: string[]; removed: string[]; modified: string[] }> {
+    try {
+      // Simple line-by-line comparison (TODO: implement proper diff algorithm)
+      const lines1 = version1Content.split('\n');
+      const lines2 = version2Content.split('\n');
+      
+      const added: string[] = [];
+      const removed: string[] = [];
+      const modified: string[] = [];
+
+      const maxLines = Math.max(lines1.length, lines2.length);
+      
+      for (let i = 0; i < maxLines; i++) {
+        const line1 = lines1[i];
+        const line2 = lines2[i];
+        
+        if (line1 === undefined && line2 !== undefined) {
+          added.push(`${i + 1}: ${line2}`);
+        } else if (line1 !== undefined && line2 === undefined) {
+          removed.push(`${i + 1}: ${line1}`);
+        } else if (line1 !== line2) {
+          modified.push(`${i + 1}: "${line1}" → "${line2}"`);
+        }
+      }
+
+      return { added, removed, modified };
+    } catch (error) {
+      console.error('Error comparing resource versions:', error);
+      return { added: [], removed: [], modified: [] };
+    }
+  }
+
+  /**
+   * Enable a system and all its resources
+   */
+  static async enableSystem(
+    systemId: string,
+    projectPath?: string
+  ): Promise<boolean> {
+    try {
+      const stateKey = projectPath 
+        ? `system_state_${systemId}_${projectPath}` 
+        : `system_state_${systemId}_global`;
+      
+      localStorage.setItem(stateKey, 'enabled');
+      
+      // TODO: Send to backend API
+      // await fetch(`${this.BASE_URL}/systems/${systemId}/enable`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ projectPath })
+      // });
+
+      return true;
+    } catch (error) {
+      console.error('Error enabling system:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Disable a system and all its resources
+   */
+  static async disableSystem(
+    systemId: string,
+    projectPath?: string
+  ): Promise<boolean> {
+    try {
+      const stateKey = projectPath 
+        ? `system_state_${systemId}_${projectPath}` 
+        : `system_state_${systemId}_global`;
+      
+      localStorage.setItem(stateKey, 'disabled');
+      
+      // TODO: Send to backend API
+      // await fetch(`${this.BASE_URL}/systems/${systemId}/disable`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ projectPath })
+      // });
+
+      return true;
+    } catch (error) {
+      console.error('Error disabling system:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get the current state of a system (enabled/disabled)
+   */
+  static async getSystemState(
+    systemId: string,
+    projectPath?: string
+  ): Promise<boolean> {
+    try {
+      const stateKey = projectPath 
+        ? `system_state_${systemId}_${projectPath}` 
+        : `system_state_${systemId}_global`;
+      
+      const state = localStorage.getItem(stateKey);
+      return state !== 'disabled'; // Default to enabled if not set
+    } catch (error) {
+      console.error('Error getting system state:', error);
+      return true; // Default to enabled on error
+    }
+  }
+
+  /**
+   * Update system resources to a new version
+   */
+  static async updateSystemResources(
+    systemId: string,
+    newVersion: string
+  ): Promise<boolean> {
+    try {
+      // TODO: Implement system resource update logic
+      console.log(`Updating system ${systemId} to version ${newVersion}`);
+      return true;
+    } catch (error) {
+      console.error('Error updating system resources:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Detect outdated system resources
+   */
+  static async detectOutdatedSystemResources(): Promise<ResourceItem[]> {
+    try {
+      // TODO: Implement outdated resource detection
+      console.log('Detecting outdated system resources');
+      return [];
+    } catch (error) {
+      console.error('Error detecting outdated resources:', error);
+      return [];
     }
   }
 }

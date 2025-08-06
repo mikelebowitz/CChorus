@@ -351,7 +351,12 @@ export class SystemDetectionService {
         health,
         modifications: {
           total: modifiedResources.length,
-          byProject: new Map() // TODO: Implement project-based counting
+          // TODO: Implement project-based modification counting
+          // Track which projects have modified resources from this system
+          // This will enable cross-project change analysis and rollback capabilities
+          // Also add modification impact analysis and conflict detection
+          // Enable bulk rollback of modifications across projects
+          byProject: new Map()
         },
         isEditable: systemResources.some(r => r.isEditable)
       };
@@ -403,4 +408,19 @@ export class SystemDetectionService {
       return a.name.localeCompare(b.name);
     });
   }
+
+  /* TODO: Add advanced system detection features
+   * detectSystemDependencies(systemId) - Find resource dependencies
+   * validateSystemIntegrity(systemId) - Check for missing/corrupted resources
+   * suggestSystemUpdates() - Recommend updates based on usage patterns
+   * detectConflictingSystems() - Find systems that might conflict
+   * These will enhance system management capabilities
+   */
+
+  /* TODO: Implement smart system pattern learning
+   * learnNewSystemPatterns(resources) - ML-based pattern detection
+   * improveDetectionAccuracy() - Self-improving detection algorithms
+   * generateSystemSignatures() - Create unique fingerprints for systems
+   * These will make system detection more intelligent over time
+   */
 }

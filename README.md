@@ -26,6 +26,16 @@
 - **Enhanced Resource Management** - Seamless resource selection with persistent property display, bulk operations, and cross-project assignment capabilities
 - **Resource Assignment System** - Cross-project resource deployment with visual assignment tracking, copy/move operations, and deployment status monitoring
 
+### **🔧 Resource System Groupings & Management (NEW)**
+- **System-Aware Resource Organization** - Intelligent grouping of resources by source system (CCPlugins, Claude Flow, Built-in)
+- **Interactive System Toggle Controls** - Enable/disable entire resource systems with confirmation dialogs and impact warnings
+- **Resource Modification Workflow** - Professional modification interface with change tracking and reason documentation
+- **Change History & Rollback** - Complete audit trail with visual diff viewer and one-click rollback capabilities
+- **Context Menu Actions** - Right-click context menus for modify, view history, copy, and delete operations
+- **LocalStorage Persistence** - Client-side change tracking ready for seamless backend integration
+- **Project-Specific Customization** - System modifications scoped to individual projects while preserving originals
+- **Visual System Health Status** - System completion indicators (complete/partial/broken/customized) with resource counts
+
 ### **Enhanced Resource Management**
 - **Modern Visual Interface** - Clean, accessible interface with shadcn/ui components and professional styling
 - **Professional Theme System** - Light/dark theme switching with keyboard shortcuts (Ctrl/Cmd + T)
@@ -246,6 +256,7 @@ cchorus/
 │   │   │   ├── card.tsx    # Card layout components
 │   │   │   ├── input.tsx   # Form input components
 │   │   │   ├── toast.tsx   # Notification system
+│   │   │   ├── context-menu.tsx # ✅ NEW: Context menu components for resource actions
 │   │   │   └── ...         # Additional UI primitives
 │   │   ├── theme-provider.tsx      # Theme context and management
 │   │   ├── theme-toggle.tsx        # Theme switching component
@@ -257,6 +268,10 @@ cchorus/
 │   │   ├── ResourceLibrary.tsx     # ✅ Unified resource browser with filtering, search, and multi-selection
 │   │   ├── AssignmentManager.tsx   # ✅ Resource deployment system
 │   │   ├── ProjectManager.tsx      # ✅ Enhanced project discovery with streaming, caching, and preferences
+│   │   ├── ResourceModificationDialog.tsx # ✅ NEW: Professional resource modification interface
+│   │   ├── SystemToggleSwitch.tsx  # ✅ NEW: System enable/disable controls with confirmation
+│   │   ├── ChangeHistoryDialog.tsx # ✅ NEW: Change history viewer with diff and rollback
+│   │   ├── ResourceListItem.tsx    # ✅ ENHANCED: Resource display with context menu integration
 │   │   ├── AgentCard.tsx           # Individual agent display
 │   │   ├── AgentEditor.tsx         # Agent creation/editing form
 │   │   ├── FileBrowser.tsx         # File system browser
@@ -268,9 +283,10 @@ cchorus/
 │   ├── utils/              # Business logic utilities
 │   │   ├── agentUtils.ts         # Agent parsing and validation
 │   │   ├── apiFileSystem.ts      # API communication
-│   │   ├── resourceDataService.ts # ✅ Unified resource discovery service with concurrent API calls
+│   │   ├── resourceDataService.ts # ✅ ENHANCED: Unified resource discovery with system groupings and change tracking
 │   │   ├── resourceLibraryService.ts # ✅ Resource assignment operations with comprehensive deployment management
 │   │   ├── projectPreferencesService.ts # ✅ Project preferences management (archiving, favoriting, visibility)
+│   │   ├── systemDetectionService.ts # ✅ NEW: System detection and grouping service
 │   │   └── cacheService.ts       # ✅ Enhanced caching system with intelligent invalidation
 │   ├── types.ts            # TypeScript type definitions
 │   ├── App.tsx             # Main application with theme provider
@@ -354,9 +370,10 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 > **📋 For complete project roadmap, future work, and detailed planning, see [BACKLOG.md](./BACKLOG.md)**
 > **📈 For development workflow and process enforcement, see [PROCESS.md](./PROCESS.md)**
 
-### Current Status (August 2025) - Version 2.0.0
+### Current Status (August 2025) - Version 3.2.0
 - ✅ **Backend Infrastructure** (100% complete) - Comprehensive API endpoints with streaming support, resource assignment, and enhanced GitHub integration
 - ✅ **Professional 3-Column UI Architecture** (100% complete) - Linear-style interface with real resource data integration and persistent properties panel
+- ✅ **Resource System Groupings** (90% complete) - System detection, modification workflows, change tracking, and rollback capabilities with LocalStorage persistence
 - ✅ **Resource Assignment System** (100% complete) - Cross-project deployment with ResourceAssignmentPanel, copy/move operations, and visual tracking
 - ✅ **Core Resource Management** (100% complete) - Resource Library with filtering/search, Assignment Manager, Project Manager with streaming discovery and caching
 - ✅ **Advanced Resource Discovery** (100% complete) - System-wide scanning with intelligent deduplication, performance optimization, and real-time updates
@@ -365,9 +382,10 @@ CChorus attempts to automatically detect MCP servers from your Claude Desktop co
 - ✅ **Developer Workflow System** (100% complete) - Session hooks, file watching, task validation, quality gates, and real-time dashboard
 
 ### What's Next
-- Enhanced resource editing capabilities within 3-column layout
-- Performance optimization and scalability improvements
-- Community features and resource sharing platform research
+- **Backend Integration** - Connect resource system groupings to backend API (currently using LocalStorage)
+- **Advanced Diff Viewer** - Enhanced visual diff interface for change comparison
+- **System Templates** - Resource templates and scaffolding for new systems
+- **Community Features** - Resource sharing platform research and implementation
 
 ---
 

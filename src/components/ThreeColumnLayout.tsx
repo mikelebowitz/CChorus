@@ -31,6 +31,7 @@ import { ClaudeProject } from '../types';
 import { ResourceDataService, ResourceItem, AgentResource } from '../utils/resourceDataService';
 import MDEditor from '@uiw/react-md-editor';
 import { ResourceListItem, sortResourcesForDisplay } from './ResourceListItem';
+import { SystemToggleSwitch } from './SystemToggleSwitch';
 
 // Navigation item types
 type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files' | 'systems';
@@ -417,6 +418,12 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
                               {system.modifications.total} modified
                             </span>
                           )}
+                          {/* TODO: Add system enable/disable toggle functionality
+                           * Allow users to enable/disable entire systems with one click
+                           * When disabled, grey out all system resources and mark them as inactive
+                           * Update system health status based on enabled/disabled state
+                           * Persist system preferences in user settings
+                           */}
                         </div>
                       </div>
                       
@@ -425,11 +432,20 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
                         {system.version && (
                           <span className="text-blue-600">v{system.version}</span>
                         )}
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          system.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                        }`}>
-                          {system.enabled ? 'Enabled' : 'Disabled'}
-                        </span>
+                        <SystemToggleSwitch
+                          systemId={system.id}
+                          systemName={system.name}
+                          initialEnabled={system.enabled}
+                          resourceCount={system.resources.counts.total}
+                          onToggle={(enabled) => {
+                            // Update system state in local state
+                            setSystems(prevSystems => 
+                              prevSystems.map(s => 
+                                s.id === system.id ? { ...s, enabled } : s
+                              )
+                            );
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -492,6 +508,22 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
                       index={i}
                       isSelected={selectedResource?.id === resource.id}
                       onClick={() => setSelectedResource(resource)}
+                      projectPath={selectedProject?.path || '/current/project'}
+                      onResourceModified={(modifiedResource) => {
+                        // Update the resource in the list
+                        setResources(prevResources => 
+                          prevResources.map(r => 
+                            r.id === modifiedResource.id ? modifiedResource : r
+                          )
+                        );
+                        
+                        // Update all resources too
+                        setAllResources(prevResources => 
+                          prevResources.map(r => 
+                            r.id === modifiedResource.id ? modifiedResource : r
+                          )
+                        );
+                      }}
                     />
                   ))
                 ) : (

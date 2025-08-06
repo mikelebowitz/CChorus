@@ -2,7 +2,7 @@
 
 ## 🔔 REAL-TIME: Documentation Update Needed
 
-**Auto-detected by file watcher at 2025-08-05 10:55:52**
+**Auto-detected by file watcher at 2025-08-05 22:18:52**
 
 **Files Changed**: 5 files
 **Priority**: MEDIUM
@@ -15,11 +15,11 @@
 ```
 
 **Changed Files**:
-- ThreeColumnLayout.tsx.tmp.89687.1754405696143
-- ThreeColumnLayout.tsx.tmp.89687.1754405752414
-- ThreeColumnLayout.tsx
-- ThreeColumnLayout.tsx.tmp.89687.1754405721892
-- ThreeColumnLayout.tsx.tmp.89687.1754405706823
+- ResourceListItem.tsx.tmp.89687.1754429662214
+- ChangeHistoryDialog.tsx.tmp.89687.1754429648683
+- CLAUDE.md
+- ResourceListItem.tsx
+- ChangeHistoryDialog.tsx
 
 
 **Trigger Files**: 
@@ -51,12 +51,27 @@
 
 
 
-**Generated**: 2025-08-05 10:31
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**Generated**: 2025-08-05 11:00
 **Project**: CChorus - Claude Code Resource Management Platform
 
 ## 🚀 Quick Resume
 
-**Branch**: main
+**Branch**: feature/resource-system-groupings
 **Last Activity**: August 05, 2025
 
 ## 🖥️ MANDATORY: Development Server Commands
@@ -101,27 +116,14 @@ Check `docs/sessions/` for the latest session summary with detailed context.
 ## 📂 Git Status Summary
 
 ```
- M .claude/cchorus.db-shm
- M .claude/cchorus.db-wal
  M .claude/compact-tracking.json
  M .claude/doc-update-needed.trigger
  M .claude/pending-agent-invocations.json
- M .claude/token-usage.json
- M BACKLOG.md
- M CHANGELOG.md
- M CLAUDE.md
  M NEXT_SESSION.md
- M README.md
- M docs/developer/components/ProjectManager.md
- M docs/developer/components/ThreeColumnLayout.md
- M src/components/PropertiesPanel.tsx
- M src/components/ThreeColumnLayout.tsx
  M src/utils/resourceDataService.ts
-?? docs/developer/services/ResourceLibraryService.md
-?? docs/sessions/SESSION_2025-08-05_10-31.md
-?? docs/sessions/SESSION_2025-08-05_10-31_CCHORUS.md
-?? src/components/ui/alert.tsx
-?? src/components/ui/error-boundary.tsx
+ M src/utils/systemDetectionService.ts
+?? docs/sessions/SESSION_2025-08-05_11-00.md
+?? docs/sessions/SESSION_2025-08-05_11-00_CCHORUS.md
 
 ```
 

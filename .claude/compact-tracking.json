@@ -1,12 +1,11 @@
 {
   "lastEvent": {
-    "type": "compact",
-    "timestamp": "2025-08-05T14:33:44.171Z",
-    "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
-    "totalTokensAtEvent": 60900,
-    "trigger": "compaction",
-    "processed": false,
-    "formattedTime": "10:33:44 am"
+    "type": "clear",
+    "timestamp": "2025-08-06T02:18:56.017Z",
+    "sessionId": "session-281.489222334",
+    "totalTokensAtEvent": 68900,
+    "trigger": "session-change",
+    "formattedTime": "10:18:56 pm"
   },
   "eventHistory": [
     {
@@ -64,13 +63,38 @@
       "totalTokensAtEvent": 52900,
       "trigger": "session-change",
       "formattedTime": "10:18:49 am"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-05T14:33:44.171Z",
+      "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
+      "totalTokensAtEvent": 60900,
+      "trigger": "compaction",
+      "processed": false,
+      "formattedTime": "10:33:44 am"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-05T11:00:17.528263",
+      "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
+      "totalTokensAtEvent": 60900,
+      "trigger": "auto",
+      "formattedTime": "11:00:17am"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-05T15:02:24.599Z",
+      "sessionId": "session-36.491043667",
+      "totalTokensAtEvent": 60900,
+      "trigger": "session-change",
+      "formattedTime": "11:02:24 am"
     }
   ],
   "currentSession": {
-    "sessionId": "b88f2c61-10e9-4f2c-9760-4779dcf282fe",
-    "compactsThisSession": 2,
-    "sessionStartTime": "2025-08-05T14:33:44.172Z",
+    "sessionId": "session-281.489222334",
+    "compactsThisSession": 0,
+    "sessionStartTime": "2025-08-06T02:18:56.017Z",
     "tokensSinceLastEvent": 0
   },
-  "lastCompactionCheck": 1754404424171
+  "lastCompactionCheck": 1754446725591
 }
