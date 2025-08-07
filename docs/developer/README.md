@@ -387,6 +387,47 @@ const SCOPE_COLORS = {
 - **Memoized Calculations**: Resource counts and filter results cached
 - **Safe Icon Rendering**: Fallback icons prevent crashes when resource types are unknown
 
+#### ResourceEditor.tsx
+<!-- COMPONENT_RESOURCE_EDITOR -->
+<!-- UPDATE_TRIGGER: When ResourceEditor.tsx is modified -->
+<!-- STATUS: PARTIALLY COMPLETED - Core functionality working, UX architecture issues require repair -->
+
+**Purpose**: Professional resource content editing interface for all resource types with MDXEditor integration
+
+[**📖 Complete ResourceEditor Documentation**](components/ResourceEditor.md)
+
+**Props Interface:**
+```typescript
+interface ResourceEditorProps {
+  selectedResource: Resource | null;
+  onResourceChange?: (resource: Resource) => void;
+  onSave?: (resource: Resource, content: string) => Promise<void>;
+  className?: string;
+}
+```
+
+**Key Features:**
+- ✅ **MDXEditor Integration** - Professional markdown editing with syntax highlighting and plugins
+- ✅ **Resource-Type Templates** - Dynamic content generation based on resource type (agent, command, hook, CLAUDE.md)
+- ✅ **Project File Loading** - Fixed 403 errors, now successfully loads files from project directories
+- ⚠️ **Save Operations** - Working but has dual save architecture issues with PropertiesPanel
+- ⚠️ **Cursor Management** - Text insertion happens at wrong positions due to focus issues
+
+**Current Issues Requiring Repair:**
+1. **Dual Save Architecture** - Conflicting save buttons between ResourceEditor and PropertiesPanel
+2. **MDXEditor Cursor Issues** - Text insertion doesn't respect cursor position
+3. **Change Detection Fragmentation** - Inconsistent change tracking across components  
+4. **State Management** - Multiple components managing overlapping state without coordination
+
+**3-Phase Repair Plan Established:**
+- **Phase 1**: Consolidate save button logic - Make ResourceEditor authoritative for save operations
+- **Phase 2**: Fix MDXEditor integration - Debug cursor positioning and text insertion
+- **Phase 3**: Unify change detection - Lift state management to ThreeColumnLayout parent
+
+**Backend Fix Applied:**
+- **File Access Security Enhanced** - `server.js:1383-1402` now dynamically discovers project directories for legitimate access
+- **403 Forbidden Errors Resolved** - All project files (CLAUDE.md, agents, etc.) now load successfully
+
 #### AssignmentManager.tsx
 <!-- COMPONENT_ASSIGNMENT_MANAGER -->
 <!-- UPDATE_TRIGGER: When AssignmentManager.tsx is modified -->

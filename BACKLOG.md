@@ -1,6 +1,6 @@
 # CChorus Development Backlog
 
-Last Updated: August 6, 2025
+Last Updated: August 7, 2025
 
 This document tracks all planned work, ideas, and research items for CChorus. Items are automatically synchronized with GitHub Issues and updated during development sessions.
 
@@ -22,6 +22,32 @@ This document tracks all planned work, ideas, and research items for CChorus. It
 - **Hover actions** (#79) - ✅ COMPLETED: Added PlusCircle & RefreshCw buttons for resource management
 - **Enhanced search** (#80) - Resource type filtering and advanced search capabilities  
 - **Project filter input** (#81) - ✅ COMPLETED: Filter input implemented for project assignments
+
+### ResourceEditor Architecture Repair `[ready-for-branch: feature/resource-editor-repair]`
+**CRITICAL: Professional resource editing requires comprehensive architectural fixes**
+
+#### Phase 1: Consolidate Save Button Logic `[HIGH PRIORITY]`
+- **Remove duplicate save functionality** - Eliminate conflicting save buttons between ResourceEditor and PropertiesPanel
+- **Single source of truth** - Make ResourceEditor the authoritative save interface for all content editing
+- **State coordination** - Update ThreeColumnLayout to bridge change state between ResourceEditor and PropertiesPanel
+- **Unified change detection** - Implement consistent change tracking across all editing components
+
+#### Phase 2: Fix MDXEditor Integration `[HIGH PRIORITY]`  
+- **Cursor positioning issues** - Debug and fix text insertion happening at wrong positions
+- **Focus management** - Implement proper focus handling after content loads and editor interactions
+- **Text insertion workflow** - Ensure templates and content insert at cursor location correctly
+- **Editor state management** - Fix content loading and cursor restoration issues
+
+#### Phase 3: Unify Change Detection `[MEDIUM PRIORITY]`
+- **Lift change state management** - Move hasChanges state to ThreeColumnLayout parent component  
+- **Synchronize save operations** - Ensure all components reflect consistent save states
+- **Change event propagation** - Implement proper change flow from MDXEditor through component hierarchy
+- **Cross-component coordination** - Fix state synchronization issues between editing components
+
+**Status**: 
+- ✅ **403 Forbidden errors resolved** - Backend security enhanced for project file access
+- ✅ **Issue analysis complete** - Comprehensive UX issues identified and documented
+- 🔧 **Repair plan established** - 3-phase architectural fix strategy ready for implementation
 
 ### Backend Integration for Resource System Groupings `[ready-for-branch: feature/resource-system-backend]`
 - **API endpoint development** - Replace LocalStorage with proper backend persistence

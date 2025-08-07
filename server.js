@@ -1380,9 +1380,24 @@ app.post('/api/files/read', async (req, res) => {
     const cwd = process.cwd();
     const userHome = os.homedir();
     
-    // Security check: only allow reading files within project or user .claude directory
-    if (!fullPath.startsWith(cwd) && 
-        !fullPath.startsWith(path.join(userHome, '.claude'))) {
+    // Get discovered project paths to allow reading project files
+    let allowedPaths = [cwd, path.join(userHome, '.claude')];
+    
+    try {
+      // Add discovered project directories to allowed paths
+      const projectFiles = await scanClaudeProjectsArray([userHome]);
+      const projectPaths = projectFiles.map(p => path.dirname(p.file)); // Get directory of CLAUDE.md files
+      allowedPaths = [...allowedPaths, ...projectPaths];
+    } catch (error) {
+      console.warn('Could not scan projects for file access check:', error.message);
+    }
+    
+    // Security check: only allow reading files within allowed directories
+    const isAllowed = allowedPaths.some(allowedPath => fullPath.startsWith(allowedPath));
+    
+    if (!isAllowed) {
+      console.log('Access denied for path:', fullPath);
+      console.log('Allowed paths:', allowedPaths);
       return res.status(403).json({ error: 'Access denied' });
     }
     
