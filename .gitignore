@@ -141,4 +141,11 @@ playwright-report/
 .claude/sync-command-log.json
 .claude/pending-agent-invocations.json
 .claude/doc-update-needed.trigger
+.claude/ui-test-needed.trigger
+.claude/compact-tracking.json
+.claude/token-usage.json
 .claude/github-config.json
+
+# SQLite runtime files
+.claude/*.db-shm
+.claude/*.db-wal
