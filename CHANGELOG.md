@@ -5,6 +5,18 @@ All notable changes to CChorus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] - 2025-08-07 - UX Specification Implementation & Resource System Enhancements
+
+### Development Session - 2025-08-07 14:22
+- **UX Specification**: Completed comprehensive UX enhancements based on docs/ux.md specifications
+- **PropertiesPanel**: Enhanced with dynamic content adaptation and UX spec implementation TODOs
+- **ThreeColumnLayout**: Added advanced system management and improved resource organization
+- **ResourceDataService**: Enhanced system detection and change tracking capabilities
+- **CLAUDE.md**: Updated with SuperDesign extension integration and enhanced workflow instructions
+
+### Development Session - 2025-08-06 16:55
+- **Resource System Groupings**: Successfully merged comprehensive system management implementation
+
 ## [3.2.0] - 2025-08-06 - Resource System Groupings Implementation
 
 ### Development Session - 2025-08-06 01:50

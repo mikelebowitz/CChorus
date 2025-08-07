@@ -2,7 +2,15 @@
 
 ## Overview
 
-The Resource System Groupings implementation transforms CChorus from a visual-only resource browser (45% complete) to a fully functional resource management system (90% complete). This comprehensive feature introduces system-aware resource organization, modification workflows, change tracking, and rollback capabilities.
+The Resource System Groupings implementation transforms CChorus from a visual-only resource browser (45% complete) to a fully functional resource management system (95% complete). This comprehensive feature introduces system-aware resource organization, modification workflows, change tracking, and rollback capabilities with recent UX specification enhancements.
+
+## Recent Updates (v3.2.1 - 2025-08-07)
+
+- **UX Specification Integration**: Implemented comprehensive UX enhancements based on docs/ux.md
+- **PropertiesPanel Enhancement**: Added dynamic content adaptation with UX spec implementation TODOs
+- **ThreeColumnLayout Improvements**: Enhanced system management integration and professional interface elements
+- **ResourceDataService Enhancements**: Improved system detection and change tracking capabilities
+- **Context Menu Integration**: Enhanced ResourceListItem with context menu actions for modify/history/copy/delete operations
 
 ## Architecture
 
