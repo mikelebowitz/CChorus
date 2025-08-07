@@ -1,11 +1,11 @@
 {
   "lastEvent": {
     "type": "clear",
-    "timestamp": "2025-08-06T20:37:27.467Z",
-    "sessionId": "session-311.206472208",
-    "totalTokensAtEvent": 76900,
+    "timestamp": "2025-08-07T02:33:59.855Z",
+    "sessionId": "session-226.4149175",
+    "totalTokensAtEvent": 100900,
     "trigger": "session-change",
-    "formattedTime": "04:37:27 pm"
+    "formattedTime": "10:33:59 pm"
   },
   "eventHistory": [
     {
@@ -105,13 +105,61 @@
       "trigger": "compaction",
       "processed": false,
       "formattedTime": "01:51:59 am"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-06T20:37:27.467Z",
+      "sessionId": "session-311.206472208",
+      "totalTokensAtEvent": 76900,
+      "trigger": "session-change",
+      "formattedTime": "04:37:27 pm"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-06T16:55:53.013152",
+      "sessionId": "1edb71ba-a892-458f-8fc0-fadd5e5aa6d9",
+      "totalTokensAtEvent": 84900,
+      "trigger": "auto",
+      "formattedTime": "04:55:53pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-06T21:06:11.095Z",
+      "sessionId": "session-526.666310125",
+      "totalTokensAtEvent": 84900,
+      "trigger": "session-change",
+      "formattedTime": "05:06:11 pm"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-06T17:19:00.274542",
+      "sessionId": "1edb71ba-a892-458f-8fc0-fadd5e5aa6d9",
+      "totalTokensAtEvent": 92900,
+      "trigger": "auto",
+      "formattedTime": "05:19:00pm"
+    },
+    {
+      "type": "clear",
+      "timestamp": "2025-08-06T21:20:47.129Z",
+      "sessionId": "session-26.02543975",
+      "totalTokensAtEvent": 92900,
+      "trigger": "session-change",
+      "formattedTime": "05:20:47 pm"
+    },
+    {
+      "type": "compact",
+      "timestamp": "2025-08-06T22:28:08.846409",
+      "sessionId": "1edb71ba-a892-458f-8fc0-fadd5e5aa6d9",
+      "totalTokensAtEvent": 100900,
+      "trigger": "auto",
+      "formattedTime": "10:28:08pm"
     }
   ],
   "currentSession": {
-    "sessionId": "session-311.206472208",
+    "sessionId": "session-226.4149175",
     "compactsThisSession": 0,
-    "sessionStartTime": "2025-08-06T20:37:27.467Z",
+    "sessionStartTime": "2025-08-07T02:33:59.855Z",
     "tokensSinceLastEvent": 0
   },
-  "lastCompactionCheck": 1754512607005
+  "lastCompactionCheck": 1754534024539
 }

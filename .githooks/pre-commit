@@ -1,0 +1,20 @@
+#!/bin/bash
+# CChorus Pre-Commit Hook
+# Automatically triggers UI testing when UI-related files are modified
+
+echo "🔍 CChorus Pre-Commit Hook - Checking for UI changes..."
+
+# Run the UI change detection script
+python3 .claude/hooks/pre-ui-change.py
+
+# Get the exit code
+UI_HOOK_EXIT_CODE=$?
+
+if [ $UI_HOOK_EXIT_CODE -eq 0 ]; then
+    echo "✅ Pre-commit checks completed successfully"
+    exit 0
+else
+    echo "❌ Pre-commit hook failed - check UI testing setup"
+    echo "   You can still commit with: git commit --no-verify"
+    exit $UI_HOOK_EXIT_CODE
+fi

@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { AlertTriangle, Power, PowerOff } from 'lucide-react';
 import { ResourceDataService } from '../utils/resourceDataService';
+import { useToast } from '../hooks/use-toast';
 
 interface SystemToggleSwitchProps {
   systemId: string;
@@ -28,6 +29,7 @@ export function SystemToggleSwitch({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingEnabled, setPendingEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleToggleClick = (newEnabled: boolean) => {
     // If disabling a system, show confirmation dialog
@@ -54,9 +56,21 @@ export function SystemToggleSwitch({
       setEnabled(pendingEnabled);
       onToggle?.(pendingEnabled);
       setShowConfirmDialog(false);
+
+      // ✅ [UX Spec] Show Toast notification when system is enabled/disabled
+      //    Reference: docs/ux.md - Section 6 workflow shows Toast feedback for all actions
+      //    GitHub Issue: #78 - COMPLETED
+      toast({
+        title: `✅ System ${pendingEnabled ? 'Enabled' : 'Disabled'}`,
+        description: `${systemName} has been ${pendingEnabled ? 'enabled' : 'disabled'}. ${resourceCount} resources ${pendingEnabled ? 'are now active' : 'have been deactivated'}.`,
+      });
     } catch (error) {
       console.error('Error toggling system:', error);
-      // TODO: Show error toast
+      toast({
+        title: 'System Toggle Failed',
+        description: `Failed to ${pendingEnabled ? 'enable' : 'disable'} ${systemName}. ${error instanceof Error ? error.message : 'Unknown error occurred.'}`,
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
