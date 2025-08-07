@@ -1,5 +1,38 @@
 # CChorus Next Session Brief
 
+## 🔔 REAL-TIME: Documentation Update Needed
+
+**Auto-detected by file watcher at 2025-08-07 13:55:16**
+
+**Files Changed**: 2 files
+**Priority**: MEDIUM
+
+```bash
+# IMMEDIATE ACTION REQUIRED:
+@documentation-manager please update documentation for recent file changes
+# After completion:
+@gitops-workflow-manager please commit and push changes
+```
+
+**Changed Files**:
+- ResourceEditor.tsx.tmp.46518.1754589316862
+- server.js
+
+
+**Trigger Files**: 
+- `.claude/doc-update-needed.trigger`
+- `.claude/pending-agent-invocations.json`
+
+---
+
+
+
+
+
+
+
+
+
 **Generated**: 2025-08-07 12:09
 **Project**: CChorus - Claude Code Resource Management Platform
 

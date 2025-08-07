@@ -6,7 +6,6 @@ import { Alert, AlertDescription } from './ui/alert';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { 
-  User, 
   FolderOpen, 
   Bot, 
   Terminal, 
@@ -42,14 +41,22 @@ import { SystemToggleSwitch } from './SystemToggleSwitch';
 //    GitHub Issue: #74 - COMPLETED
 
 // Navigation item types
-type NavItemType = 'users' | 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files' | 'systems';
+type NavItemType = 'projects' | 'agents' | 'commands' | 'hooks' | 'claude-files' | 'systems';
 
 interface NavItem {
   id: NavItemType;
   label: string;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: any;
   count?: number;
   expanded?: boolean;
+}
+
+interface NavSection {
+  id: string;
+  label: string;
+  icon: any;
+  expanded?: boolean;
+  items: NavItem[];
 }
 
 interface ThreeColumnLayoutProps {
@@ -156,22 +163,6 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
       return;
     }
 
-    if (navItem === 'users') {
-      // Users section loads only user-level resources
-      setLoading(true);
-      setError(null);
-      try {
-        const { userLevel } = await ResourceDataService.fetchUserResources();
-        setResources(userLevel);
-      } catch (error) {
-        console.error('Error loading user resources:', error);
-        setError('Failed to load user resources');
-        setResources([]);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
 
     if (navItem === 'systems') {
       // Systems section is handled differently - just clear resources
@@ -235,15 +226,30 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
     }
   };
 
-  // Navigation structure with dynamic counts
-  const navItems: NavItem[] = [
-    { id: 'users', label: 'Users', icon: User, count: 1 },
-    { id: 'projects', label: 'Projects', icon: FolderOpen, count: 5, expanded: true },
-    { id: 'systems', label: 'Systems', icon: Package, count: resourceCounts.systems },
-    { id: 'agents', label: 'Agents', icon: Bot, count: resourceCounts.agents },
-    { id: 'commands', label: 'Commands', icon: Terminal, count: resourceCounts.commands },
-    { id: 'hooks', label: 'Hooks', icon: Webhook, count: resourceCounts.hooks },
-    { id: 'claude-files', label: 'CLAUDE.md', icon: FileText, count: resourceCounts['claude-files'] },
+  // Navigation structure organized into sections
+  const navSections: NavSection[] = [
+    {
+      id: 'projects-section',
+      label: 'Projects',
+      icon: FolderOpen,
+      expanded: true,
+      items: [
+        { id: 'projects', label: 'All Projects', icon: FolderOpen, count: 5 },
+      ]
+    },
+    {
+      id: 'library-section', 
+      label: 'Resource Library',
+      icon: Package,
+      expanded: true,
+      items: [
+        { id: 'agents', label: 'Agents', icon: Bot, count: resourceCounts.agents },
+        { id: 'commands', label: 'Commands', icon: Terminal, count: resourceCounts.commands },
+        { id: 'hooks', label: 'Hooks', icon: Webhook, count: resourceCounts.hooks },
+        { id: 'claude-files', label: 'CLAUDE.md Files', icon: FileText, count: resourceCounts['claude-files'] },
+        { id: 'systems', label: 'Groups', icon: Package, count: resourceCounts.systems },
+      ]
+    }
   ];
 
   const handleNavItemClick = (itemId: NavItemType) => {
@@ -317,157 +323,189 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
         </div>
       </div>
 
-      {/* Navigation Items - Tree Structure with Collapsible Items */}
+      {/* Navigation Items - Sectioned Structure with Collapsible Groups */}
       <div className="flex-1 overflow-y-auto p-2">
-        <div className="space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isSelected = selectedNavItem === item.id;
-            const isExpanded = expandedNavItems.has(item.id);
-            const hasSubItems = ['projects', 'systems'].includes(item.id); // Items that can have sub-navigation
+        <div className="space-y-3">
+          {navSections.map((section) => {
+            const SectionIcon = section.icon;
+            const isSectionExpanded = expandedNavItems.has(section.id as any);
             
             return (
-              <Collapsible key={item.id} open={isExpanded} onOpenChange={() => toggleNavItemExpanded(item.id)}>
-                <div className="group relative">
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant={isSelected ? "secondary" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-start h-9 ${isSelected ? 'bg-muted' : ''} hover:bg-muted/50`}
-                      onClick={(e) => {
-                        if (!hasSubItems) {
-                          e.stopPropagation();
-                          handleNavItemClick(item.id);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          {hasSubItems && (
-                            isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
-                          )}
-                          <Icon size={16} />
-                          <span className="text-sm">{item.label}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {item.count !== undefined && (
-                            <span className="text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded">
-                              {item.count}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </Button>
+              <div key={section.id}>
+                {/* Section Header */}
+                <Collapsible>
+                  <CollapsibleTrigger
+                    onClick={() => toggleNavItemExpanded(section.id as any)}
+                    className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <SectionIcon size={16} />
+                      <span className="font-medium">{section.label}</span>
+                    </div>
+                    {isSectionExpanded ? (
+                      <ChevronDown size={14} />
+                    ) : (
+                      <ChevronRight size={14} />
+                    )}
                   </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="ml-4 mt-1">
+                    <div className="space-y-1">
+                      {section.items.map((item) => {
+                        const ItemIcon = item.icon;
+                        const isSelected = selectedNavItem === item.id;
+                        const isExpanded = expandedNavItems.has(item.id);
+                        const hasSubItems = ['projects', 'systems'].includes(item.id);
+            
+                        return (
+                          <Collapsible key={item.id} open={isExpanded} onOpenChange={() => toggleNavItemExpanded(item.id)}>
+                            <div className="group relative">
+                              <CollapsibleTrigger asChild>
+                                <Button
+                                  variant={isSelected ? "secondary" : "ghost"}
+                                  size="sm"
+                                  className={`w-full justify-start h-9 ${isSelected ? 'bg-muted' : ''} hover:bg-muted/50`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleNavItemClick(item.id);
+                                    if (hasSubItems && !isExpanded) {
+                                      toggleNavItemExpanded(item.id);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center gap-2">
+                                      {hasSubItems && (
+                                        isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+                                      )}
+                                      <ItemIcon size={16} />
+                                      <span className="text-sm">{item.label}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      {item.count !== undefined && (
+                                        <span className="text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded">
+                                          {item.count}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </Button>
+                              </CollapsibleTrigger>
 
-                  {/* ✅ [UX Spec] Hover actions for resource creation and refresh */}
-                  {/*    Reference: docs/ux.md - Section 5 specifies PlusCircle & RefreshCw hover buttons */}
-                  {/*    GitHub Issue: #79 - COMPLETED */}
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 hover:bg-primary/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Implement resource creation for this type
-                        console.log(`Create new ${item.id}`);
-                      }}
-                      title={`Create new ${item.label.toLowerCase()}`}
-                    >
-                      <Plus size={12} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 hover:bg-primary/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        loadResourcesForNavItem(item.id);
-                      }}
-                      title={`Refresh ${item.label.toLowerCase()}`}
-                    >
-                      <RotateCcw size={12} />
-                    </Button>
-                  </div>
-                </div>
-
-                {hasSubItems && (
-                  <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                    {/* Projects Sub-navigation */}
-                    {item.id === 'projects' && (
-                      <div className="space-y-1">
-                        {projects.slice(0, 5).map((project) => (
-                          <Button
-                            key={project.path}
-                            variant={selectedProject?.path === project.path ? "secondary" : "ghost"}
-                            size="sm"
-                            className={`w-full justify-start h-7 pl-6 text-xs ${
-                              selectedProject?.path === project.path ? 'bg-muted' : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedNavItem('projects');
-                              handleProjectSelect(project);
-                            }}
-                          >
-                            <FolderOpen size={12} className="mr-2" />
-                            {project.name}
-                          </Button>
-                        ))}
-                        {projects.length > 5 && (
-                          <div className="text-xs text-muted-foreground pl-6 py-1">
-                            +{projects.length - 5} more projects
-                          </div>
-                        )}
-                        {projects.length === 0 && (
-                          <div className="text-xs text-muted-foreground pl-6 py-1">
-                            No projects found
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Systems Sub-navigation */}
-                    {item.id === 'systems' && (
-                      <div className="space-y-1">
-                        {systems.slice(0, 5).map((system) => (
-                          <Button
-                            key={system.id}
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start h-7 pl-6 text-xs"
-                            onClick={() => {
-                              setSelectedNavItem('systems');
-                              // TODO: Handle system selection
-                              console.log('System selected:', system.name);
-                            }}
-                          >
-                            <div className="flex items-center gap-2 flex-1">
-                              <Package size={12} />
-                              <span>{system.name}</span>
-                              <div className={`w-1.5 h-1.5 rounded-full ml-auto ${
-                                system.health === 'complete' ? 'bg-green-500' :
-                                system.health === 'customized' ? 'bg-orange-500' : 
-                                system.health === 'partial' ? 'bg-yellow-500' : 'bg-red-500'
-                              }`} />
+                              {/* ✅ [UX Spec] Hover actions for resource creation and refresh */}
+                              {/*    Reference: docs/ux.md - Section 5 specifies PlusCircle & RefreshCw hover buttons */}
+                              {/*    GitHub Issue: #79 - COMPLETED */}
+                              <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 hover:bg-primary/10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // TODO: Implement resource creation for this type
+                                    console.log(`Create new ${item.id}`);
+                                  }}
+                                  title={`Create new ${item.label.toLowerCase()}`}
+                                >
+                                  <Plus size={12} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 hover:bg-primary/10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    loadResourcesForNavItem(item.id);
+                                  }}
+                                  title={`Refresh ${item.label.toLowerCase()}`}
+                                >
+                                  <RotateCcw size={12} />
+                                </Button>
+                              </div>
                             </div>
-                          </Button>
-                        ))}
-                        {systems.length > 5 && (
-                          <div className="text-xs text-muted-foreground pl-6 py-1">
-                            +{systems.length - 5} more systems
-                          </div>
-                        )}
-                        {systems.length === 0 && (
-                          <div className="text-xs text-muted-foreground pl-6 py-1">
-                            No systems detected
-                          </div>
-                        )}
-                      </div>
-                    )}
+
+                            {hasSubItems && (
+                              <CollapsibleContent className="ml-4 mt-1 space-y-1">
+                                {/* Projects Sub-navigation */}
+                                {item.id === 'projects' && (
+                                  <div className="space-y-1">
+                                    {projects.slice(0, 5).map((project) => (
+                                      <Button
+                                        key={project.path}
+                                        variant={selectedProject?.path === project.path ? "secondary" : "ghost"}
+                                        size="sm"
+                                        className={`w-full justify-start h-7 pl-6 text-xs ${
+                                          selectedProject?.path === project.path ? 'bg-muted' : ''
+                                        }`}
+                                        onClick={() => {
+                                          setSelectedNavItem('projects');
+                                          handleProjectSelect(project);
+                                        }}
+                                      >
+                                        <FolderOpen size={12} className="mr-2" />
+                                        {project.name}
+                                      </Button>
+                                    ))}
+                                    {projects.length > 5 && (
+                                      <div className="text-xs text-muted-foreground pl-6 py-1">
+                                        +{projects.length - 5} more projects
+                                      </div>
+                                    )}
+                                    {projects.length === 0 && (
+                                      <div className="text-xs text-muted-foreground pl-6 py-1">
+                                        No projects found
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Groups Sub-navigation */}
+                                {item.id === 'systems' && (
+                                  <div className="space-y-1">
+                                    {systems.slice(0, 5).map((system) => (
+                                      <Button
+                                        key={system.id}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full justify-start h-7 pl-6 text-xs"
+                                        onClick={() => {
+                                          setSelectedNavItem('systems');
+                                          // TODO: Handle group selection
+                                          console.log('Group selected:', system.name);
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-2 flex-1">
+                                          <Package size={12} />
+                                          <span>{system.name}</span>
+                                          <div className={`w-1.5 h-1.5 rounded-full ml-auto ${
+                                            system.health === 'complete' ? 'bg-green-500' :
+                                            system.health === 'customized' ? 'bg-orange-500' : 
+                                            system.health === 'partial' ? 'bg-yellow-500' : 'bg-red-500'
+                                          }`} />
+                                        </div>
+                                      </Button>
+                                    ))}
+                                    {systems.length > 5 && (
+                                      <div className="text-xs text-muted-foreground pl-6 py-1">
+                                        +{systems.length - 5} more groups
+                                      </div>
+                                    )}
+                                    {systems.length === 0 && (
+                                      <div className="text-xs text-muted-foreground pl-6 py-1">
+                                        No groups detected
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </CollapsibleContent>
+                            )}
+                          </Collapsible>
+                        );
+                      })}
+                    </div>
                   </CollapsibleContent>
-                )}
-              </Collapsible>
+                </Collapsible>
+              </div>
             );
           })}
         </div>
@@ -495,7 +533,7 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
         id: selectedProject.path,
         name: selectedProject.name,
         type: 'claude-file',
-        path: selectedProject.path + '/CLAUDE.md',
+        filePath: selectedProject.path + '/CLAUDE.md',
         scope: 'project',
         projectPath: selectedProject.path,
         lastModified: selectedProject.lastModified,
@@ -593,18 +631,6 @@ export function ThreeColumnLayout({ children }: ThreeColumnLayoutProps) {
           </div>
         </div>
 
-        {/* Header Actions */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
-            Last updated: 5 minutes ago
-          </span>
-          <Button variant="outline" size="sm" className="h-7">
-            Export
-          </Button>
-          <Button size="sm" className="h-7">
-            Save Changes
-          </Button>
-        </div>
       </div>
 
       {/* Main 3-Column Layout with Resizable Panels */}

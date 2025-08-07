@@ -79,9 +79,14 @@
       "timestamp": "2025-08-07T02:33:59.878Z",
       "agent": "documentation-manager",
       "tokens": 8000
+    },
+    {
+      "timestamp": "2025-08-07T14:21:03.091Z",
+      "agent": "documentation-manager",
+      "tokens": 8000
     }
   ],
-  "totalTokens": 108900,
-  "averagePerSession": 6806,
-  "reductionVsBaseline": 15
+  "totalTokens": 116900,
+  "averagePerSession": 6876,
+  "reductionVsBaseline": 14
 }

@@ -36,7 +36,7 @@ export function ResourceListItem({
   const getResourceStyles = (): string => {
     const baseStyles = "cursor-pointer hover:bg-accent/50 transition-colors px-4 py-3";
     const backgroundStyles = index && index % 2 === 0 ? "bg-muted/20" : "";
-    const selectedStyles = isSelected ? "bg-accent border-l-4 border-primary" : "";
+    const selectedStyles = isSelected ? "bg-primary/10 border-l-4 border-primary text-primary-foreground dark:bg-primary/20 dark:text-foreground" : "";
     
     // System-based styling
     if (!resource.isEditable && resource.isSystemResource) {
@@ -229,9 +229,7 @@ export function ResourceListItem({
         <div className="flex flex-col items-end text-xs text-muted-foreground ml-2">
           {resource.lastModified && (
             <span>
-              {resource.lastModified instanceof Date 
-                ? resource.lastModified.toLocaleDateString()
-                : String(resource.lastModified)}
+              {ResourceDataService.formatDate(resource.lastModified)}
             </span>
           )}
           

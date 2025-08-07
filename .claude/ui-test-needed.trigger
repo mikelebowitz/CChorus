@@ -1,18 +1,19 @@
 {
-  "timestamp": "10:28:06pm",
+  "timestamp": "02:15:19pm",
   "reason": "UI files modified - automated testing required",
   "ui_files": [
-    "src/components/ResourceAssignmentPanel.tsx",
-    "src/components/SystemToggleSwitch.tsx",
-    "src/components/ThreeColumnLayout.tsx",
-    "src/components/PropertiesPanel.tsx"
+    "src/components/ResourceListItem.tsx",
+    "src/components/ResourceEditor.tsx",
+    "src/components/PropertiesPanel.tsx",
+    "src/App.tsx",
+    "src/components/ThreeColumnLayout.tsx"
   ],
   "critical_files": [
-    "src/components/ResourceAssignmentPanel.tsx",
-    "src/components/ThreeColumnLayout.tsx",
-    "src/components/PropertiesPanel.tsx"
+    "src/components/ResourceEditor.tsx",
+    "src/components/PropertiesPanel.tsx",
+    "src/components/ThreeColumnLayout.tsx"
   ],
-  "file_count": 4,
+  "file_count": 5,
   "workflow": "frontend-tester -> validation-report",
   "instructions": "Run: Automated UI testing triggered by file changes",
   "priority": "high"

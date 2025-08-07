@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar, Clock, User, Tag, Settings, Search, Save, Trash2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import { ResourceDataService } from '../utils/resourceDataService';
 
 interface PropertiesPanelProps {
   selectedItem?: {
@@ -332,9 +333,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ selectedItem }
             <div>
               <Label className="text-xs text-muted-foreground">Last Modified</Label>
               <p className="text-sm">
-                {selectedItem.lastModified instanceof Date 
-                  ? selectedItem.lastModified.toLocaleDateString()
-                  : String(selectedItem.lastModified)}
+                {ResourceDataService.formatDate(selectedItem.lastModified)}
               </p>
             </div>
           </div>
